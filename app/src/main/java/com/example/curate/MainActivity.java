@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     Subscription<PlayerState> mPlayerStateSubscription;
 //    Subscription<PlayerContext> mPlayerContextSubscription;
 
+    boolean isSpotifyInstalled = false;
+
     TrackProgressBar mTrackProgressBar;
 
     QueueFragment queueFragment;
@@ -97,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
         // Check if Spotify app is installed on device
         PackageManager pm = getPackageManager();
-        boolean isSpotifyInstalled;
         try {
             pm.getPackageInfo("com.spotify.music", 0);
             isSpotifyInstalled = true;
@@ -286,37 +287,49 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     @OnClick(R.id.skip_prev_button)
     public void onSkipPrevious() {
-        mSpotifyAppRemote.getPlayerApi()
-                .skipPrevious()
-                .setResultCallback(empty -> Log.d(TAG,"Skip previous successful"))
-                .setErrorCallback(mErrorCallback);
+        if (isSpotifyInstalled) {
+            mSpotifyAppRemote.getPlayerApi()
+                    .skipPrevious()
+                    .setResultCallback(empty -> Log.d(TAG, "Skip previous successful"))
+                    .setErrorCallback(mErrorCallback);
+        } else {
+            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
+        }
     }
 
     @OnClick(R.id.play_pause_button)
     public void onPlayPause() {
-        mSpotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(playerState -> {
-            if (playerState.isPaused) {
-                mSpotifyAppRemote.getPlayerApi()
-                        .resume()
-                        .setResultCallback(empty -> Log.d(TAG,"Play current track successful"))
-                        .setErrorCallback(mErrorCallback);
-            } else {
-                mSpotifyAppRemote.getPlayerApi()
-                        .pause()
-                        .setResultCallback(empty -> Log.d(TAG,"Pause successful"))
-                        .setErrorCallback(mErrorCallback);
-            }
-        });
+        if (isSpotifyInstalled) {
+            mSpotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(playerState -> {
+                if (playerState.isPaused) {
+                    mSpotifyAppRemote.getPlayerApi()
+                            .resume()
+                            .setResultCallback(empty -> Log.d(TAG, "Play current track successful"))
+                            .setErrorCallback(mErrorCallback);
+                } else {
+                    mSpotifyAppRemote.getPlayerApi()
+                            .pause()
+                            .setResultCallback(empty -> Log.d(TAG, "Pause successful"))
+                            .setErrorCallback(mErrorCallback);
+                }
+            });
+        } else {
+            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
+        }
     }
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        mSpotifyAppRemote.getPlayerApi()
-                .skipNext()
-                .setResultCallback(data -> {
-                    Log.d(TAG,"Skip next successful");
-                })
-                .setErrorCallback(mErrorCallback);
+        if (isSpotifyInstalled) {
+            mSpotifyAppRemote.getPlayerApi()
+                    .skipNext()
+                    .setResultCallback(data -> {
+                        Log.d(TAG, "Skip next successful");
+                    })
+                    .setErrorCallback(mErrorCallback);
+        } else {
+            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
+        }
     }
 
     private class TrackProgressBar {
