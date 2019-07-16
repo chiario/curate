@@ -32,16 +32,20 @@ import butterknife.ButterKnife;
 public class QueueFragment extends Fragment {
 
 
+	// Instance variables
+
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
-
 	SongAdapter adapter;
-
 	List<Song> songs;
 
 	public QueueFragment() {
 		// Required empty public constructor
 	}
 
+	/***
+	 * Creates a new instance of the QueueFragment
+	 * @return The new instance created
+	 */
 	public static QueueFragment newInstance() {
 //		Bundle args = new Bundle();
 		QueueFragment fragment = new  QueueFragment();
@@ -50,6 +54,13 @@ public class QueueFragment extends Fragment {
 		return fragment;
 	}
 
+	/***
+	 * Inflate the proper layout
+	 * @param inflater
+	 * @param container
+	 * @param savedInstanceState
+	 * @return
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
@@ -57,11 +68,18 @@ public class QueueFragment extends Fragment {
 		return inflater.inflate(R.layout.fragment_queue, container, false);
 	}
 
+	/***
+	 * Set up the adapter and recycler view when the fragment view is created.
+	 * @param view
+	 * @param savedInstanceState
+	 */
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 		songs = new ArrayList<Song>();
+
+		// Create adapter and onClick listener for the "like"/"recommend" button
 		adapter = new SongAdapter(getContext(), songs, new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -77,6 +95,9 @@ public class QueueFragment extends Fragment {
 
 	}
 
+	/***
+	 * Loads songs in current Party's queue
+	 */
 	public void loadData() {
 		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
 		// TODO Infinite pagination vs getting all songs?
@@ -93,6 +114,10 @@ public class QueueFragment extends Fragment {
 		});
 	}
 
+	/***
+	 * Adds the given song to the queue
+	 * @param song Song to add to the queue
+	 */
 	public void addSong(Song song) {
 		songs.add(song);
 		adapter.notifyItemInserted(adapter.getItemCount() - 1);
