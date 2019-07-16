@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,61 +30,61 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class QueueFragment extends Fragment {
+public class SearchFragment extends Fragment {
 
+	private static final String TAG = "SearchFragment";
 
-	@BindView(R.id.rvQueue) RecyclerView rvQueue;
+	private static final String KEY_SEARCH = "search";
+
+	@BindView(R.id.rvSearch) RecyclerView rvSearch;
+
+	String searchText;
 
 	SongAdapter adapter;
 
 	List<Song> songs;
 
-	public QueueFragment() {
+	public SearchFragment() {
 		// Required empty public constructor
 	}
 
-	public static QueueFragment newInstance() {
+	public static SearchFragment newInstance() {
 //		Bundle args = new Bundle();
-		QueueFragment fragment = new  QueueFragment();
+		SearchFragment fragment = new SearchFragment();
 //		fragment.setArguments(args);
 		fragment.setRetainInstance(true);
 		return fragment;
+	}
+
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+		Log.d(TAG, this.searchText);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_queue, container, false);
+		return inflater.inflate(R.layout.fragment_search, container, false);
 	}
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
+		if(savedInstanceState != null)
+			searchText = savedInstanceState.getString(KEY_SEARCH);
 		songs = new ArrayList<Song>();
 		adapter = new SongAdapter(getContext(), songs);
-		rvQueue.setAdapter(adapter);
-		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
-		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
+		rvSearch.setAdapter(adapter);
+		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
+		rvSearch.addItemDecoration(new DividerItemDecoration(rvSearch.getContext(),
 				DividerItemDecoration.VERTICAL));
-		for(int i = 0; i < 30; i++)
-			loadData();
+		loadData(searchText);
 	}
 
-	public void loadData() {
-		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
-		// TODO Infinite pagination vs getting all songs?
-		query.findInBackground(new FindCallback<Song>() {
-			@Override
-			public void done(List<Song> objects, ParseException e) {
-				if(e == null) {
-					adapter.addAll(objects);
-				}
-				else {
-					e.printStackTrace();
-				}
-			}
-		});
+	public void loadData(String searchText) {
+		// Todo search spotify API
+		Log.d(TAG, String.format("Searched for : %s", searchText));
 	}
 }
