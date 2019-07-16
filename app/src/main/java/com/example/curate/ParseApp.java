@@ -1,6 +1,7 @@
 package com.example.curate;
 import android.app.Application;
 
+import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.parse.Parse;
 import com.parse.ParseObject;
@@ -25,6 +26,7 @@ public class ParseApp extends Application {
 		builder.networkInterceptors().add(httpLoggingInterceptor);
 
 		ParseObject.registerSubclass(Song.class);
+		ParseObject.registerSubclass(Party.class);
 
 		// set applicationId, and server server based on the values in the Heroku settings.
 		// clientKey is not needed unless explicitly configured

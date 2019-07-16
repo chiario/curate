@@ -6,13 +6,19 @@ import com.parse.ParseObject;
 @ParseClassName("Song")
 public class Song extends ParseObject {
 
-	private static final String TITLE_KEY = "title";
-	private static final String ARTIST_KEY = "artist";
-	private static final String IMAGE_URL_KEY = "artUrl";
+	protected static final String SPOTIFY_ID_KEY = "spotifyId";
+	protected static final String TITLE_KEY = "title";
+	protected static final String ARTIST_KEY = "artist";
+	protected static final String ALBUM_KEY = "album";
+	protected static final String IMAGE_URL_KEY = "artUrl";
 	private boolean isSelected;
 
 	public Song() {
 		// Required empty constructor
+	}
+
+	public String getSpotifyId() {
+		return getString(SPOTIFY_ID_KEY);
 	}
 
 	public String getTitle() {
@@ -23,6 +29,10 @@ public class Song extends ParseObject {
 		return getString(ARTIST_KEY);
 	}
 
+	public String getAlbum() {
+		return getString(ALBUM_KEY);
+	}
+
 	public boolean isSelected() {
 		return isSelected;
 	}
@@ -31,12 +41,20 @@ public class Song extends ParseObject {
 		return getString(IMAGE_URL_KEY);
 	}
 
+	public void setSpotifyId(String spotifyId) {
+		put(SPOTIFY_ID_KEY, spotifyId);
+	}
+
 	public void setTitle(String title) {
 		put(TITLE_KEY, title);
 	}
 
 	public void setArtist(String artist) {
 		put(ARTIST_KEY, artist);
+	}
+
+	public void setAlbum(String album) {
+		put(ALBUM_KEY, album);
 	}
 
 	public void setImageUrl(String imageUrl) {
