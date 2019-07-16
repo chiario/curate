@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,6 +22,7 @@ import com.spotify.protocol.types.Track;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnSongAddedListener {
 
@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private static final String REDIRECT_URI = "http://com.example.curate/callback"; //TODO - change this
     private SpotifyAppRemote mSpotifyAppRemote;
     private static final String TAG = "MainActivity";
+
+    private String testSongId = "37ZJ0p5Jm13JPevGcx4SkF";
 
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
@@ -109,12 +111,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         etSearch.setText("");
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
-    }
-
     private void display(Fragment fragment) {
         FragmentTransaction ft = fm.beginTransaction();
         if(activeFragment != null)
@@ -150,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     }
 
     public void playSong(String spotifySongId) {
-        mSpotifyAppRemote.getPlayerApi().play("spotify:song:" + spotifySongId);
+        mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + spotifySongId);
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
@@ -160,5 +156,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                         Log.d(TAG, track.name + " by " + track.artist.name);
                     }
                 });
+    }
+
+    @OnClick(R.id.ibPlayPause)
+    public void playPause() {
+	    playSong(testSongId);
     }
 }
