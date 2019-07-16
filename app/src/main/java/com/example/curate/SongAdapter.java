@@ -23,12 +23,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
 	private Context context;
 	private List<Song> songs;
-	private View.OnClickListener onClickListener;
 
-	public SongAdapter(Context context, List<Song> songs,  View.OnClickListener onClickListener) {
+	public SongAdapter(Context context, List<Song> songs) {
 		this.context = context;
 		this.songs = songs;
-		this.onClickListener = onClickListener;
 	}
 
 	@NonNull
@@ -39,6 +37,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
 		// Inflate the custom layout
 		View contactView = inflater.inflate(R.layout.item_song, parent, false);
+
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
 		return viewHolder;
@@ -54,7 +53,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
 		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
 
-		holder.ibLike.setOnClickListener(onClickListener);
+		holder.ibLike.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				view.setSelected(!song.isSelected());
+				song.setSelected(!song.isSelected());
+			}
+		});
 	}
 
 	@Override

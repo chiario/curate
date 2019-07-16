@@ -1,12 +1,14 @@
 package com.example.curate;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -55,7 +57,16 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         ButterKnife.bind(this);
 
         CLIENT_ID = getString(R.string.clientId);
-        connectRemote();
+        PackageManager pm = getPackageManager();
+        boolean isSpotifyInstalled;
+        try {
+            pm.getPackageInfo("com.spotify.music", 0);
+            isSpotifyInstalled = true;
+            connectRemotePlayer();
+        } catch (PackageManager.NameNotFoundException e) {
+            isSpotifyInstalled = false;
+            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show(); // TODO prompt installation
+        }
 
         if(savedInstanceState != null) {
             queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
@@ -116,36 +127,30 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         activeFragment = fragment;
     }
 
-    private void connectRemote() {
-        Log.d(TAG, "starting connection params");
-
+    private void connectRemotePlayer() {
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
                         .showAuthView(true)
                         .build();
 
-
         SpotifyAppRemote.connect(this, connectionParams,
                 new Connector.ConnectionListener() {
-
                     @Override
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d(TAG, "Connected! Yay!");
-                        // Now you can start interacting with App Remote
-                        connected();
                     }
 
                     @Override
                     public void onFailure(Throwable throwable) {
                         Log.e(TAG, throwable.getMessage(), throwable);
-                        // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
     }
-    private void connected() {
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+
+    public void playSong(String spotifySongId) {
+        mSpotifyAppRemote.getPlayerApi().play("spotify:song:" + spotifySongId);
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
