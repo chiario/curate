@@ -49,9 +49,18 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		Song song = songs.get(position);
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
+
+		// For testing
 		String testUrl = "https://i.scdn.co/image/54b3222c8aaa77890d1ac37b3aaaa1fc9ba630ae";
 		Glide.with(context).load(testUrl).into(holder.ivAlbum);
 //		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
+
+		holder.ibLike.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				view.setSelected(!view.isSelected());
+			}
+		});
 	}
 
 	@Override

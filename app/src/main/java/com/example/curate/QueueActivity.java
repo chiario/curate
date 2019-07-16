@@ -13,6 +13,7 @@ public class QueueActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_queue);
 		queueFragment = QueueFragment.newInstance();
+		queueFragment.setRetainInstance(true);
 		getSupportFragmentManager().beginTransaction().replace(R.id.flPlaceholder, queueFragment).commit();
 	}
 }
