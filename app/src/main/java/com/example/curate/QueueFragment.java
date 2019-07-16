@@ -35,7 +35,7 @@ public class QueueFragment extends Fragment {
 	// Instance variables
 
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
-	SongAdapter adapter;
+	QueueAdapter adapter;
 	List<Song> songs;
 
 	public QueueFragment() {
@@ -80,14 +80,7 @@ public class QueueFragment extends Fragment {
 		songs = new ArrayList<Song>();
 
 		// Create adapter and onClick listener for the "like"/"recommend" button
-		adapter = new SongAdapter(getContext(), songs, new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Song song = songs.get(rvQueue.getChildAdapterPosition((View) view.getParent()));
-				view.setSelected(!song.isSelected());
-				song.setSelected(!song.isSelected());
-			}
-		});
+		adapter = new QueueAdapter(getContext(), songs);
 		rvQueue.setAdapter(adapter);
 		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
