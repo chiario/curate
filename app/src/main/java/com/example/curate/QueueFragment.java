@@ -62,13 +62,19 @@ public class QueueFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 		songs = new ArrayList<Song>();
-		adapter = new SongAdapter(getContext(), songs);
+		adapter = new SongAdapter(getContext(), songs, new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Song song = songs.get(rvQueue.getChildAdapterPosition((View) view.getParent()));
+				view.setSelected(!song.isSelected());
+				song.setSelected(!song.isSelected());
+			}
+		});
 		rvQueue.setAdapter(adapter);
 		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
 				DividerItemDecoration.VERTICAL));
-		for(int i = 0; i < 30; i++)
-			loadData();
+
 	}
 
 	public void loadData() {
@@ -85,5 +91,10 @@ public class QueueFragment extends Fragment {
 				}
 			}
 		});
+	}
+
+	public void addSong(Song song) {
+		songs.add(song);
+		adapter.notifyItemInserted(adapter.getItemCount() - 1);
 	}
 }

@@ -3,6 +3,7 @@ package com.example.curate;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.curate.models.Song;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -20,7 +22,7 @@ import com.spotify.protocol.types.Track;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchFragment.OnSongAddedListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -39,7 +41,14 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.etSearch) EditText etSearch;
     @BindView(R.id.ibSearch) ImageButton ibSearch;
 
-    @Override
+    // Search Fragment Listener:
+
+	@Override
+	public void onSongAdded(Song song) {
+		queueFragment.addSong(song);
+	}
+
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

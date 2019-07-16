@@ -1,6 +1,7 @@
 package com.example.curate;
 
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.curate.models.Song;
 import com.parse.FindCallback;
@@ -44,6 +46,12 @@ public class SearchFragment extends Fragment {
 
 	List<Song> songs;
 
+	OnSongAddedListener listener;
+
+	interface OnSongAddedListener {
+		public void onSongAdded(Song song);
+	}
+
 	public SearchFragment() {
 		// Required empty public constructor
 	}
@@ -59,6 +67,14 @@ public class SearchFragment extends Fragment {
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
 		Log.d(TAG, this.searchText);
+		loadData(searchText);
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if(context instanceof OnSongAddedListener)
+			listener = (OnSongAddedListener) context;
 	}
 
 	@Override
@@ -75,12 +91,21 @@ public class SearchFragment extends Fragment {
 		if(savedInstanceState != null)
 			searchText = savedInstanceState.getString(KEY_SEARCH);
 		songs = new ArrayList<Song>();
-		adapter = new SongAdapter(getContext(), songs);
+		adapter = new SongAdapter(getContext(), songs, new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				int i = rvSearch.getChildAdapterPosition((View) view.getParent());
+				Song song = songs.get(i);
+				listener.onSongAdded(song);
+				songs.remove(i);
+				adapter.notifyItemRemoved(i);
+				Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
+			}
+		});
 		rvSearch.setAdapter(adapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 		rvSearch.addItemDecoration(new DividerItemDecoration(rvSearch.getContext(),
 				DividerItemDecoration.VERTICAL));
-		loadData(searchText);
 	}
 
 	@Override
@@ -92,5 +117,18 @@ public class SearchFragment extends Fragment {
 	public void loadData(String searchText) {
 		// Todo search spotify API
 		Log.d(TAG, String.format("Searched for : %s", searchText));
+		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
+		// TODO Infinite pagination vs getting all songs?
+		query.findInBackground(new FindCallback<Song>() {
+			@Override
+			public void done(List<Song> objects, ParseException e) {
+				if(e == null) {
+					adapter.addAll(objects);
+				}
+				else {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }
