@@ -1,7 +1,9 @@
 package com.example.curate;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +15,7 @@ import com.spotify.protocol.types.Track;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.etUsername) EditText etUsername;
@@ -82,5 +85,10 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    @OnClick(R.id.btnLogin)
+    public void onClickLogin(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 
 }
