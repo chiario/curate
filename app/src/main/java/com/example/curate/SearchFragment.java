@@ -42,15 +42,10 @@ public class SearchFragment extends Fragment {
 
 	String searchText;
 
-	SongAdapter adapter;
+	SearchAdapter adapter;
 
 	List<Song> songs;
 
-	OnSongAddedListener listener;
-
-	interface OnSongAddedListener {
-		public void onSongAdded(Song song);
-	}
 
 	public SearchFragment() {
 		// Required empty public constructor
@@ -75,18 +70,8 @@ public class SearchFragment extends Fragment {
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
 		Log.d(TAG, this.searchText);
+		adapter.clear();
 		loadData(searchText);
-	}
-
-	/***
-	 * Attach the OnSongAddedListener when onAttach is called with correct context
-	 * @param context
-	 */
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		if(context instanceof OnSongAddedListener)
-			listener = (OnSongAddedListener) context;
 	}
 
 	/***
@@ -117,20 +102,9 @@ public class SearchFragment extends Fragment {
 		if(savedInstanceState != null)
 			searchText = savedInstanceState.getString(KEY_SEARCH);
 		songs = new ArrayList<Song>();
-
 		// Create the adapter, along with onClick listener for the "add" button
-		adapter = new SongAdapter(getContext(), songs, new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				int i = rvSearch.getChildAdapterPosition((View) view.getParent());
-				Song song = songs.get(i);
-				listener.onSongAdded(song);
-				songs.remove(i);
-				adapter.notifyItemRemoved(i);
-				Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
-			}
-		});
-
+		adapter = new SearchAdapter(getContext(), songs);
+		adapter.setListener((SearchAdapter.OnSongAddedListener) getActivity());
 		// Set adapter, layout manger, and item decorations
 		rvSearch.setAdapter(adapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));

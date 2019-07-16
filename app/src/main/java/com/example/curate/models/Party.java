@@ -10,7 +10,9 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @ParseClassName("Party")
 public class Party extends ParseObject {
@@ -19,6 +21,12 @@ public class Party extends ParseObject {
     private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
 
     private static Party mCurrentParty;
+
+    private List<PlaylistEntry> mPlaylist;
+
+    public Party() {
+        mPlaylist = new ArrayList<>();
+    }
 
     /**
      * Adds a song to the party's playlist
@@ -33,8 +41,10 @@ public class Party extends ParseObject {
         params.put(Song.ALBUM_KEY, song.getAlbum());
         params.put(Song.IMAGE_URL_KEY, song.getImageUrl());
 
-        ParseCloud.callFunctionInBackground("addSong", params, (Song s, ParseException e) -> {
-            if (e != null) {
+        ParseCloud.callFunctionInBackground("addSong", params, (PlaylistEntry entry, ParseException e) -> {
+            if (e == null) {
+                addEntryToPlaylist(entry);
+            } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not add song!", e);
             }
@@ -64,8 +74,10 @@ public class Party extends ParseObject {
         HashMap<String, Object> params = new HashMap<>();
         params.put(Song.SPOTIFY_ID_KEY, spotifyId);
 
-        ParseCloud.callFunctionInBackground("removeSong", params, (Song s, ParseException e) -> {
-            if (e != null) {
+        ParseCloud.callFunctionInBackground("removeSong", params, (PlaylistEntry entry, ParseException e) -> {
+            if (e == null) {
+                removeEntryFromPlaylist(entry);
+            } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not remove song!", e);
             }
@@ -75,6 +87,64 @@ public class Party extends ParseObject {
                 callback.done(e);
             }
         });
+    }
+
+    /**
+     * Updates the party's playlist.  The updated playlist can be accessed by calling getPlaylist()
+     * in the callback
+     * @param callback callback to run after the cloud function is executed
+     */
+    public void updatePlaylist(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("getPlaylist", params, (List<PlaylistEntry> playlist, ParseException e) -> {
+            if (e == null) {
+                // Preserve the playlist object so that it can be used in an adapter
+                mPlaylist.clear();
+                mPlaylist.addAll(playlist);
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get playlist!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Gets the party's playlist.  Make sure to call updatePlaylist() before getting this value for
+     * the first time otherwise it will be empty.
+     * @return a list of playlist entries representing this party's playlist
+     */
+    public List<PlaylistEntry> getPlaylist() {
+        return mPlaylist;
+    }
+
+    private void addEntryToPlaylist(PlaylistEntry entry) {
+        // TODO: check if this orders tied elements correctly
+        for(int i = 0; i < mPlaylist.size(); i++) {
+            if(entry.getScore().doubleValue() > mPlaylist.get(i).getScore().doubleValue()) {
+                mPlaylist.add(i, entry);
+                return;
+            } else if(entry.getScore().doubleValue() == mPlaylist.get(i).getScore().doubleValue()
+                    && entry.getCreatedAt().before(mPlaylist.get(i).getCreatedAt())) {
+                mPlaylist.add(i, entry);
+                return;
+            }
+        }
+        mPlaylist.add(entry);
+    }
+
+    private void removeEntryFromPlaylist(PlaylistEntry entry) {
+        for(int i = 0; i < mPlaylist.size(); i++) {
+            if(entry.getObjectId().equals(mPlaylist.get(i).getObjectId())) {
+                mPlaylist.remove(i);
+                return;
+            }
+        }
     }
 
     /**

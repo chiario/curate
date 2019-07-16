@@ -34,7 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchFragment.OnSongAddedListener {
+public class MainActivity extends AppCompatActivity implements SearchAdapter.OnSongAddedListener, QueueAdapter.OnSongLikedListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -78,7 +78,16 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 		queueFragment.addSong(song);
 	}
 
-	@Override
+    /***
+     * Called when user likes a song in the QueueFragment
+     * @param song
+     */
+    @Override
+    public void onSongLiked(Song song) {
+        // TODO
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -148,6 +157,14 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        switch(activeFragment.getTag()) {
+            case KEY_QUEUE_FRAGMENT:
+                // TODO decide what to do here: could dismiss the fragments and go back to login?
+                break;
+            case KEY_SEARCH_FRAGMENT:
+                activeFragment = queueFragment;
+                break;
+        }
         etSearch.setText("");
     }
 

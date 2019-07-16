@@ -12,30 +12,43 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.curate.models.Party;
+import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
+public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 
 	// Instance variables
 	private Context context;
-	private List<Song> songs;
-	private View.OnClickListener onClickListener;
+	private List<PlaylistEntry> playlist;
+	private OnSongLikedListener onSongLikedListener;
 
 	/***
-	 * Creates the adapter for holding songs
+	 * Creates the adapter for holding playlist
 	 * @param context The context the adapter is being created from
-	 * @param songs The initial list of songs to display
-	 * @param onClickListener An onClick listener for the like/add button
+	 * @param playlist The initial playlist to display
 	 */
-	public SongAdapter(Context context, List<Song> songs,  View.OnClickListener onClickListener) {
+	public QueueAdapter(Context context, List<PlaylistEntry> playlist) {
 		this.context = context;
-		this.songs = songs;
-		this.onClickListener = onClickListener;
+		this.playlist = playlist;
+	}
+
+
+	// Todo figure out the future of these listeners
+	interface OnSongLikedListener {
+		public void onSongLiked(Song song);
+	}
+
+	public void setListener(OnSongLikedListener listener) {
+		onSongLikedListener = listener;
 	}
 
 	@NonNull
@@ -45,7 +58,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		LayoutInflater inflater = LayoutInflater.from(context);
 
 		// Inflate the custom layout
-		View contactView = inflater.inflate(R.layout.item_song, parent, false);
+		View contactView = inflater.inflate(R.layout.item_song_queue, parent, false);
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
 		return viewHolder;
@@ -54,31 +67,22 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		// Todo load selected state and image into ViewHolder
-		Song song = songs.get(position);
+		Song song = playlist.get(position).getSong();
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
 		holder.ibLike.setSelected(song.isSelected());
 
 		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
-
-		holder.ibLike.setOnClickListener(onClickListener);
 	}
 
 	@Override
 	public int getItemCount() {
-		return songs.size();
+		return playlist.size();
 	}
 
-	/***
-	 * Adds all songs from list into the adapter one at a time
-	 * @param list Songs to add to the adapter
-	 */
-	public void addAll(List<Song> list) {
-		if(songs == null || list == null) return;
-		for(Song s : list) {
-			songs.add(s);
-			notifyItemInserted(songs.size() - 1);
-		}
+	public void clear() {
+		playlist.clear();
+		notifyDataSetChanged();
 	}
 
 	/***
@@ -89,11 +93,32 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
+		@BindView(R.id.ibDelete) ImageButton ibDelete;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
+		@OnClick(R.id.ibDelete)
+		public void onClickDelete(View v) {
+			// TODO: Make this actually remove from the cloud
+			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					if(e == null) {
+						notifyItemRemoved(getAdapterPosition());
+					}
+				}
+			});
+		}
+
+		@OnClick(R.id.ibLike)
+		public void onClickLike(View v) {
+			// TODO: Let the server know that the song was liked
+			Song song = playlist.get(getAdapterPosition()).getSong();
+			v.setSelected(!song.isSelected());
+			song.setSelected(!song.isSelected());
+		}
 	}
 }
