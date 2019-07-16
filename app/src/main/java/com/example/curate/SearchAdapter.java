@@ -110,8 +110,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		public void onClickLike(View v) {
 			// Add song to the queue
 			if(onSongAddedListener != null) {
-				Toast.makeText(context, "Song Added!", Toast.LENGTH_SHORT).show();
-				onSongAddedListener.onSongAdded(songs.get(getAdapterPosition()));
+				if(!ibLike.isSelected()) {
+					ibLike.setSelected(true);
+					Toast.makeText(context, "Song Added!", Toast.LENGTH_SHORT).show();
+					onSongAddedListener.onSongAdded(songs.get(getAdapterPosition()));
+				}
 			}
 		}
 	}
