@@ -62,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d(TAG, "Connected! Yay!");
                         // Now you can start interacting with App Remote
-                        connected();
                     }
 
                     @Override

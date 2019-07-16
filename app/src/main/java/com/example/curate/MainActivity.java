@@ -2,8 +2,6 @@ package com.example.curate;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -56,15 +54,12 @@ public class MainActivity extends AppCompatActivity {
         else
             display(queueFragment);
 
-        ibSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                display(searchFragment);
-                searchFragment.setSearchText(etSearch.getText().toString());
-                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-                //Find the currently focused view, so we can grab the correct window token from it.
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
+        ibSearch.setOnClickListener(view -> {
+            display(searchFragment);
+            searchFragment.setSearchText(etSearch.getText().toString());
+            InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+            //Find the currently focused view, so we can grab the correct window token from it.
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         });
     }
 

@@ -56,4 +56,5 @@ dependencies {
     implementation project(':spotify-app-remote')
     implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.codepath.libraries:android-oauth-handler:1.4.0'
+
 }
