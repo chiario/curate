@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -62,14 +63,17 @@ public class QueueFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 		songs = new ArrayList<Song>();
-		adapter = new SongAdapter(songs);
+		adapter = new SongAdapter(getContext(), songs);
 		rvQueue.setAdapter(adapter);
 		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
+		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
+				DividerItemDecoration.VERTICAL));
 		loadData();
 	}
 
 	public void loadData() {
 		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
+		// TODO Infinite pagination vs getting all songs?
 		query.findInBackground(new FindCallback<Song>() {
 			@Override
 			public void done(List<Song> objects, ParseException e) {

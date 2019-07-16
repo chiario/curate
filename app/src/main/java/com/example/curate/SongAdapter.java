@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.curate.models.Song;
 
 import java.util.List;
@@ -20,9 +21,11 @@ import butterknife.ButterKnife;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
+	private Context context;
 	private List<Song> songs;
 
-	public SongAdapter(List<Song> songs) {
+	public SongAdapter(Context context, List<Song> songs) {
+		this.context = context;
 		this.songs = songs;
 	}
 
@@ -46,6 +49,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		Song song = songs.get(position);
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
+		String testUrl = "https://i.scdn.co/image/54b3222c8aaa77890d1ac37b3aaaa1fc9ba630ae";
+		Glide.with(context).load(testUrl).into(holder.ivAlbum);
+//		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
 	}
 
 	@Override
