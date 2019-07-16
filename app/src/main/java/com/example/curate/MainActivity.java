@@ -117,6 +117,14 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        switch(activeFragment.getTag()) {
+            case KEY_QUEUE_FRAGMENT:
+                // TODO decide what to do here: could dismiss the fragments and go back to login?
+                break;
+            case KEY_SEARCH_FRAGMENT:
+                activeFragment = queueFragment;
+                break;
+        }
         etSearch.setText("");
     }
 

@@ -26,8 +26,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	// Instance variables
 	private Context context;
 	private List<Song> songs;
-	private View.OnClickListener onClickListener;
-	private boolean isQueue;
 	private OnSongAddedListener onSongAddedListener;
 
 	/***
