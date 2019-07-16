@@ -102,7 +102,6 @@ public class SearchFragment extends Fragment {
 		if(savedInstanceState != null)
 			searchText = savedInstanceState.getString(KEY_SEARCH);
 		songs = new ArrayList<Song>();
-
 		// Create the adapter, along with onClick listener for the "add" button
 		adapter = new SearchAdapter(getContext(), songs);
 		adapter.setListener((SearchAdapter.OnSongAddedListener) getActivity());
@@ -137,7 +136,7 @@ public class SearchFragment extends Fragment {
 			@Override
 			public void done(List<Song> objects, ParseException e) {
 				if(e == null) {
-					adapter.addAll(objects);
+//					adapter.addAll(objects);
 				}
 				else {
 					e.printStackTrace();
