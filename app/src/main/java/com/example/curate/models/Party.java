@@ -101,6 +101,29 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Get the party that the user is currently part of, null if the party does not exist
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void getExistingParty(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("getCurrentParty", params, (Party party, ParseException e) -> {
+            if (e == null) {
+                // Save the created party to the singleton instance
+                mCurrentParty = party;
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get current party!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed
      */
