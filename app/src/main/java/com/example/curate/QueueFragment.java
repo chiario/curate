@@ -68,7 +68,8 @@ public class QueueFragment extends Fragment {
 		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
 				DividerItemDecoration.VERTICAL));
-		loadData();
+		for(int i = 0; i < 30; i++)
+			loadData();
 	}
 
 	public void loadData() {
@@ -78,9 +79,7 @@ public class QueueFragment extends Fragment {
 			@Override
 			public void done(List<Song> objects, ParseException e) {
 				if(e == null) {
-					for(int i = 0; i < 30; i++) {
-						adapter.addAll(objects);
-					}
+					adapter.addAll(objects);
 				}
 				else {
 					e.printStackTrace();

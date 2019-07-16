@@ -49,6 +49,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		Song song = songs.get(position);
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
+		holder.ibLike.setSelected(song.isSelected());
 
 		// For testing
 		String testUrl = "https://i.scdn.co/image/54b3222c8aaa77890d1ac37b3aaaa1fc9ba630ae";
@@ -58,7 +59,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		holder.ibLike.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				view.setSelected(!view.isSelected());
+				view.setSelected(!song.isSelected());
+				song.setSelected(!song.isSelected());
 			}
 		});
 	}

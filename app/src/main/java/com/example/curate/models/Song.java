@@ -1,9 +1,7 @@
 package com.example.curate.models;
 
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 @ParseClassName("Song")
 public class Song extends ParseObject {
@@ -11,6 +9,7 @@ public class Song extends ParseObject {
 	private static final String TITLE_KEY = "title";
 	private static final String ARTIST_KEY = "artist";
 	private static final String IMAGE_URL_KEY = "imageUrl";
+	private boolean isSelected;
 
 	public Song() {
 		// Required empty constructor
@@ -24,6 +23,10 @@ public class Song extends ParseObject {
 	public String getArtist() {
 		return "The Artist";
 //		return getString(ARTIST_KEY);
+	}
+
+	public boolean isSelected() {
+		return isSelected;
 	}
 
 	public String getImageUrl() {
@@ -40,6 +43,10 @@ public class Song extends ParseObject {
 
 	public void setImageUrl(String imageUrl) {
 		put(IMAGE_URL_KEY, imageUrl);
+	}
+
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
 	}
 
 //	public static class Query extends ParseQuery<Song> {
