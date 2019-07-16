@@ -57,7 +57,16 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 		queueFragment.addSong(song);
 	}
 
-	@Override
+    /***
+     * Called when user likes a song in the QueueFragment
+     * @param song
+     */
+    @Override
+    public void onSongLiked(Song song) {
+        // TODO
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

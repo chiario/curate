@@ -136,7 +136,7 @@ public class SearchFragment extends Fragment {
 			@Override
 			public void done(List<Song> objects, ParseException e) {
 				if(e == null) {
-//					adapter.addAll(objects);
+					adapter.addAll(objects);
 				}
 				else {
 					e.printStackTrace();

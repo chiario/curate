@@ -112,7 +112,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 			if(onSongAddedListener != null) {
 				if(!ibLike.isSelected()) {
 					ibLike.setSelected(true);
-					Toast.makeText(context, "Song Added!", Toast.LENGTH_SHORT).show();
 					onSongAddedListener.onSongAdded(songs.get(getAdapterPosition()));
 				}
 			}

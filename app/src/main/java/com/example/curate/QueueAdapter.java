@@ -12,8 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -26,7 +29,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	// Instance variables
 	private Context context;
 	private List<PlaylistEntry> playlist;
-	private View.OnClickListener onClickListener;
 	private OnSongLikedListener onSongLikedListener;
 
 	/***
@@ -39,8 +41,10 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		this.playlist = playlist;
 	}
 
+
+	// Todo figure out the future of these listeners
 	interface OnSongLikedListener {
-		public void onSongAdded(Song song);
+		public void onSongLiked(Song song);
 	}
 
 	public void setListener(OnSongLikedListener listener) {
@@ -98,13 +102,20 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibDelete)
 		public void onClickDelete(View v) {
-			playlist.remove(getAdapterPosition());
-			notifyItemRemoved(getAdapterPosition());
+			// TODO: Make this actually remove from the cloud
+			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					if(e == null) {
+						notifyItemRemoved(getAdapterPosition());
+					}
+				}
+			});
 		}
 
 		@OnClick(R.id.ibLike)
 		public void onClickLike(View v) {
-				// Let the server know that the song was liked
+			// TODO: Let the server know that the song was liked
 			Song song = playlist.get(getAdapterPosition()).getSong();
 			v.setSelected(!song.isSelected());
 			song.setSelected(!song.isSelected());

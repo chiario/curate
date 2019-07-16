@@ -20,6 +20,7 @@ import com.example.curate.models.Song;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +102,14 @@ public class QueueFragment extends Fragment {
 	 * @param song Song to add to the queue
 	 */
 	public void addSong(Song song) {
-		songs.add(song);
-		adapter.notifyItemInserted(adapter.getItemCount() - 1);
+		party.addSong(song, new SaveCallback() {
+			@Override
+			public void done(ParseException e) {
+				if(e == null) {
+					adapter.notifyItemInserted(adapter.getItemCount() - 1);
+					Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 	}
 }
