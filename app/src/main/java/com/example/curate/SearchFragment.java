@@ -83,6 +83,12 @@ public class SearchFragment extends Fragment {
 		loadData(searchText);
 	}
 
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString(KEY_SEARCH, searchText);
+	}
+
 	public void loadData(String searchText) {
 		// Todo search spotify API
 		Log.d(TAG, String.format("Searched for : %s", searchText));

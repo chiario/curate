@@ -1,7 +1,10 @@
 package com.example.curate;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -17,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
+    private static final String KEY_ACTIVE = "active";
 
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState != null) {
             queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
             searchFragment = (SearchFragment) fm.findFragmentByTag(KEY_SEARCH_FRAGMENT);
+            activeFragment = fm.findFragmentByTag(savedInstanceState.getString(KEY_ACTIVE));
         }
 
         if(queueFragment == null) {
@@ -46,15 +51,27 @@ public class MainActivity extends AppCompatActivity {
             fm.beginTransaction().add(R.id.flPlaceholder, searchFragment, KEY_SEARCH_FRAGMENT).hide(searchFragment).commit();
         }
 
-        display(queueFragment);
+        if(activeFragment != null)
+            display(activeFragment);
+        else
+            display(queueFragment);
 
         ibSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 display(searchFragment);
                 searchFragment.setSearchText(etSearch.getText().toString());
+                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                //Find the currently focused view, so we can grab the correct window token from it.
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_ACTIVE, activeFragment.getTag());
     }
 
     @Override
@@ -68,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         if(activeFragment != null)
             ft.hide(activeFragment);
         ft.show(fragment);
-        if(fragment.equals(searchFragment))
+        if(fragment.equals(searchFragment) && activeFragment != fragment)
             ft.addToBackStack(fragment.getTag());
         ft.commit();
 
