@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 
 import java.util.List;
@@ -65,8 +66,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		Song song = songs.get(position);
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
-		holder.ibLike.setSelected(song.isSelected());
-
+		if(Party.getCurrentParty().contains(song))
+			holder.ibLike.setSelected(true);
+		else
+			holder.ibLike.setSelected(false);
 		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
 	}
 
