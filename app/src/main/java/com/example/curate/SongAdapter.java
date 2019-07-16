@@ -21,11 +21,18 @@ import butterknife.ButterKnife;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
+	// Instance variables
 	private Context context;
 	private List<Song> songs;
 	private View.OnClickListener onClickListener;
 
-	public SongAdapter(Context context, List<Song> songs, View.OnClickListener onClickListener) {
+	/***
+	 * Creates the adapter for holding songs
+	 * @param context The context the adapter is being created from
+	 * @param songs The initial list of songs to display
+	 * @param onClickListener An onClick listener for the like/add button
+	 */
+	public SongAdapter(Context context, List<Song> songs,  View.OnClickListener onClickListener) {
 		this.context = context;
 		this.songs = songs;
 		this.onClickListener = onClickListener;
@@ -62,23 +69,26 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		return songs.size();
 	}
 
+	/***
+	 * Adds all songs from list into the adapter one at a time
+	 * @param list Songs to add to the adapter
+	 */
 	public void addAll(List<Song> list) {
-		if (songs == null || list == null) return;
-		for (Song s : list) {
+		if(songs == null || list == null) return;
+		for(Song s : list) {
 			songs.add(s);
 			notifyItemInserted(songs.size() - 1);
 		}
 	}
 
+	/***
+	 * Internal ViewHolder model for each item.
+	 */
 	public class ViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.ivAlbum)
-		ImageView ivAlbum;
-		@BindView(R.id.tvTitle)
-		TextView tvTitle;
-		@BindView(R.id.tvArtist)
-		TextView tvArtist;
-		@BindView(R.id.ibLike)
-		ImageButton ibLike;
+		@BindView(R.id.ivAlbum) ImageView ivAlbum;
+		@BindView(R.id.tvTitle) TextView tvTitle;
+		@BindView(R.id.tvArtist) TextView tvArtist;
+		@BindView(R.id.ibLike) ImageButton ibLike;
 
 		public ViewHolder(View itemView) {
 			super(itemView);

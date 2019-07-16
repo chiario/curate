@@ -47,6 +47,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     // Search Fragment Listener:
 
+    /***
+     * Called when user adds a song from the SearchFragment. Adds the song to the (local for now)
+     * queue in the QueueFragment
+     * @param song Song to be added
+     */
 	@Override
 	public void onSongAdded(Song song) {
 		queueFragment.addSong(song);
@@ -99,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         });
     }
 
+    /***
+     * Saves currently active fragment
+     * @param outState
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -111,6 +120,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         etSearch.setText("");
     }
 
+
+    /***
+     * Displays a new fragment and hides previously active fragment
+     * @param fragment Fragment to display
+     */
     private void display(Fragment fragment) {
         FragmentTransaction ft = fm.beginTransaction();
         if(activeFragment != null)

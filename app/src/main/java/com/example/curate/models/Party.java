@@ -34,7 +34,7 @@ public class Party extends ParseObject {
         params.put(Song.IMAGE_URL_KEY, song.getImageUrl());
 
         ParseCloud.callFunctionInBackground("addSong", params, (Song s, ParseException e) -> {
-            if (e == null) {
+            if (e != null) {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not add song!", e);
             }
@@ -65,7 +65,7 @@ public class Party extends ParseObject {
         params.put(Song.SPOTIFY_ID_KEY, spotifyId);
 
         ParseCloud.callFunctionInBackground("removeSong", params, (Song s, ParseException e) -> {
-            if (e == null) {
+            if (e != null) {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not remove song!", e);
             }
@@ -85,12 +85,35 @@ public class Party extends ParseObject {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("createParty", params, (Party party, ParseException e) -> {
-            if (e != null) {
+            if (e == null) {
                 // Save the created party to the singleton instance
                 mCurrentParty = party;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not create party!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Get the party that the user is currently part of, null if the party does not exist
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void getExistingParty(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("getCurrentParty", params, (Party party, ParseException e) -> {
+            if (e == null) {
+                // Save the created party to the singleton instance
+                mCurrentParty = party;
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get current party!", e);
             }
 
             // Run the callback if it exists
@@ -108,7 +131,7 @@ public class Party extends ParseObject {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("destroyParty", params, (Party party, ParseException e) -> {
-            if (e != null) {
+            if (e == null) {
                 // Remove the current party from the singleton instance
                 mCurrentParty = null;
             } else {

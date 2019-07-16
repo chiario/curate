@@ -56,6 +56,10 @@ public class SearchFragment extends Fragment {
 		// Required empty public constructor
 	}
 
+	/***
+	 * Create a new instance of the SearchFragment
+	 * @return The new instance created
+	 */
 	public static SearchFragment newInstance() {
 //		Bundle args = new Bundle();
 		SearchFragment fragment = new SearchFragment();
@@ -64,12 +68,20 @@ public class SearchFragment extends Fragment {
 		return fragment;
 	}
 
+	/***
+	 * Set search text and search for the given string
+	 * @param searchText String to search for
+	 */
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
 		Log.d(TAG, this.searchText);
 		loadData(searchText);
 	}
 
+	/***
+	 * Attach the OnSongAddedListener when onAttach is called with correct context
+	 * @param context
+	 */
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
@@ -77,6 +89,13 @@ public class SearchFragment extends Fragment {
 			listener = (OnSongAddedListener) context;
 	}
 
+	/***
+	 * Inflate the proper layout
+	 * @param inflater
+	 * @param container
+	 * @param savedInstanceState
+	 * @return
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
@@ -84,13 +103,22 @@ public class SearchFragment extends Fragment {
 		return inflater.inflate(R.layout.fragment_search, container, false);
 	}
 
+	/***
+	 * Set up the adapter and recycler view when the fragment view is created.
+	 * @param view
+	 * @param savedInstanceState
+	 */
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
+
+		// Recover saved state if applicable
 		if(savedInstanceState != null)
 			searchText = savedInstanceState.getString(KEY_SEARCH);
 		songs = new ArrayList<Song>();
+
+		// Create the adapter, along with onClick listener for the "add" button
 		adapter = new SongAdapter(getContext(), songs, new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -102,23 +130,34 @@ public class SearchFragment extends Fragment {
 				Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
 			}
 		});
+
+		// Set adapter, layout manger, and item decorations
 		rvSearch.setAdapter(adapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 		rvSearch.addItemDecoration(new DividerItemDecoration(rvSearch.getContext(),
 				DividerItemDecoration.VERTICAL));
 	}
 
+	/***
+	 * Save the current search text so it persists through configuration changes
+	 * @param outState
+	 */
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString(KEY_SEARCH, searchText);
 	}
 
+	/***
+	 * Load the search results
+	 * @param searchText String to search for
+	 */
 	public void loadData(String searchText) {
 		// Todo search spotify API
 		Log.d(TAG, String.format("Searched for : %s", searchText));
+
+		// For testing, simply loads all songs in "Song" class
 		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
-		// TODO Infinite pagination vs getting all songs?
 		query.findInBackground(new FindCallback<Song>() {
 			@Override
 			public void done(List<Song> objects, ParseException e) {
