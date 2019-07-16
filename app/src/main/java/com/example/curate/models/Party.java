@@ -147,6 +147,20 @@ public class Party extends ParseObject {
         }
     }
 
+    /***
+     * Checks if a song is already added to the playlist
+     * @param song song to check if added
+     * @return true if song is added, false if not
+     */
+    public boolean contains(Song song) {
+        // TODO: Improve efficiency
+        for(int i = 0; i < mPlaylist.size(); i++) {
+            if(mPlaylist.get(i).getSong().getSpotifyId().equals(song.getSpotifyId()))
+                return true;
+        }
+        return false;
+    }
+
     /**
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed

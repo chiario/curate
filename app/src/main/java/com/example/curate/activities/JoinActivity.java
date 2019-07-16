@@ -1,27 +1,35 @@
-package com.example.curate;
+package com.example.curate.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseUser;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class JoinActivity extends AppCompatActivity {
+    @BindView(R.id.buttonContainer) LinearLayout mButtonContainer;
+    @BindView(R.id.progressBar) ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
+        ButterKnife.bind(this);
 
-        switchToMainActivity();
-//        ensureCurrentUserExists();
-//        tryJoinExistingParty();
+        ensureCurrentUserExists();
     }
 
     private void ensureCurrentUserExists() {
@@ -31,8 +39,13 @@ public class JoinActivity extends AppCompatActivity {
                     // TODO: disable the buttons or something?
                     Log.e("JoinActivity", "Anonymous login failed!", e);
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    mProgressBar.setVisibility(View.GONE);
+                } else {
+                    tryJoinExistingParty();
                 }
             });
+        } else {
+            tryJoinExistingParty();
         }
     }
 
@@ -40,6 +53,9 @@ public class JoinActivity extends AppCompatActivity {
         Party.getExistingParty(e -> {
             if(e == null && Party.getCurrentParty() != null) {
                 switchToMainActivity();
+            } else {
+                mProgressBar.setVisibility(View.GONE);
+                mButtonContainer.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -50,6 +66,7 @@ public class JoinActivity extends AppCompatActivity {
         finish();
     }
 
+    @OnClick(R.id.btnCreateParty)
     public void onCreateParty(View view) {
         Party.createParty(e -> {
             if(e == null) {
