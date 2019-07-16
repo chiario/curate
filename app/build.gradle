@@ -56,11 +56,4 @@ dependencies {
     implementation project(':spotify-app-remote')
     implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.codepath.libraries:android-oauth-handler:1.4.0'
-
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
-    // Glide v4 uses this new annotation processor -- see https://bumptech.github.io/glide/doc/generatedapi.html
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
-
-
-
 }
