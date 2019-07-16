@@ -7,12 +7,13 @@ import androidx.annotation.Nullable;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
 import java.util.HashMap;
 
 @ParseClassName("Party")
-public class Party {
+public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String CURRENTLY_PLAYING_KEY = "curPlaying";
     private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
