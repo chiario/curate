@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -37,6 +39,7 @@ public class QueueFragment extends Fragment {
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
 	QueueAdapter adapter;
 	List<Song> songs;
+	Party party;
 
 	public QueueFragment() {
 		// Required empty public constructor
@@ -77,32 +80,18 @@ public class QueueFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
-		songs = new ArrayList<Song>();
 
-		// Create adapter and onClick listener for the "like"/"recommend" button
-		adapter = new QueueAdapter(getContext(), songs);
-		rvQueue.setAdapter(adapter);
-		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
-		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
-				DividerItemDecoration.VERTICAL));
+		party = Party.getCurrentParty();
+		party.updatePlaylist(e -> {
+			if(e == null) {
+				adapter = new QueueAdapter(getContext(), party.getPlaylist());
+				rvQueue.setAdapter(adapter);
+				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
+				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
+						DividerItemDecoration.VERTICAL));
 
-	}
-
-	/***
-	 * Loads songs in current Party's queue
-	 */
-	public void loadData() {
-		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
-		// TODO Infinite pagination vs getting all songs?
-		query.findInBackground(new FindCallback<Song>() {
-			@Override
-			public void done(List<Song> objects, ParseException e) {
-				if(e == null) {
-					adapter.addAll(objects);
-				}
-				else {
-					e.printStackTrace();
-				}
+			} else {
+				Toast.makeText(getContext(), "Could not load playlist", Toast.LENGTH_LONG).show();
 			}
 		});
 	}

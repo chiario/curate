@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 
 import java.util.List;
@@ -24,18 +25,18 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	// Instance variables
 	private Context context;
-	private List<Song> songs;
+	private List<PlaylistEntry> playlist;
 	private View.OnClickListener onClickListener;
 	private OnSongLikedListener onSongLikedListener;
 
 	/***
-	 * Creates the adapter for holding songs
+	 * Creates the adapter for holding playlist
 	 * @param context The context the adapter is being created from
-	 * @param songs The initial list of songs to display
+	 * @param playlist The initial playlist to display
 	 */
-	public QueueAdapter(Context context, List<Song> songs) {
+	public QueueAdapter(Context context, List<PlaylistEntry> playlist) {
 		this.context = context;
-		this.songs = songs;
+		this.playlist = playlist;
 	}
 
 	interface OnSongLikedListener {
@@ -62,7 +63,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		// Todo load selected state and image into ViewHolder
-		Song song = songs.get(position);
+		Song song = playlist.get(position).getSong();
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
 		holder.ibLike.setSelected(song.isSelected());
@@ -72,23 +73,11 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public int getItemCount() {
-		return songs.size();
-	}
-
-	/***
-	 * Adds all songs from list into the adapter one at a time
-	 * @param list Songs to add to the adapter
-	 */
-	public void addAll(List<Song> list) {
-		if(songs == null || list == null) return;
-		for(Song s : list) {
-			songs.add(s);
-			notifyItemInserted(songs.size() - 1);
-		}
+		return playlist.size();
 	}
 
 	public void clear() {
-		songs.clear();
+		playlist.clear();
 		notifyDataSetChanged();
 	}
 
@@ -109,14 +98,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibDelete)
 		public void onClickDelete(View v) {
-			songs.remove(getAdapterPosition());
+			playlist.remove(getAdapterPosition());
 			notifyItemRemoved(getAdapterPosition());
 		}
 
 		@OnClick(R.id.ibLike)
 		public void onClickLike(View v) {
 				// Let the server know that the song was liked
-			Song song = songs.get(getAdapterPosition());
+			Song song = playlist.get(getAdapterPosition()).getSong();
 			v.setSelected(!song.isSelected());
 			song.setSelected(!song.isSelected());
 		}
