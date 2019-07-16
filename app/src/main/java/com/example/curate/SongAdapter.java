@@ -51,10 +51,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 		holder.tvTitle.setText(song.getTitle());
 		holder.ibLike.setSelected(song.isSelected());
 
-		// For testing
-		String testUrl = "https://i.scdn.co/image/54b3222c8aaa77890d1ac37b3aaaa1fc9ba630ae";
-		Glide.with(context).load(testUrl).into(holder.ivAlbum);
-//		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
+		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
 
 		holder.ibLike.setOnClickListener(new View.OnClickListener() {
 			@Override

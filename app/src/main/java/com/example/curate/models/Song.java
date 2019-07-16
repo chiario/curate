@@ -8,7 +8,7 @@ public class Song extends ParseObject {
 
 	private static final String TITLE_KEY = "title";
 	private static final String ARTIST_KEY = "artist";
-	private static final String IMAGE_URL_KEY = "imageUrl";
+	private static final String IMAGE_URL_KEY = "artUrl";
 	private boolean isSelected;
 
 	public Song() {
@@ -16,13 +16,11 @@ public class Song extends ParseObject {
 	}
 
 	public String getTitle() {
-		return "The Awesome Song";
-//		return getString(TITLE_KEY);
+		return getString(TITLE_KEY);
 	}
 
 	public String getArtist() {
-		return "The Artist";
-//		return getString(ARTIST_KEY);
+		return getString(ARTIST_KEY);
 	}
 
 	public boolean isSelected() {
@@ -48,13 +46,4 @@ public class Song extends ParseObject {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
-
-//	public static class Query extends ParseQuery<Song> {
-//		public Query() {
-//			super(Song.class);
-//		}
-//
-//		public Query
-//	}
-
 }
