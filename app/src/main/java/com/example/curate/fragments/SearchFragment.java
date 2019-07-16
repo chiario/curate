@@ -1,7 +1,6 @@
-package com.example.curate;
+package com.example.curate.fragments;
 
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,8 +14,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import com.example.curate.R;
+import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.models.Song;
 import com.parse.FindCallback;
 import com.parse.ParseException;

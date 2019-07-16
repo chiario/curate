@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.fragments;
 
 
 import android.os.Bundle;
@@ -15,14 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.curate.R;
+import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
