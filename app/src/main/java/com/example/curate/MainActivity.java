@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     Subscription<PlayerState> mPlayerStateSubscription;
 //    Subscription<PlayerContext> mPlayerContextSubscription;
-    
+
     TrackProgressBar mTrackProgressBar;
 
     QueueFragment queueFragment;
