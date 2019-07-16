@@ -1,7 +1,9 @@
 package com.example.curate;
 import android.app.Application;
 
+import com.example.curate.models.Song;
 import com.parse.Parse;
+import com.parse.ParseObject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -22,15 +24,16 @@ public class ParseApp extends Application {
 		httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 		builder.networkInterceptors().add(httpLoggingInterceptor);
 
+		ParseObject.registerSubclass(Song.class);
 
 		// set applicationId, and server server based on the values in the Heroku settings.
 		// clientKey is not needed unless explicitly configured
 		// any network interceptors must be added with the Configuration Builder given this syntax
-		Parse.initialize(new Parse.Configuration.Builder(this)
+		final Parse.Configuration config = new Parse.Configuration.Builder(this)
 				.applicationId(getString(R.string.appId)) // should correspond to APP_ID env variable
 				.clientKey(getString(R.string.masterKey))  // set explicitly unless clientKey is explicitly configured on Parse server
-				.server(getString(R.string.serverUrl))
-				.clientBuilder(builder)
-				.build());
+				.server(getString(R.string.serverUrl)).build();
+
+		Parse.initialize(config);
 	}
 }
