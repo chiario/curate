@@ -10,6 +10,7 @@
         android:id="@+id/flPlaceholder"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/clCurPlaying"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -18,8 +19,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
+        style="@style/AppTheme.SearchbarBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -29,7 +34,7 @@
             style="@style/AppTheme.SearchEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
@@ -38,6 +43,7 @@
             android:imeOptions="actionSearch"
             android:inputType="textPersonName"
             android:singleLine="true"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ibSearch"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,6 +51,7 @@
 
         <ImageButton
             android:id="@+id/ibSearch"
+            style="@style/AppTheme.ImageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -54,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_search" />
+            app:srcCompat="@drawable/ic_search" />
 
         <View
             android:id="@+id/divider"
@@ -141,7 +148,7 @@
             android:layout_width="0dp"
             android:layout_height="24dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
             android:progressTint="@android:color/white"
             android:thumbTint="@android:color/white"
@@ -171,6 +178,7 @@
             app:layout_constraintEnd_toEndOf="@+id/seek_to"
             app:layout_constraintStart_toEndOf="@+id/ivAlbum"
             app:layout_constraintTop_toBottomOf="@id/seek_to"
+            app:layout_constraintVertical_bias="0.25"
             app:srcCompat="@drawable/btn_play" />
 
         <ImageView
