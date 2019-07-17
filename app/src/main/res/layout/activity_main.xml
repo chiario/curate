@@ -20,7 +20,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
-        style="@style/AppTheme.MainActivityComponents"
+        style="@style/AppTheme.SongList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,6 +39,7 @@
             android:ems="10"
             android:hint="Search for a song to add"
             android:inputType="textPersonName"
+            android:singleLine="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ibSearch"
             app:layout_constraintStart_toStartOf="parent"

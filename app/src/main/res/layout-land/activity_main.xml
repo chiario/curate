@@ -18,10 +18,9 @@
         android:layout_height="0dp"
         android:theme="@style/AppTheme.MainActivityComponents"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio=""
-        app:layout_constraintEnd_toStartOf="@+id/flPlaceholder"
+        app:layout_constraintEnd_toStartOf="@+id/clSearch"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clSearch">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/ivAlbum"
@@ -128,11 +127,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
-        style="@style/AppTheme.MainActivityComponents"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
