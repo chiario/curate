@@ -56,7 +56,8 @@ dependencies {
     implementation project(':spotify-app-remote')
     implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.codepath.libraries:android-oauth-handler:1.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.1' // TODO: remove this?
 
-    implementation 'com.squareup.okhttp3:okhttp:4.0.1'
-
+    // palette
+    implementation 'androidx.palette:palette:1.0.0'
 }

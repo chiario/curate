@@ -6,4 +6,9 @@
     <color name="colorText">@android:color/black</color>
     <color name="colorTextHint">#801A1A1A</color>
     <color name="colorBackground">#F2F2F2</color>
+    <color name="colorAccent_50">#80F2F2F2</color>
+    <color name="seekbarProgress">#e74c3c</color>
+    <color name="seekbarBackground">#4434495E</color>
+    <color name="asphalt">#34495e</color>
+    <color name="white">#FFFFFF</color>
 </resources>

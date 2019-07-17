@@ -3,6 +3,7 @@ package com.example.curate.activities;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -17,9 +18,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.palette.graphics.Palette;
 
 import com.example.curate.R;
 import com.example.curate.adapters.QueueAdapter;
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
     @BindView(R.id.seek_to) SeekBar mSeekBar;
     @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
+    @BindView(R.id.clCurPlaying) ConstraintLayout mPlayerBackground;
 
     // Search Fragment Listener:
 
@@ -80,10 +85,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
      * queue in the QueueFragment
      * @param song Song to be added
      */
-	@Override
-	public void onSongAdded(Song song) {
-		queueFragment.addSong(song);
-	}
+    @Override
+    public void onSongAdded(Song song) {
+        queueFragment.addSong(song);
+    }
 
     /***
      * Called when user likes a song in the QueueFragment
@@ -144,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
 
         mSeekBar.setEnabled(false);
-        mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+//        mSeekBar.getProgressssDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+//        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 
         mTrackProgressBar = new TrackProgressBar(mSeekBar);
     }
@@ -174,6 +179,22 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         etSearch.setText("");
     }
 
+    private void setPlayerColor(Bitmap bitmap) {
+        Palette.from(bitmap).generate(p -> {
+            // Load default colors
+            int backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.asphalt);
+            int textColor = ContextCompat.getColor(MainActivity.this, R.color.white);
+
+            Palette.Swatch swatch = p.getDarkVibrantSwatch();
+            if(swatch != null) {
+                backgroundColor = swatch.getRgb();
+            }
+
+            mPlayerBackground.setBackgroundColor(backgroundColor);
+            tvTitle.setTextColor(textColor);
+            tvArtist.setTextColor(textColor);
+        });
+    }
 
     /***
      * Displays a new fragment and hides previously active fragment
@@ -254,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                     .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
                     .setResultCallback(bitmap -> {
                         ivAlbum.setImageBitmap(bitmap);
+                        setPlayerColor(bitmap);
                     });
 
             // Invalidate seekbar length and position
@@ -356,7 +378,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 mSpotifyAppRemote.getPlayerApi().seekTo(seekBar.getProgress())
-                        .setErrorCallback(mErrorCallback);
+                        .setErrorCallback(error -> {
+                            mSpotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(
+                                    playerState -> mTrackProgressBar.update(playerState.playbackPosition)
+                            );
+                            Toast.makeText(MainActivity.this, "Can't seek unless you have premium!", Toast.LENGTH_SHORT).show();
+                        });
             }
         };
 
