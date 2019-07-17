@@ -16,7 +16,6 @@
         android:id="@+id/clCurPlaying"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:theme="@style/AppTheme.MainActivityComponents"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/clSearch"
         app:layout_constraintStart_toStartOf="parent"
@@ -109,7 +108,6 @@
         android:id="@+id/flPlaceholder"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:theme="@style/AppTheme.SongList"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
@@ -119,7 +117,6 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
-        style="@style/AppTheme.SongList"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -128,7 +125,7 @@
 
         <EditText
             android:id="@+id/etSearch"
-            style="@style/AppTheme.EditText"
+            style="@style/AppTheme.SearchEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#B3B3B3</color>
-    <color name="colorPrimaryDark">#808080</color>
-    <color name="colorAccent">@android:color/black</color>
-    <color name="colorText">@android:color/black</color>
-    <color name="colorTextHint">#801A1A1A</color>
-    <color name="colorBackground">#F2F2F2</color>
-    <color name="colorAccent_50">#80F2F2F2</color>
+    <color name="colorPrimary">#203453</color>
+    <color name="colorSecondary">#404080</color>
+    <color name="colorPrimaryDark">#202020</color>
+    <color name="colorAccent">#F6AE2D</color>
+    <color name="colorText">#BFFFFFFF</color>
+    <color name="colorTextHint">#80FFFFFF</color>
+    <color name="colorBackground">@color/colorPrimaryDark</color>
     <color name="seekbarProgress">#e74c3c</color>
     <color name="seekbarBackground">#4434495E</color>
     <color name="asphalt">#34495e</color>
-    <color name="white">#FFFFFF</color>
+    <color name="white">#E6E6E6</color>
 </resources>

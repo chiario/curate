@@ -1,11 +1,15 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@color/colorBackground</item>
+        <item name="android:textViewStyle">@style/AppTheme.TextView</item>
+        <!--<item name="android:imageButtonStyle">@style/AppTheme.ImageButton</item>-->
+        <item name="android:tint">@color/white</item>
     </style>
 
     <style name="AppTheme.SeekBar" parent="Widget.AppCompat.SeekBar">
@@ -14,14 +18,15 @@
         <item name="android:thumbTint">@android:color/white</item>
     </style>
 
-    <style name="AppTheme.MainActivityComponents">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textColorHint">@color/colorAccent</item>
+    <style name = "AppTheme.TextView" parent = "android:Widget.TextView">
+        <item name="android:background">@android:color/transparent</item>
     </style>
-    <style name="AppTheme.SongList" parent="AppTheme">
-        <item name="android:background">@color/colorBackground</item>
+
+    <style name = "AppTheme.ImageButton" parent = "android:Widget.ImageButton">
+        <item name="android:tint">@android:color/white</item>
     </style>
-    <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">
+
+    <style name="AppTheme.SearchEditText" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorHint">@color/colorTextHint</item>
         <item name="android:backgroundTint">@color/colorText</item>
