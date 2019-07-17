@@ -17,7 +17,7 @@
         android:layout_marginBottom="16dp"
         android:adjustViewBounds="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ibDelete"
+        app:layout_constraintStart_toEndOf="@+id/ibRemove"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_album_placeholder" />
 
@@ -62,7 +62,7 @@
         app:srcCompat="@drawable/selector_like" />
 
     <ImageButton
-        android:id="@+id/ibDelete"
+        android:id="@+id/ibRemove"
         style="@style/AppTheme.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

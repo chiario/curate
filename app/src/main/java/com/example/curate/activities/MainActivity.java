@@ -2,6 +2,7 @@ package com.example.curate.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -32,7 +33,10 @@ import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
+import com.example.curate.models.Party;
 import com.example.curate.models.Song;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.seek_to) SeekBar mSeekBar;
     @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
     @BindView(R.id.clCurPlaying) ConstraintLayout mPlayerBackground;
+    @BindView(R.id.ibDeleteQueue) ImageButton ibDeleteQueue;
 
 
     Connector.ConnectionListener mConnectionListener = new Connector.ConnectionListener() {
@@ -338,6 +343,18 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 .setErrorCallback(throwable -> {
                     Log.e(TAG,throwable + "Subscribed to PlayerContext failed!");
                 });
+    }
+
+    @OnClick(R.id.ibDeleteQueue)
+    public void onDeleteQueue(View v) {
+        Party.deleteParty(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @OnClick(R.id.skip_prev_button)

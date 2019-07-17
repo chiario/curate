@@ -163,8 +163,9 @@ public class Party extends ParseObject {
     }
 
     /***
-     * Deletes the current
-     * @param callback
+     * Deletes the current user's party
+     * TODO make sure to check this when there are clients vs admins
+     * @param callback callback to run after the cloud function is executed
      */
     public static void deleteParty(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();

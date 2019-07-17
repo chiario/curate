@@ -25,4 +25,6 @@
     <color name="white_20">#33FFFFFF</color>
     <color name="white_10">#1AFFFFFF</color>
     <color name="offwhite">#E6E6E6</color>
+    <color name="menuBackground">#66ffffff</color>
+    <color name="menuBackgroundTint">#66808080</color>
 </resources>

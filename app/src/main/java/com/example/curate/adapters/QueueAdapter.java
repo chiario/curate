@@ -75,7 +75,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
 		holder.ibLike.setSelected(song.isSelected());
-		holder.ibDelete.setSelected(false);
+		holder.ibRemove.setSelected(false);
 
 		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
 	}
@@ -98,15 +98,15 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
-		@BindView(R.id.ibDelete) ImageButton ibDelete;
+		@BindView(R.id.ibRemove) ImageButton ibRemove;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
-		@OnClick(R.id.ibDelete)
-		public void onClickDelete(View v) {
+		@OnClick(R.id.ibRemove)
+		public void onClickRemove(View v) {
 			v.setSelected(true);
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), new SaveCallback() {
 				@Override

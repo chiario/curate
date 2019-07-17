@@ -21,13 +21,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
         style="@style/AppTheme.SearchbarBackground"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ibDeleteQueue"
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
@@ -65,6 +65,17 @@
             app:srcCompat="@drawable/ic_search" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageButton
+        android:id="@+id/ibDeleteQueue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/selector_menu"
+        app:layout_constraintBottom_toBottomOf="@+id/clSearch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/clSearch"
+        app:srcCompat="@android:drawable/ic_menu_delete" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clCurPlaying"
