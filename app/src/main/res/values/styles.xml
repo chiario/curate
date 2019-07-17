@@ -5,11 +5,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">@color/white</item>
         <item name="android:background">@color/colorBackground</item>
         <item name="android:textViewStyle">@style/AppTheme.TextView</item>
         <!--<item name="android:imageButtonStyle">@style/AppTheme.ImageButton</item>-->
-        <item name="android:tint">@color/white</item>
     </style>
 
     <style name="AppTheme.SeekBar" parent="Widget.AppCompat.SeekBar">
@@ -20,10 +18,23 @@
 
     <style name = "AppTheme.TextView" parent = "android:Widget.TextView">
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="AppTheme.TextView.Primary" parent="AppTheme.TextView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppTheme.TextView.Secondary" parent="AppTheme.TextView">
+        <item name="android:textColor">@color/offwhite</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name = "AppTheme.ImageButton" parent = "android:Widget.ImageButton">
-        <item name="android:tint">@android:color/white</item>
+        <item name="android:tint">@color/offwhite</item>
     </style>
 
     <style name="AppTheme.SearchEditText" parent="Widget.AppCompat.EditText">
@@ -33,6 +44,7 @@
         <item name="android:textCursorDrawable">@null</item>
         <item name="android:colorAccent">@color/colorText</item>
         <item name="android:textColorHighlight">@color/colorTextHint</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 </resources>

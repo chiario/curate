@@ -10,5 +10,6 @@
     <color name="seekbarProgress">#e74c3c</color>
     <color name="seekbarBackground">#4434495E</color>
     <color name="asphalt">#34495e</color>
-    <color name="white">#E6E6E6</color>
+    <color name="white">#FFFFFF</color>
+    <color name="offwhite">#E6E6E6</color>
 </resources>
