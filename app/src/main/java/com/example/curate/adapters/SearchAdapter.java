@@ -70,7 +70,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 			holder.ibLike.setSelected(true);
 		else
 			holder.ibLike.setSelected(false);
-		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
+		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
 	}
 
 	@Override

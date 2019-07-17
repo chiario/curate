@@ -1,6 +1,7 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.BaseRequestOptions;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
@@ -72,8 +75,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
 		holder.ibLike.setSelected(song.isSelected());
+		holder.ibDelete.setSelected(false);
 
-		Glide.with(context).load(song.getImageUrl()).into(holder.ivAlbum);
+		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
 	}
 
 	@Override

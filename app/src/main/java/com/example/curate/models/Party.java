@@ -8,6 +8,7 @@ import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
@@ -161,6 +162,27 @@ public class Party extends ParseObject {
         return false;
     }
 
+    /***
+     * Deletes the current
+     * @param callback
+     */
+    public static void deleteParty(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
+            if (e == null) {
+                Log.d("Party.java", "Party deleted");
+            }
+            else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not delete party!", e);
+            }
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
     /**
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed
@@ -172,7 +194,8 @@ public class Party extends ParseObject {
             if (e == null) {
                 // Save the created party to the singleton instance
                 mCurrentParty = party;
-            } else {
+            }
+            else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not create party!", e);
             }
