@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             int backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.asphalt);
             int textColor = ContextCompat.getColor(MainActivity.this, R.color.white);
 
-            Palette.Swatch swatch = p.getDarkVibrantSwatch();
+            Palette.Swatch swatch = p.getDarkMutedSwatch();
             if(swatch != null) {
                 backgroundColor = swatch.getRgb();
             }
@@ -395,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.d("Hello?", "test");
             }
 
             @Override
