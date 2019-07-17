@@ -3,13 +3,26 @@
     <color name="colorPrimary">#203453</color>
     <color name="colorSecondary">#404080</color>
     <color name="colorPrimaryDark">#202020</color>
-    <color name="colorAccent">#F6AE2D</color>
+    <color name="colorAccent">#FF00A5</color>
+    <color name="colorAccent_90">#E6FF00A5</color>
+    <color name="colorAccent_80">#CCFF00A5</color>
+    <color name="colorAccent_70">#B3FF00A5</color>
     <color name="colorText">#BFFFFFFF</color>
     <color name="colorTextHint">#80FFFFFF</color>
+    <color name="colorButton">#60FFFFFF</color>
     <color name="colorBackground">@color/colorPrimaryDark</color>
     <color name="seekbarProgress">#e74c3c</color>
     <color name="seekbarBackground">#4434495E</color>
     <color name="asphalt">#34495e</color>
     <color name="white">#FFFFFF</color>
+    <color name="white_90">#E6FFFFFF</color>
+    <color name="white_80">#CCFFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_60">#99FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_40">#66FFFFFF</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="white_20">#33FFFFFF</color>
+    <color name="white_10">#1AFFFFFF</color>
     <color name="offwhite">#E6E6E6</color>
 </resources>
