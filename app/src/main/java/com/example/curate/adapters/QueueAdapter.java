@@ -103,7 +103,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibDelete)
 		public void onClickDelete(View v) {
-			// TODO: Make this actually remove from the cloud
+			v.setSelected(true);
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), new SaveCallback() {
 				@Override
 				public void done(ParseException e) {
