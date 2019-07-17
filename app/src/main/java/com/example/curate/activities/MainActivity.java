@@ -179,8 +179,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         });
 
         mSeekBar.setEnabled(false);
-        mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+//        mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+//        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         mTrackProgressBar = new TrackProgressBar(mSeekBar);
     }
 
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                     .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
                     .setResultCallback(bitmap -> {
                         ivAlbum.setImageBitmap(bitmap);
-                        setPlayerColor(bitmap);
+//                        setPlayerColor(bitmap);
                     });
 
             // Invalidate seekbar length and position
