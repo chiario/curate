@@ -1,11 +1,30 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.SeekBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressBackgroundTint">@android:color/black</item>
+        <item name="android:progressTint">@android:color/white</item>
+        <item name="android:thumbTint">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.MainActivityComponents">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@color/colorAccent</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+    <style name="AppTheme.SongList" parent="AppTheme">
+        <item name="android:background">@color/colorAccent</item>
+    </style>
+    <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/colorAccent_50</item>
     </style>
 
 </resources>

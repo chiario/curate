@@ -16,6 +16,7 @@
         android:id="@+id/clCurPlaying"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:theme="@style/AppTheme.MainActivityComponents"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio=""
         app:layout_constraintEnd_toStartOf="@+id/flPlaceholder"
@@ -53,30 +54,63 @@
             android:layout_marginBottom="8dp"
             android:text="Title"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/ibPlayPause"
+            app:layout_constraintBottom_toTopOf="@+id/seek_to"
             app:layout_constraintStart_toStartOf="@+id/ivAlbum" />
 
-        <ImageButton
-            android:id="@+id/ibPlayPause"
+        <SeekBar
+            android:id="@+id/seek_to"
+            style="@style/AppTheme.SeekBar"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:progress="0"
+            app:layout_constraintBottom_toTopOf="@+id/play_pause_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Playback controls -->
+
+        <ImageView
+            android:id="@+id/skip_prev_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/actionBarItemBackground"
+            app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
+            app:layout_constraintTop_toTopOf="@+id/play_pause_button"
+            app:srcCompat="@drawable/btn_prev" />
+
+        <ImageView
+            android:id="@+id/play_pause_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintBottom_toTopOf="@+id/seekBar"
-            app:layout_constraintEnd_toEndOf="@+id/seekBar"
-            app:layout_constraintStart_toStartOf="@+id/seekBar"
-            app:srcCompat="@android:drawable/ic_media_play" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="@+id/seek_to"
+            app:layout_constraintStart_toStartOf="@+id/seek_to"
+            app:srcCompat="@drawable/btn_play" />
+
+        <ImageView
+            android:id="@+id/skip_next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="?attr/actionBarItemBackground"
+            app:layout_constraintStart_toEndOf="@+id/play_pause_button"
+            app:layout_constraintTop_toTopOf="@+id/play_pause_button"
+            app:srcCompat="@drawable/btn_next" />
+
+        <View
+            android:id="@+id/divider"
+            style="@style/AppTheme.SongList"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="8dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -84,6 +118,7 @@
         android:id="@+id/flPlaceholder"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:theme="@style/AppTheme.SongList"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
@@ -93,6 +128,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
+        style="@style/AppTheme.MainActivityComponents"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -101,6 +137,7 @@
 
         <EditText
             android:id="@+id/etSearch"
+            style="@style/AppTheme.EditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
