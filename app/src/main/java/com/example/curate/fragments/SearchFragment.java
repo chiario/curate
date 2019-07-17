@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.curate.R;
 import com.example.curate.adapters.SearchAdapter;
@@ -130,18 +131,30 @@ public class SearchFragment extends Fragment {
 		// Todo search spotify API
 		Log.d(TAG, String.format("Searched for : %s", searchText));
 
-		// For testing, simply loads all songs in "Song" class
-		ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
-		query.findInBackground(new FindCallback<Song>() {
-			@Override
-			public void done(List<Song> objects, ParseException e) {
-				if(e == null) {
-					adapter.addAll(objects);
-				}
-				else {
-					e.printStackTrace();
-				}
+
+		final Song.Search search = new Song.Search();
+		search.setQuery(searchText).execute(e -> {
+			if(e == null) {
+				adapter.clear();
+				adapter.addAll(search.getResults());
+			} else {
+				Toast.makeText(getContext(), "Could not search!", Toast.LENGTH_SHORT).show();
 			}
 		});
+
+
+		// For testing, simply loads all songs in "Song" class
+//		ParseQueryQuery<Song> query = ParseQuery.getQuery(Song.class);
+//		query.findInBackground(new FindCallback<Song>() {
+//			@Override
+//			public void done(List<Song> objects, ParseException e) {
+//				if(e == null) {
+//					adapter.addAll(objects);
+//				}
+//				else {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 	}
 }
