@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private static final String TAG = "MainActivity";
 
     private String testSongId = "7GhIk7Il098yCjg4BQjzvb";
+    private String testSongId2 = "37ZJ0p5Jm13JPevGcx4SkF";
+    private String testSongId3 = "43eBgYRTmu5BJnCJDBU5Hb";
     private final ErrorCallback mErrorCallback = throwable -> Log.e(TAG, throwable + "Boom!");
 
     private FragmentManager fm = getSupportFragmentManager();
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             mSpotifyAppRemote = spotifyAppRemote;
             Log.d(TAG, "Connected!");
             mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + testSongId);
+
             // Subscribe to PlayerState
             onSubscribeToPlayerState();
         }
@@ -395,7 +398,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.d("Hello?", "test");
+                int timeRemaining = mSeekBar.getMax() - progress;
+//                Log.d(TAG, "Time Remaining: " + timeRemaining);
+                if (timeRemaining < 1500) {
+                    playNext();
+                }
             }
 
             @Override
@@ -445,5 +452,13 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             mHandler.removeCallbacks(mSeekRunnable);
             mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
         }
+    }
+
+    private void playNext() {
+        Log.d(TAG, "Get ready to play next song");
+//        mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + testSongId3);
+
+        String songId = queueFragment.getNextSong();
+        mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + songId);
     }
 }

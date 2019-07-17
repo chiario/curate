@@ -2,6 +2,10 @@ package com.example.curate.fragments;
 
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,11 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.curate.R;
 import com.example.curate.adapters.QueueAdapter;
@@ -40,6 +39,8 @@ public class QueueFragment extends Fragment {
 	QueueAdapter adapter;
 	List<Song> songs;
 	Party party;
+	String defaultSongId = "7GhIk7Il098yCjg4BQjzvb";
+
 
 	public QueueFragment() {
 		// Required empty public constructor
@@ -110,5 +111,22 @@ public class QueueFragment extends Fragment {
 				}
 			}
 		});
+	}
+
+	public String getNextSong() {
+		final String[] songId = {defaultSongId};
+		try {
+			songId[0] = Party.getCurrentParty().getPlaylist().get(0).getSong().getSpotifyId();
+			Party.getCurrentParty().removeSong(songId[0], e -> {
+				if (e == null) {
+					adapter.notifyDataSetChanged();
+				} else {
+					songId[0] = defaultSongId;
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return songId[0];
 	}
 }
