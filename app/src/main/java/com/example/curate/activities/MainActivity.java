@@ -96,10 +96,9 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         public void onConnected(SpotifyAppRemote spotifyAppRemote) {
             mSpotifyAppRemote = spotifyAppRemote;
             Log.d(TAG, "Connected!");
-            mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + testSongId);
-
             // Subscribe to PlayerState
             onSubscribeToPlayerState();
+            playNext(); //TODO - decide what to do on app creation, i.e. start playing immediately or wait for prompt from admin
         }
 
         @Override
@@ -187,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 //        mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 //        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         mTrackProgressBar = new TrackProgressBar(mSeekBar);
+
     }
 
     private void search(View v) {
@@ -198,19 +198,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
-        SpotifyAppRemote.connect(this, mConnectionParams, mConnectionListener);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote); // TODO - don't disconnect??
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         // Check if Spotify app is installed on device
@@ -218,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         try {
             pm.getPackageInfo("com.spotify.music", 0);
             isSpotifyInstalled = true;
-            SpotifyAppRemote.connect(this, mConnectionParams, mConnectionListener);
+//            SpotifyAppRemote.connect(this, mConnectionParams, mConnectionListener);
         } catch (PackageManager.NameNotFoundException e) {
             isSpotifyInstalled = false;
             Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
@@ -394,12 +381,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     public void onSkipNext() {
         if (isSpotifyInstalled) {
             playNext();
-            /*mSpotifyAppRemote.getPlayerApi()
-                    .skipNext()
-                    .setResultCallback(data -> {
-                        Log.d(TAG, "Skip next successful");
-                    })
-                    .setErrorCallback(mErrorCallback);*/
         } else {
             Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
         }

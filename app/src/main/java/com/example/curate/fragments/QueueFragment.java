@@ -124,8 +124,8 @@ public class QueueFragment extends Fragment {
 					songId[0] = defaultSongId;
 				}
 			});
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IndexOutOfBoundsException e) {
+			songId[0] = defaultSongId;
 		}
 		return songId[0];
 	}
