@@ -10,11 +10,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
+import com.example.curate.adapters.DividerItemDecoration;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
@@ -88,8 +88,7 @@ public class QueueFragment extends Fragment {
 				adapter = new QueueAdapter(getContext(), party.getPlaylist());
 				rvQueue.setAdapter(adapter);
 				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
-				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(),
-						DividerItemDecoration.VERTICAL));
+				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 
 			} else {
 				Toast.makeText(getContext(), "Could not load playlist", Toast.LENGTH_LONG).show();

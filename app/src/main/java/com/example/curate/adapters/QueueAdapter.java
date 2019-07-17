@@ -98,14 +98,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
-		@BindView(R.id.ibRemove) ImageButton ibRemove;
+		@BindView(R.id.ibDelete) ImageButton ibRemove;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
-		@OnClick(R.id.ibRemove)
+		@OnClick(R.id.ibDelete)
 		public void onClickRemove(View v) {
 			v.setSelected(true);
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), new SaveCallback() {

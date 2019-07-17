@@ -6,18 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/flPlaceholder"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/clCurPlaying"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clSearch"
-        app:layout_constraintVertical_bias="1.0"></FrameLayout>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSearch"
         style="@style/AppTheme.SearchbarBackground"
@@ -76,6 +64,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/clSearch"
         app:srcCompat="@android:drawable/ic_menu_delete" />
+    <FrameLayout
+        android:id="@+id/flPlaceholder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/clCurPlaying"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/clSearch"
+        app:layout_constraintVertical_bias="1.0"></FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clCurPlaying"
@@ -202,14 +201,5 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toTopOf="@id/flPlaceholder"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
