@@ -21,10 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.curate.adapters.QueueAdapter;
-import com.example.curate.fragments.QueueFragment;
 import com.example.curate.R;
+import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SearchAdapter;
+import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Song;
 import com.spotify.android.appremote.api.ConnectionParams;
