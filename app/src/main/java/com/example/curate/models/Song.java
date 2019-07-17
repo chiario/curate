@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -77,34 +76,55 @@ public class Song extends ParseObject {
 		this.isSelected = isSelected;
 	}
 
-	public static class Search {
+	/**
+	 * This class represents a search query that can be sent to the Parse server which will then
+	 * call the Spotify API and return a list of song results
+	 */
+	public static class SearchQuery {
 		private static int DEFAULT_NUM_RESULTS = 20;
 
 		private List<Song> mResults;
 		private String mQuery;
 		private int mNumResults;
 
-		public Search() {
+		public SearchQuery() {
 			mNumResults = DEFAULT_NUM_RESULTS;
 			mQuery = "";
 			mResults = new ArrayList<>();
 		}
 
-		public Search setLimit(int numResults) {
+		/**
+		 * Set the number of results the search should return.  Defaults to 20 if nothing is set.
+		 * @param numResults the number of results to return
+		 */
+		public SearchQuery setLimit(int numResults) {
 			mNumResults = numResults;
 			return this;
 		}
 
-		public Search setQuery(String query) {
+		/**
+		 * Sets the search query.  Does not have to be URL encoded.
+		 * @param query the query to search for
+		 */
+		public SearchQuery setQuery(String query) {
 			mQuery = query;
 			return this;
 		}
 
+		/**
+		 * Gets the search results.  Should only be called in the callback of the find function
+		 * otherwise will not be populated
+		 * @return a list of songs that matches the search query
+		 */
 		public List<Song> getResults() {
 			return mResults;
 		}
 
-		public void execute(@Nullable SaveCallback callback) {
+		/**
+		 * Executes the search query.
+		 * @param callback an optional callback to run after the search has executed.
+		 */
+		public void find(@Nullable SaveCallback callback) {
 			HashMap<String, Object> params = new HashMap<>();
 			params.put("query", mQuery);
 			params.put("limit", mNumResults);
@@ -115,7 +135,7 @@ public class Song extends ParseObject {
 					mResults = results;
 				} else {
 					// Log the error if we get one
-					Log.e("Song.Search", "Search failed: ", e);
+					Log.e("Song.SearchQuery", "SearchQuery failed: ", e);
 				}
 
 				// Run the callback if it exists
