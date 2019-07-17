@@ -9,7 +9,6 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -377,12 +376,13 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
         if (isSpotifyInstalled) {
-            mSpotifyAppRemote.getPlayerApi()
+            playNext();
+            /*mSpotifyAppRemote.getPlayerApi()
                     .skipNext()
                     .setResultCallback(data -> {
                         Log.d(TAG, "Skip next successful");
                     })
-                    .setErrorCallback(mErrorCallback);
+                    .setErrorCallback(mErrorCallback);*/
         } else {
             Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
         }
