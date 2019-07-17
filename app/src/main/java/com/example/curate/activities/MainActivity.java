@@ -9,6 +9,9 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -163,18 +166,28 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             display(queueFragment);
         }
 
-        ibSearch.setOnClickListener(view -> {
-            display(searchFragment);
-            searchFragment.setSearchText(etSearch.getText().toString());
-            InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-            //Find the currently focused view, so we can grab the correct window token from it.
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        ibSearch.setOnClickListener(this::search);
+
+        etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                search(v);
+                return true;
+            }
+            return false;
         });
 
         mSeekBar.setEnabled(false);
         mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         mTrackProgressBar = new TrackProgressBar(mSeekBar);
+    }
+
+    private void search(View v) {
+        display(searchFragment);
+        searchFragment.setSearchText(etSearch.getText().toString());
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     @Override

@@ -17,7 +17,6 @@
     <style name="AppTheme.MainActivityComponents">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textColorHint">@color/colorAccent</item>
-        <item name="android:background">@color/colorPrimary</item>
     </style>
     <style name="AppTheme.SongList" parent="AppTheme">
         <item name="android:background">@color/colorBackground</item>
