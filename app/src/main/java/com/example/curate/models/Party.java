@@ -4,16 +4,12 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
-import com.parse.ParseDecoder;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -281,6 +277,7 @@ public class Party extends ParseObject {
         ParseCloud.callFunctionInBackground("leaveParty", params, (ParseUser user, ParseException e) -> {
             if (e == null) {
                 Log.d("Party.java", "User left party");
+                mCurrentParty = null;
             } else {
                 Log.e("Party.java", "Could not leave party", e);
             }
