@@ -22,13 +22,14 @@ import com.example.curate.models.Song;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
+public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> implements SongTouchHelperAdapter{
 
 	// Instance variables
 	private Context context;
@@ -90,6 +91,27 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		notifyDataSetChanged();
 	}
 
+	@Override
+	public void onItemDismiss(int position) {
+		playlist.remove(position);
+		notifyItemRemoved(position);
+	}
+
+	@Override
+	public void onItemMove(int fromPosition, int toPosition) {
+		// TODO: Hook up to proper cloud code
+		if (fromPosition < toPosition) {
+			for (int i = fromPosition; i < toPosition; i++) {
+				Collections.swap(playlist, i, i + 1);
+			}
+		} else {
+			for (int i = fromPosition; i > toPosition; i--) {
+				Collections.swap(playlist, i, i - 1);
+			}
+		}
+		notifyItemMoved(fromPosition, toPosition);
+	}
+
 	/***
 	 * Internal ViewHolder model for each item.
 	 */
@@ -108,12 +130,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@OnClick(R.id.ibDelete)
 		public void onClickRemove(View v) {
 			v.setSelected(true);
-			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), new SaveCallback() {
-				@Override
-				public void done(ParseException e) {
-					if(e == null) {
-						notifyItemRemoved(getAdapterPosition());
-					}
+			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), e -> {
+				if(e == null) {
+					notifyItemRemoved(getAdapterPosition());
 				}
 			});
 		}

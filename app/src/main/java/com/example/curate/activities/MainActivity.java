@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -27,6 +28,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.palette.graphics.Palette;
 
+import com.example.curate.ParseApp;
 import com.example.curate.R;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SearchAdapter;
@@ -51,7 +53,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
-import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import butterknife.OnTouch;
 
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private String CLIENT_ID;
-    private static final String REDIRECT_URI = "http://com.example.curate/callback"; //TODO - change this
+    private static final String REDIRECT_URI = "http://com.example.curate/callback";
     private SpotifyAppRemote mSpotifyAppRemote;
     private ConnectionParams mConnectionParams;
     private static final String TAG = "MainActivity";
@@ -92,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
     @BindView(R.id.clCurPlaying) ConstraintLayout mPlayerBackground;
     @BindView(R.id.ibDeleteQueue) ImageButton ibDeleteQueue;
-
 
     Connector.ConnectionListener mConnectionListener = new Connector.ConnectionListener() {
         @Override
@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         ButterKnife.bind(this);
 
         CLIENT_ID = getString(R.string.clientId);
+
         mConnectionParams = new ConnectionParams.Builder(CLIENT_ID)
                     .setRedirectUri(REDIRECT_URI)
                     .showAuthView(true)
@@ -181,15 +182,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 //        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         mTrackProgressBar = new TrackProgressBar(mSeekBar);
 
-    }
-
-    private void search(View v) {
-        display(searchFragment);
-        searchFragment.search();
-        etSearch.clearFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     @Override
@@ -327,6 +319,33 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         searchFragment.setSearchText(etSearch.getText().toString());
     }*/
 
+    private void hideKeyboard() {
+        /*InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);*/
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    private void showKeyboard() {
+       /* InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        imm.showSoftInput(v, 0);*/
+       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }
+
+    private void search(View v) {
+        display(searchFragment);
+        searchFragment.search();
+        etSearch.clearFocus();
+        hideKeyboard();
+    }
+
+    private void focusSearch() {
+        etSearch.requestFocus();
+        showKeyboard();
+        display(searchFragment);
+    }
+
    // ButterKnife Listeners
 
    @OnTextChanged(R.id.etSearch)
@@ -334,14 +353,17 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
    	    searchFragment.setSearchText(text.toString());
    }
 
-   @OnTouch(R.id.clSearch)
+   @OnTouch(R.id.clText)
    public void onSearchbarTouch(View view, MotionEvent motionEvent) {
-        display(searchFragment);
+        focusSearch();
    }
 
    @OnClick(R.id.ibSearch)
    public void onSearchClick(View v) {
-   	    search(v);
+        if(etSearch.hasFocus())
+            focusSearch();
+        else
+   	        search(v);
    }
 
    @OnEditorAction(R.id.etSearch)

@@ -5,8 +5,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,7 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.curate.R;
 import com.example.curate.adapters.SearchAdapter;
@@ -39,6 +39,8 @@ public class SearchFragment extends Fragment {
 
 	@BindView(R.id.rvSearch) RecyclerView rvSearch;
 	@BindView(R.id.progressBar) ProgressBar progressBar;
+	@BindView(R.id.clText) ConstraintLayout clText;
+	@BindView(R.id.tvError) TextView tvError;
 
 	String searchText;
 
@@ -74,6 +76,7 @@ public class SearchFragment extends Fragment {
 	public void search() {
 		progressBar.setVisibility(View.VISIBLE);
 		adapter.clear();
+		hideText();
 		loadData(searchText);
 		searchText = "";
 	}
@@ -81,7 +84,10 @@ public class SearchFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		search();
+		if(searchText == null || searchText.equals(""))
+			showText(getString(R.string.new_search));
+		else
+			search();
 	}
 
 	/***
@@ -138,17 +144,28 @@ public class SearchFragment extends Fragment {
 	 */
 	public void loadData(String searchText) {
 		Log.d(TAG, String.format("Searched for : %s", searchText));
-
-
 		final Song.SearchQuery search = new Song.SearchQuery();
 		search.setQuery(searchText).setLimit(15).find(e -> {
+			progressBar.setVisibility(View.GONE);
 			if(e == null) {
 				adapter.clear();
 				adapter.addAll(search.getResults());
-				progressBar.setVisibility(View.GONE);
 			} else {
+				if(e.getMessage().startsWith("400"))
+					showText(getString(R.string.no_search_result));
+				else
+					showText(getString(R.string.search_error));
 //				Toast.makeText(getContext(), "Could not search!", Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+
+	private void showText(String text) {
+		clText.setVisibility(View.VISIBLE);
+		tvError.setText(text);
+	}
+
+	private void hideText() {
+		clText.setVisibility(View.GONE);
 	}
 }

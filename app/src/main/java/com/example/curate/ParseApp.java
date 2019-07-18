@@ -1,5 +1,6 @@
 package com.example.curate;
 import android.app.Application;
+import android.content.Context;
 
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
@@ -11,6 +12,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 public class ParseApp extends Application {
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
