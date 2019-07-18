@@ -17,6 +17,7 @@ public class PlaylistEntry extends ParseObject {
     private static final String SONG_KEY = "song";
     private static final String SCORE_KEY = "score";
     private static final String PARTY_KEY = "party";
+    private static final String LIKED_KEY = "isLikedByUser";
 
     public PlaylistEntry() {
         // Required empty constructor
@@ -28,6 +29,10 @@ public class PlaylistEntry extends ParseObject {
 
     public Number getScore() {
         return getNumber(SCORE_KEY);
+    }
+
+    public boolean isLikedByUser() {
+        return getBoolean(LIKED_KEY);
     }
 
 }

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,7 +76,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		Song song = playlist.get(position).getSong();
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
-		holder.ibLike.setSelected(song.isSelected());
+		holder.ibLike.setSelected(playlist.get(position).isLikedByUser());
 		holder.ibRemove.setSelected(false);
 
 		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
@@ -132,17 +133,24 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			v.setSelected(true);
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), e -> {
 				if(e == null) {
+					// TODO change this: playlist might reorder
 					notifyItemRemoved(getAdapterPosition());
 				}
 			});
 		}
 
 		@OnClick(R.id.ibLike)
-		public void onClickLike(View v) {
-			// TODO: Let the server know that the song was liked
-			Song song = playlist.get(getAdapterPosition()).getSong();
-			v.setSelected(!song.isSelected());
-			song.setSelected(!song.isSelected());
+		public void onClickLike(final View v) {
+			final PlaylistEntry entry = playlist.get(getAdapterPosition());
+			v.setSelected(!entry.isLikedByUser());
+			Party.getCurrentParty().likeSong(entry.getSong().getSpotifyId(), e -> {
+				if(e == null) {
+					notifyDataSetChanged();
+				} else {
+					v.setSelected(entry.isLikedByUser());
+					Toast.makeText(context, "Could not like song!", Toast.LENGTH_SHORT).show();
+				}
+			});
 		}
 	}
 }
