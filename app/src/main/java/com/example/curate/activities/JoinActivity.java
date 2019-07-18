@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.curate.R;
 import com.example.curate.models.Party;
@@ -20,7 +21,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class JoinActivity extends AppCompatActivity {
-    @BindView(R.id.buttonContainer) LinearLayout mButtonContainer;
+    @BindView(R.id.buttonContainer) ConstraintLayout mButtonContainer;
     @BindView(R.id.progressBar) ProgressBar mProgressBar;
 
     @Override

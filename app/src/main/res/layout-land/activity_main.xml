@@ -123,6 +123,17 @@
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageButton
+            android:id="@+id/ibDeleteQueue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/selector_menu"
+            app:layout_constraintBottom_toBottomOf="@+id/clSearch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/clSearch"
+            app:srcCompat="@android:drawable/ic_menu_delete" />
+
         <EditText
             android:id="@+id/etSearch"
             style="@style/AppTheme.SearchEditText"
@@ -138,7 +149,7 @@
             android:inputType="textPersonName"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ibSearch"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ibDeleteQueue"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton

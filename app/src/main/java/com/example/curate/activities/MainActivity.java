@@ -51,6 +51,8 @@ import com.spotify.protocol.types.PlayerState;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnFocusChange;
+import butterknife.OnTextChanged;
 
 public class MainActivity extends AppCompatActivity implements SearchAdapter.OnSongAddedListener, QueueAdapter.OnSongLikedListener {
 
@@ -306,6 +308,30 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             mSeekBar.setEnabled(true);
         }
     };
+
+   /* Switching focus between fragments when edittext is clicked
+
+   @OnFocusChange(R.id.etSearch)
+    public void onFocusChange(View v, boolean hasFocus) {
+        if(hasFocus) {
+            display(searchFragment);
+            searchFragment.setSearchText(etSearch.getText().toString());
+        }
+    }
+
+
+    // Todo fix this
+    @OnClick(R.id.clSearch)
+    public void onSearchClick(View v) {
+        Log.d("MainActivity.java", "click");
+        display(searchFragment);
+    }
+
+     TODO Decide if we want this?
+    @OnTextChanged(R.id.etSearch)
+    public void onSearchTextChange() {
+        searchFragment.setSearchText(etSearch.getText().toString());
+    }*/
 
     public void onSubscribeToPlayerState() {
         if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {

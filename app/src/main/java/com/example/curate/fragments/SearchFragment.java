@@ -134,7 +134,7 @@ public class SearchFragment extends Fragment {
 				adapter.clear();
 				adapter.addAll(search.getResults());
 			} else {
-				Toast.makeText(getContext(), "Could not search!", Toast.LENGTH_SHORT).show();
+//				Toast.makeText(getContext(), "Could not search!", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
