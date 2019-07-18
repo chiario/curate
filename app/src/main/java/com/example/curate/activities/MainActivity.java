@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -99,8 +97,9 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             mSpotifyAppRemote = spotifyAppRemote;
             Log.d(TAG, "Connected!");
             // Subscribe to PlayerState
+            playNext();
             onSubscribeToPlayerState();
-            playNext(); //TODO - decide what to do on app creation, i.e. start playing immediately or wait for prompt from admin
+            //TODO - decide what to do on app creation, i.e. start playing immediately or wait for prompt from admin
         }
 
         @Override

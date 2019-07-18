@@ -60,9 +60,14 @@ public class JoinActivity extends AppCompatActivity {
             }
         });
     }
+    //TODO - Fix bug: user can be part of a party that has been deleted
 
     private void switchToMainActivity() {
         Intent i = new Intent(this, MainActivity.class);
+
+
+        boolean isAdmin = ParseUser.getCurrentUser() == Party.getCurrentParty().get("admin");
+        i.putExtra("isAdmin", isAdmin);
         startActivity(i);
         finish();
     }
@@ -71,6 +76,17 @@ public class JoinActivity extends AppCompatActivity {
     public void onCreateParty(View view) {
         Party.createParty(e -> {
             if(e == null) {
+                switchToMainActivity();
+            } else {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @OnClick(R.id.btnJoinParty)
+    public void onJoinParty(View view) {
+        Party.joinParty("oFyv4EUtAz", e -> {
+            if (e == null) {
                 switchToMainActivity();
             } else {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
