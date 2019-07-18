@@ -22,7 +22,6 @@ import java.util.List;
 public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String CURRENTLY_PLAYING_KEY = "curPlaying";
-    private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
 
     private static Party mCurrentParty;
 
@@ -31,6 +30,9 @@ public class Party extends ParseObject {
 
     public Party() {}
 
+    /**
+     * Initializes the party object and sets up live queries
+     */
     private void initialize() {
         mPlaylist = new ArrayList<>();
         mPlaylistUpdateCallbacks = new ArrayList<>();
@@ -203,10 +205,18 @@ public class Party extends ParseObject {
         return mPlaylist;
     }
 
+    /**
+     * Registers a new callback that is called when the party's playlist changes
+     * @param callback
+     */
     public void registerPlaylistUpdateCallback(SaveCallback callback) {
         mPlaylistUpdateCallbacks.add(callback);
     }
 
+    /**
+     * Deregisters a callback that was added to free up memory
+     * @param callback
+     */
     public void deregisterPlaylistUpdateCallback(SaveCallback callback) {
         mPlaylistUpdateCallbacks.remove(callback);
     }
@@ -230,14 +240,9 @@ public class Party extends ParseObject {
      */
     public boolean isCurrentUserAdmin() {
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
-        String adminId = getParseUser("admin").getObjectId();
+        String adminId = getParseUser(ADMIN_KEY).getObjectId();
         return currentUserId.equals(adminId);
     }
-
-    ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
-
-
-
 
     /**
      * Creates a new party with the current user as the admin
