@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -28,7 +27,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.palette.graphics.Palette;
 
-import com.example.curate.ParseApp;
 import com.example.curate.R;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SearchAdapter;
@@ -53,8 +51,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
-import butterknife.OnTextChanged;
-import butterknife.OnTouch;
+import butterknife.OnFocusChange;
 
 public class MainActivity extends AppCompatActivity implements SearchAdapter.OnSongAddedListener, QueueAdapter.OnSongLikedListener {
 
@@ -219,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 break;
             case KEY_SEARCH_FRAGMENT:
                 activeFragment = queueFragment;
+                etSearch.clearFocus();
                 break;
         }
         etSearch.setText("");
@@ -253,6 +251,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         ft.show(fragment);
         if(fragment.equals(searchFragment))
             ft.addToBackStack(fragment.getTag());
+        else if(fragment.equals(queueFragment))
+            etSearch.clearFocus();
         ft.commit();
 
         activeFragment = fragment;
@@ -295,82 +295,72 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         }
     };
 
-   /* Switching focus between fragments when edittext is clicked
-
-   @OnFocusChange(R.id.etSearch)
-    public void onFocusChange(View v, boolean hasFocus) {
-        if(hasFocus) {
-            display(searchFragment);
-            searchFragment.setSearchText(etSearch.getText().toString());
-        }
-    }
-
-
-    // Todo fix this
-    @OnClick(R.id.clSearch)
-    public void onSearchClick(View v) {
-        Log.d("MainActivity.java", "click");
-        display(searchFragment);
-    }
-
-     TODO Decide if we want this?
+   /* TODO Decide if we want this?
     @OnTextChanged(R.id.etSearch)
     public void onSearchTextChange() {
         searchFragment.setSearchText(etSearch.getText().toString());
     }*/
 
-    private void hideKeyboard() {
-        /*InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
-        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);*/
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    private void showKeyboard() {
-       /* InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+    private void showKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
-        imm.showSoftInput(v, 0);*/
-       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
     }
 
     private void search(View v) {
         display(searchFragment);
-        searchFragment.search();
+        searchFragment.executeSearch(etSearch.getText().toString());
         etSearch.clearFocus();
-        hideKeyboard();
+        hideKeyboard(v);
     }
 
-    private void focusSearch() {
+    public void focusSearch() {
         etSearch.requestFocus();
-        showKeyboard();
+        showKeyboard(etSearch);
         display(searchFragment);
+        searchFragment.newSearch();
     }
 
    // ButterKnife Listeners
 
-   @OnTextChanged(R.id.etSearch)
-   public void onSearchTextChange(CharSequence text) {
-   	    searchFragment.setSearchText(text.toString());
-   }
+//   @OnTextChanged(R.id.etSearch)
+//   public void onSearchTextChange(CharSequence text) {
+//   	    searchFragment.setSearchText(text.toString());
+//   }
 
-   @OnTouch(R.id.clText)
-   public void onSearchbarTouch(View view, MotionEvent motionEvent) {
+
+
+    @OnFocusChange(R.id.etSearch)
+    public void onSearchFocusChange(boolean hasFocus) {
+        if(hasFocus) {
+           focusSearch();
+        }
+    }
+
+    @OnClick(R.id.clSearch)
+    public void onSearchbarClick() {
         focusSearch();
-   }
+    }
 
-   @OnClick(R.id.ibSearch)
-   public void onSearchClick(View v) {
-        if(etSearch.hasFocus())
+    @OnClick(R.id.ibSearch)
+    public void onSearchClick(View v) {
+        if(!etSearch.hasFocus())
             focusSearch();
         else
    	        search(v);
-   }
+    }
 
-   @OnEditorAction(R.id.etSearch)
-   public void onSearchEditorAction(TextView tv, int actionId) {
-	   if (actionId == EditorInfo.IME_ACTION_SEARCH)
-		   search((View) tv);
-   }
+    @OnEditorAction(R.id.etSearch)
+    public void onSearchEditorAction(TextView tv, int actionId) {
+       if (actionId == EditorInfo.IME_ACTION_SEARCH)
+           search((View) tv);
+    }
 
     @OnClick(R.id.ibDeleteQueue)
     public void onDeleteQueue(View v) {

@@ -17,7 +17,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/clText"
+        app:layout_constraintEnd_toStartOf="@+id/clSearch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -111,12 +111,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/clText">
+        app:layout_constraintTop_toBottomOf="@+id/clSearch">
 
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clText"
+        android:id="@+id/clSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -129,9 +129,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@drawable/selector_menu"
-            app:layout_constraintBottom_toBottomOf="@+id/clText"
+            app:layout_constraintBottom_toBottomOf="@+id/clSearch"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/clText"
+            app:layout_constraintTop_toTopOf="@+id/clSearch"
             app:srcCompat="@android:drawable/ic_menu_delete" />
 
         <EditText

@@ -77,7 +77,7 @@ public class Song extends ParseObject {
 	}
 
 	/**
-	 * This class represents a search query that can be sent to the Parse server which will then
+	 * This class represents a executeSearch query that can be sent to the Parse server which will then
 	 * call the Spotify API and return a list of song results
 	 */
 	public static class SearchQuery {
@@ -94,7 +94,7 @@ public class Song extends ParseObject {
 		}
 
 		/**
-		 * Set the number of results the search should return.  Defaults to 20 if nothing is set.
+		 * Set the number of results the executeSearch should return.  Defaults to 20 if nothing is set.
 		 * @param numResults the number of results to return
 		 */
 		public SearchQuery setLimit(int numResults) {
@@ -103,8 +103,8 @@ public class Song extends ParseObject {
 		}
 
 		/**
-		 * Sets the search query.  Does not have to be URL encoded.
-		 * @param query the query to search for
+		 * Sets the executeSearch query.  Does not have to be URL encoded.
+		 * @param query the query to executeSearch for
 		 */
 		public SearchQuery setQuery(String query) {
 			mQuery = query;
@@ -112,17 +112,17 @@ public class Song extends ParseObject {
 		}
 
 		/**
-		 * Gets the search results.  Should only be called in the callback of the find function
+		 * Gets the executeSearch results.  Should only be called in the callback of the find function
 		 * otherwise will not be populated
-		 * @return a list of songs that matches the search query
+		 * @return a list of songs that matches the executeSearch query
 		 */
 		public List<Song> getResults() {
 			return mResults;
 		}
 
 		/**
-		 * Executes the search query.
-		 * @param callback an optional callback to run after the search has executed.
+		 * Executes the executeSearch query.
+		 * @param callback an optional callback to run after the executeSearch has executed.
 		 */
 		public void find(@Nullable SaveCallback callback) {
 			HashMap<String, Object> params = new HashMap<>();
@@ -131,7 +131,7 @@ public class Song extends ParseObject {
 
 			ParseCloud.callFunctionInBackground("search", params, (List<Song> results, ParseException e) -> {
 				if (e == null) {
-					// Save the search results to this object so they can be accessed through getResults()
+					// Save the executeSearch results to this object so they can be accessed through getResults()
 					mResults = results;
 				} else {
 					// Log the error if we get one

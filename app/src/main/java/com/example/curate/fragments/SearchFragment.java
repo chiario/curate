@@ -42,8 +42,6 @@ public class SearchFragment extends Fragment {
 	@BindView(R.id.clText) ConstraintLayout clText;
 	@BindView(R.id.tvError) TextView tvError;
 
-	String searchText;
-
 	SearchAdapter adapter;
 
 	List<Song> songs;
@@ -65,29 +63,29 @@ public class SearchFragment extends Fragment {
 		return fragment;
 	}
 
-	/***
-	 * Set search text and search for the given string
-	 * @param searchText String to search for
-	 */
-	public void setSearchText(String searchText) {
-		this.searchText = searchText;
-	}
-
-	public void search() {
+	public void executeSearch(String searchText) {
 		progressBar.setVisibility(View.VISIBLE);
 		adapter.clear();
 		hideText();
 		loadData(searchText);
-		searchText = "";
+	}
+
+	public void newSearch() {
+		progressBar.setVisibility(View.INVISIBLE);
+		adapter.clear();
+		showText(getString(R.string.new_search));
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		if(searchText == null || searchText.equals(""))
-			showText(getString(R.string.new_search));
-		else
-			search();
+		newSearch();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		adapter.clear();
 	}
 
 	/***
@@ -114,9 +112,7 @@ public class SearchFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 
-		// Recover saved state if applicable
-		if(savedInstanceState != null)
-			searchText = savedInstanceState.getString(KEY_SEARCH);
+
 		songs = new ArrayList<Song>();
 		// Create the adapter, along with onClick listener for the "add" button
 		adapter = new SearchAdapter(getContext(), songs);
@@ -128,15 +124,6 @@ public class SearchFragment extends Fragment {
 //				DividerItemDecoration.VERTICAL));
 	}
 
-	/***
-	 * Save the current search text so it persists through configuration changes
-	 * @param outState
-	 */
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(KEY_SEARCH, searchText);
-	}
 
 	/***
 	 * Load the search results
