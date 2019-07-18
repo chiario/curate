@@ -20,29 +20,19 @@ import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SongTouchHelperCallback;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.parse.ParseException;
 import com.parse.SaveCallback;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class QueueFragment extends Fragment {
+	private static final String DEFAULT_SONG_ID = "7GhIk7Il098yCjg4BQjzvb";
 
-
-	// Instance variables
+	private QueueAdapter mAdapter;
+	private Party mParty;
+	private SaveCallback mPlaylistUpdatedCallback;
 
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
-	QueueAdapter adapter;
-	List<Song> songs;
-	Party party;
-	String defaultSongId = "7GhIk7Il098yCjg4BQjzvb";
-
 
 	public QueueFragment() {
 		// Required empty public constructor
@@ -53,20 +43,24 @@ public class QueueFragment extends Fragment {
 	 * @return The new instance created
 	 */
 	public static QueueFragment newInstance() {
-//		Bundle args = new Bundle();
 		QueueFragment fragment = new  QueueFragment();
-//		fragment.setArguments(args);
 		fragment.setRetainInstance(true);
 		return fragment;
 	}
 
-	/***
-	 * Inflate the proper layout
-	 * @param inflater
-	 * @param container
-	 * @param savedInstanceState
-	 * @return
-	 */
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		// Set up on playlist updated callback
+		mPlaylistUpdatedCallback = e -> {
+			if(e == null) {
+				mAdapter.notifyDataSetChanged();
+			}
+		};
+		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
@@ -84,15 +78,15 @@ public class QueueFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 
-		party = Party.getCurrentParty();
-		party.updatePlaylist(e -> {
+		mParty = Party.getCurrentParty();
+		mParty.updatePlaylist(e -> {
 			if(e == null) {
-				adapter = new QueueAdapter(getContext(), party.getPlaylist());
+				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
 				ItemTouchHelper.Callback callback =
-						new SongTouchHelperCallback(adapter);
+						new SongTouchHelperCallback(mAdapter);
 				ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
 				touchHelper.attachToRecyclerView(rvQueue);
-				rvQueue.setAdapter(adapter);
+				rvQueue.setAdapter(mAdapter);
 				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 
@@ -102,35 +96,38 @@ public class QueueFragment extends Fragment {
 		});
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mParty.deregisterPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+	}
+
 	/***
 	 * Adds the given song to the queue
 	 * @param song Song to add to the queue
 	 */
 	public void addSong(Song song) {
-		party.addSong(song, new SaveCallback() {
-			@Override
-			public void done(ParseException e) {
-				if(e == null) {
-					adapter.notifyItemInserted(adapter.getItemCount() - 1);
-					Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
-				}
-			}
+		mParty.addSong(song, e -> {
+            if(e == null) {
+                mAdapter.notifyDataSetChanged();
+                Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
+            }
 		});
 	}
 
 	public String getNextSong() {
-		final String[] songId = {defaultSongId};
+		final String[] songId = {DEFAULT_SONG_ID};
 		try {
 			songId[0] = Party.getCurrentParty().getPlaylist().get(0).getSong().getSpotifyId();
 			Party.getCurrentParty().removeSong(songId[0], e -> {
 				if (e == null) {
-					adapter.notifyDataSetChanged();
+					mAdapter.notifyDataSetChanged();
 				} else {
-					songId[0] = defaultSongId;
+					songId[0] = DEFAULT_SONG_ID;
 				}
 			});
 		} catch (IndexOutOfBoundsException e) {
-			songId[0] = defaultSongId;
+			songId[0] = DEFAULT_SONG_ID;
 		}
 		return songId[0];
 	}
