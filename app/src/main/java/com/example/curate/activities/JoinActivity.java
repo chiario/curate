@@ -1,6 +1,5 @@
 package com.example.curate.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -90,12 +89,7 @@ public class JoinActivity extends AppCompatActivity {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         final EditText etPartyCode = new EditText(this);
         alertDialogBuilder.setView(etPartyCode);
-        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                joinParty(etPartyCode.getText().toString());
-            }
-        });
+        alertDialogBuilder.setPositiveButton("OK", (dialogInterface, i) -> joinParty(etPartyCode.getText().toString()));
 
         alertDialogBuilder.show();
     }

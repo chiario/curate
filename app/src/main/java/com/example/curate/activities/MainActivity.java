@@ -1,6 +1,5 @@
 package com.example.curate.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,17 +33,9 @@ import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
-import com.spotify.android.appremote.api.error.NotLoggedInException;
-import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
-import com.spotify.protocol.client.ErrorCallback;
+import com.example.curate.utils.Spotify;
+import com.parse.ParseUser;
 import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerState;
 
 import butterknife.BindView;
@@ -58,29 +49,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
-    private String CLIENT_ID;
-    private static final String REDIRECT_URI = "http://com.example.curate/callback";
-    private SpotifyAppRemote mSpotifyAppRemote;
-    private ConnectionParams mConnectionParams;
     private static final String TAG = "MainActivity";
-
-    private String testSongId = "7GhIk7Il098yCjg4BQjzvb";
-    private String testSongId2 = "37ZJ0p5Jm13JPevGcx4SkF";
-    private String testSongId3 = "43eBgYRTmu5BJnCJDBU5Hb";
-    private final ErrorCallback mErrorCallback = throwable -> Log.e(TAG, throwable + "Boom!");
-
-    private FragmentManager fm = getSupportFragmentManager();
-    private Fragment activeFragment;
-
-    Subscription<PlayerState> mPlayerStateSubscription;
-
-    boolean isSpotifyInstalled = false;
-
-    TrackProgressBar mTrackProgressBar;
-
-    QueueFragment queueFragment;
-    SearchFragment searchFragment;
-
     @BindView(R.id.etSearch) EditText etSearch;
     @BindView(R.id.ibSearch) ImageButton ibSearch;
     @BindView(R.id.tvTitle) TextView tvTitle;
@@ -90,32 +59,21 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
     @BindView(R.id.clCurPlaying) ConstraintLayout mPlayerBackground;
     @BindView(R.id.ibDeleteQueue) ImageButton ibDeleteQueue;
+    @BindView(R.id.ibLeaveQueue) ImageButton ibLeaveQueue;
+    @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;
+    @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
+    private FragmentManager fm = getSupportFragmentManager();
+    private Fragment activeFragment;
+    private TrackProgressBar mTrackProgressBar;
+    private QueueFragment queueFragment;
+    private SearchFragment searchFragment;
+    private boolean isSpotifyInstalled = false;
+    private boolean isAdmin = false;
 
-    Connector.ConnectionListener mConnectionListener = new Connector.ConnectionListener() {
-        @Override
-        public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-            mSpotifyAppRemote = spotifyAppRemote;
-            Log.d(TAG, "Connected!");
-            // Subscribe to PlayerState
-            playNext();
-            onSubscribeToPlayerState();
-            //TODO - decide what to do on app creation, i.e. start playing immediately or wait for prompt from admin
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            if (error instanceof NotLoggedInException || error instanceof UserNotAuthorizedException) {
-                Log.e(TAG, error.toString());
-                // Show login button and trigger the login flow from auth library when clicked TODO
-                Toast.makeText(MainActivity.this, "Please log in to Spotify to proceed", Toast.LENGTH_LONG).show();
-            } else if (error instanceof CouldNotFindSpotifyApp) {
-                Log.e(TAG, error.toString());
-                // Show button to download Spotify TODO
-                Toast.makeText(MainActivity.this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
-            }
-        }
-    };
-
+    //TODO - delete these
+    private String testSongId = "7GhIk7Il098yCjg4BQjzvb";
+    private String testSongId2 = "37ZJ0p5Jm13JPevGcx4SkF";
+    private String testSongId3 = "43eBgYRTmu5BJnCJDBU5Hb";
 
     // Search Fragment Listener:
 
@@ -144,14 +102,20 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        CLIENT_ID = getString(R.string.clientId);
+        // Checks if user owns the current party and adjusts view
+        isAdmin = ParseUser.getCurrentUser().getObjectId().equals(Party.getCurrentParty().getAdmin().getObjectId()); // TODO - fix this code
+        Log.d(TAG, "Current user is admin: " + isAdmin);
 
-        mConnectionParams = new ConnectionParams.Builder(CLIENT_ID)
-                    .setRedirectUri(REDIRECT_URI)
-                    .showAuthView(true)
-                    .build();
+        int visibility = isAdmin ? View.VISIBLE : View.GONE;
+        ibDeleteQueue.setVisibility(visibility);
+        ibLeaveQueue.setVisibility(isAdmin ? View.GONE : View.VISIBLE);
+        mPlayPauseButton.setVisibility(visibility);
+        mSkipNextButton.setVisibility(visibility);
+        mSkipPrevButton.setVisibility(visibility);
+        if (isAdmin) {
+            Spotify.connectRemote(this, mPlayerStateEventCallback, getString(R.string.clientId));
+        }
 
-        SpotifyAppRemote.connect(this, mConnectionParams, mConnectionListener);
 
         if(savedInstanceState != null) {
             queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
@@ -175,10 +139,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         }
 
         mSeekBar.setEnabled(false);
-//        mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-//        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         mTrackProgressBar = new TrackProgressBar(mSeekBar);
-
     }
 
     @Override
@@ -189,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         try {
             pm.getPackageInfo("com.spotify.music", 0);
             isSpotifyInstalled = true;
-//            SpotifyAppRemote.connect(this, mConnectionParams, mConnectionListener);
         } catch (PackageManager.NameNotFoundException e) {
             isSpotifyInstalled = false;
             Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
@@ -258,8 +218,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         activeFragment = fragment;
     }
 
-    @SuppressLint("SetTextI18n")
-    private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
+    /**
+     * Spotify Player event callback
+     * Updates current song views when new song begins playing
+     */
+//    @SuppressLint("SetTextI18n")
+    public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
         @Override
         public void onEvent(PlayerState playerState) {
             // Update progressbar
@@ -279,12 +243,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             tvTitle.setText(playerState.track.name);
             tvArtist.setText(playerState.track.artist.name);
             // Get image from track
-            mSpotifyAppRemote.getImagesApi()
-                    .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
-                    .setResultCallback(bitmap -> {
-                        ivAlbum.setImageBitmap(bitmap);
-//                        setPlayerColor(bitmap);
-                    });
+            Spotify.setAlbumArt(playerState, ivAlbum);
 
             // Invalidate seekbar length and position
             mSeekBar.setMax((int) playerState.track.duration);
@@ -364,97 +323,55 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     @OnClick(R.id.ibDeleteQueue)
     public void onDeleteQueue(View v) {
-        Party.deleteParty(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        Party.deleteParty(e -> {
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+    @OnClick(R.id.ibLeaveQueue)
+    public void onLeaveQueue(View v) {
+        Party.leaveParty(e -> {
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
     @OnClick(R.id.skip_prev_button)
-    public void onSkipPrevious() {
-        if (isSpotifyInstalled) {
-            mSpotifyAppRemote.getPlayerApi()
-                    .skipPrevious()
-                    .setResultCallback(empty -> Log.d(TAG, "Skip previous successful"))
-                    .setErrorCallback(mErrorCallback);
-        } else {
-            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
-        }
+    public void onRestartSong() {
+        Spotify.restartSong();
     }
 
     @OnClick(R.id.play_pause_button)
     public void onPlayPause() {
-        if (isSpotifyInstalled) {
-            mSpotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(playerState -> {
-                if (playerState.isPaused) {
-                    mSpotifyAppRemote.getPlayerApi()
-                            .resume()
-                            .setResultCallback(empty -> Log.d(TAG, "Play current track successful"))
-                            .setErrorCallback(mErrorCallback);
-                } else {
-                    mSpotifyAppRemote.getPlayerApi()
-                            .pause()
-                            .setResultCallback(empty -> Log.d(TAG, "Pause successful"))
-                            .setErrorCallback(mErrorCallback);
-                }
-            });
-        } else {
-            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
-        }
+        Spotify.playPause();
     }
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        if (isSpotifyInstalled) {
-            playNext();
-        } else {
-            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
-        }
+        String songId = queueFragment.getNextSong();
+        Spotify.playNextSong(songId);
     }
 
-    public void onSubscribeToPlayerState() {
-        if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
-            mPlayerStateSubscription.cancel(); // TODO - do we really want to cancel and remake the subscription every time?
-            mPlayerStateSubscription = null;
-        }
-
-        mPlayerStateSubscription = (Subscription<PlayerState>) mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState()
-                .setEventCallback(mPlayerStateEventCallback)
-                .setLifecycleCallback(new Subscription.LifecycleCallback() {
-                    @Override
-                    public void onStart() {
-                        Log.d(TAG, "Event: start");
-                    }
-
-                    @Override
-                    public void onStop() {
-                        Log.d(TAG, "Event: end");
-                    }
-                })
-                .setErrorCallback(throwable -> {
-                    Log.e(TAG,throwable + "Subscribed to PlayerContext failed!");
-                });
-    }
-
-    private class TrackProgressBar {
-
+    public class TrackProgressBar {
         private static final int LOOP_DURATION = 500;
         private final SeekBar mSeekBar;
         private final Handler mHandler;
 
+        private TrackProgressBar(SeekBar seekBar) {
+            mSeekBar = seekBar;
+            mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+            mHandler = new Handler();
+        }
 
         private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int timeRemaining = mSeekBar.getMax() - progress;
-//                Log.d(TAG, "Time Remaining: " + timeRemaining);
-                if (timeRemaining < 1500) {
-                    playNext();
+                if (timeRemaining < 1500 && isAdmin) {
+                    Spotify.playNextSong(queueFragment.getNextSong());
                 }
             }
 
@@ -464,13 +381,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mSpotifyAppRemote.getPlayerApi().seekTo(seekBar.getProgress())
-                        .setErrorCallback(error -> {
-                            mSpotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(
-                                    playerState -> mTrackProgressBar.update(playerState.playbackPosition)
-                            );
-                            Toast.makeText(MainActivity.this, "Can't seek unless you have premium!", Toast.LENGTH_SHORT).show();
-                        });
+                Spotify.seekTo(seekBar.getProgress(), mTrackProgressBar);
             }
         };
 
@@ -483,17 +394,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             }
         };
 
-        private TrackProgressBar(SeekBar seekBar) {
-            mSeekBar = seekBar;
-            mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
-            mHandler = new Handler();
-        }
 
         private void setDuration(long duration) {
             mSeekBar.setMax((int) duration);
         }
 
-        private void update(long progress) {
+        public void update(long progress) {
             mSeekBar.setProgress((int) progress);
         }
 
@@ -505,13 +411,5 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             mHandler.removeCallbacks(mSeekRunnable);
             mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
         }
-    }
-
-    private void playNext() {
-        Log.d(TAG, "Get ready to play next song");
-//        mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + testSongId3);
-
-        String songId = queueFragment.getNextSong();
-        mSpotifyAppRemote.getPlayerApi().play("spotify:track:" + songId);
     }
 }

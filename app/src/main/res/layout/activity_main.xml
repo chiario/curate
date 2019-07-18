@@ -57,14 +57,27 @@
 
     <ImageButton
         android:id="@+id/ibDeleteQueue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/selector_menu"
         app:layout_constraintBottom_toBottomOf="@+id/clSearch"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/clSearch"
         app:srcCompat="@android:drawable/ic_menu_delete" />
+
+    <ImageButton
+        android:id="@+id/ibLeaveQueue"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/selector_menu"
+        app:layout_constraintBottom_toBottomOf="@+id/clSearch"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/clSearch"
+        app:srcCompat="@android:drawable/ic_menu_help" />
     <FrameLayout
         android:id="@+id/flPlaceholder"
         android:layout_width="0dp"
@@ -75,7 +88,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clSearch"
-        app:layout_constraintVertical_bias="1.0"></FrameLayout>
+        app:layout_constraintVertical_bias="1.0"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clCurPlaying"
