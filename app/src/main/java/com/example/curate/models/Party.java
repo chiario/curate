@@ -42,9 +42,11 @@ public class Party extends ParseObject {
         params.put(Song.ALBUM_KEY, song.getAlbum());
         params.put(Song.IMAGE_URL_KEY, song.getImageUrl());
 
-        ParseCloud.callFunctionInBackground("addSong", params, (PlaylistEntry entry, ParseException e) -> {
+        ParseCloud.callFunctionInBackground("addSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                addEntryToPlaylist(entry);
+                // Preserve the playlist object so that it can be used in an adapter
+                mPlaylist.clear();
+                mPlaylist.addAll(playlist);
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not add song!", e);
@@ -75,9 +77,11 @@ public class Party extends ParseObject {
         HashMap<String, Object> params = new HashMap<>();
         params.put(Song.SPOTIFY_ID_KEY, spotifyId);
 
-        ParseCloud.callFunctionInBackground("removeSong", params, (PlaylistEntry entry, ParseException e) -> {
+        ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                removeEntryFromPlaylist(entry);
+                // Preserve the playlist object so that it can be used in an adapter
+                mPlaylist.clear();
+                mPlaylist.addAll(playlist);
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not remove song!", e);
@@ -122,30 +126,6 @@ public class Party extends ParseObject {
      */
     public List<PlaylistEntry> getPlaylist() {
         return mPlaylist;
-    }
-
-    private void addEntryToPlaylist(PlaylistEntry entry) {
-        // TODO: check if this orders tied elements correctly
-        for(int i = 0; i < mPlaylist.size(); i++) {
-            if(entry.getScore().doubleValue() > mPlaylist.get(i).getScore().doubleValue()) {
-                mPlaylist.add(i, entry);
-                return;
-            } else if(entry.getScore().doubleValue() == mPlaylist.get(i).getScore().doubleValue()
-                    && entry.getCreatedAt().before(mPlaylist.get(i).getCreatedAt())) {
-                mPlaylist.add(i, entry);
-                return;
-            }
-        }
-        mPlaylist.add(entry);
-    }
-
-    private void removeEntryFromPlaylist(PlaylistEntry entry) {
-        for(int i = 0; i < mPlaylist.size(); i++) {
-            if(entry.getObjectId().equals(mPlaylist.get(i).getObjectId())) {
-                mPlaylist.remove(i);
-                return;
-            }
-        }
     }
 
     /***
