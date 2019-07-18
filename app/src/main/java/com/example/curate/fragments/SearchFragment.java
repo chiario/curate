@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.curate.R;
@@ -37,6 +38,7 @@ public class SearchFragment extends Fragment {
 	private static final String KEY_SEARCH = "search";
 
 	@BindView(R.id.rvSearch) RecyclerView rvSearch;
+	@BindView(R.id.progressBar) ProgressBar progressBar;
 
 	String searchText;
 
@@ -67,9 +69,19 @@ public class SearchFragment extends Fragment {
 	 */
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
-		Log.d(TAG, this.searchText);
+	}
+
+	public void search() {
+		progressBar.setVisibility(View.VISIBLE);
 		adapter.clear();
 		loadData(searchText);
+		searchText = "";
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		search();
 	}
 
 	/***
@@ -133,6 +145,7 @@ public class SearchFragment extends Fragment {
 			if(e == null) {
 				adapter.clear();
 				adapter.addAll(search.getResults());
+				progressBar.setVisibility(View.GONE);
 			} else {
 //				Toast.makeText(getContext(), "Could not search!", Toast.LENGTH_SHORT).show();
 			}

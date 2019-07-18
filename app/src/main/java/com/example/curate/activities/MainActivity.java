@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -49,8 +50,10 @@ import com.spotify.protocol.types.PlayerState;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
+import butterknife.OnTouch;
 
 public class MainActivity extends AppCompatActivity implements SearchAdapter.OnSongAddedListener, QueueAdapter.OnSongLikedListener {
 
@@ -173,16 +176,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             display(queueFragment);
         }
 
-        ibSearch.setOnClickListener(this::search);
-
-        etSearch.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                search(v);
-                return true;
-            }
-            return false;
-        });
-
         mSeekBar.setEnabled(false);
 //        mSeekBar.getProgressDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 //        mSeekBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
@@ -192,7 +185,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     private void search(View v) {
         display(searchFragment);
-        searchFragment.setSearchText(etSearch.getText().toString());
+        searchFragment.search();
+        etSearch.clearFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -260,11 +254,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
      * @param fragment Fragment to display
      */
     private void display(Fragment fragment) {
+        if(fragment == null || fragment.equals(activeFragment)) return;
         FragmentTransaction ft = fm.beginTransaction();
         if(activeFragment != null)
             ft.hide(activeFragment);
         ft.show(fragment);
-        if(fragment.equals(searchFragment) && activeFragment != fragment)
+        if(fragment.equals(searchFragment))
             ft.addToBackStack(fragment.getTag());
         ft.commit();
 
@@ -332,30 +327,28 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         searchFragment.setSearchText(etSearch.getText().toString());
     }*/
 
-    public void onSubscribeToPlayerState() {
-        if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
-            mPlayerStateSubscription.cancel(); // TODO - do we really want to cancel and remake the subscription every time?
-            mPlayerStateSubscription = null;
-        }
+   // ButterKnife Listeners
 
-        mPlayerStateSubscription = (Subscription<PlayerState>) mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState()
-                .setEventCallback(mPlayerStateEventCallback)
-                .setLifecycleCallback(new Subscription.LifecycleCallback() {
-                    @Override
-                    public void onStart() {
-                        Log.d(TAG, "Event: start");
-                    }
+   @OnTextChanged(R.id.etSearch)
+   public void onSearchTextChange(CharSequence text) {
+   	    searchFragment.setSearchText(text.toString());
+   }
 
-                    @Override
-                    public void onStop() {
-                        Log.d(TAG, "Event: end");
-                    }
-                })
-                .setErrorCallback(throwable -> {
-                    Log.e(TAG,throwable + "Subscribed to PlayerContext failed!");
-                });
-    }
+   @OnTouch(R.id.clSearch)
+   public void onSearchbarTouch(View view, MotionEvent motionEvent) {
+        display(searchFragment);
+   }
+
+   @OnClick(R.id.ibSearch)
+   public void onSearchClick(View v) {
+   	    search(v);
+   }
+
+   @OnEditorAction(R.id.etSearch)
+   public void onSearchEditorAction(TextView tv, int actionId) {
+	   if (actionId == EditorInfo.IME_ACTION_SEARCH)
+		   search((View) tv);
+   }
 
     @OnClick(R.id.ibDeleteQueue)
     public void onDeleteQueue(View v) {
@@ -409,6 +402,31 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         } else {
             Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void onSubscribeToPlayerState() {
+        if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
+            mPlayerStateSubscription.cancel(); // TODO - do we really want to cancel and remake the subscription every time?
+            mPlayerStateSubscription = null;
+        }
+
+        mPlayerStateSubscription = (Subscription<PlayerState>) mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(mPlayerStateEventCallback)
+                .setLifecycleCallback(new Subscription.LifecycleCallback() {
+                    @Override
+                    public void onStart() {
+                        Log.d(TAG, "Event: start");
+                    }
+
+                    @Override
+                    public void onStop() {
+                        Log.d(TAG, "Event: end");
+                    }
+                })
+                .setErrorCallback(throwable -> {
+                    Log.e(TAG,throwable + "Subscribed to PlayerContext failed!");
+                });
     }
 
     private class TrackProgressBar {
