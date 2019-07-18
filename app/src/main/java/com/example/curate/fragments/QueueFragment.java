@@ -1,6 +1,5 @@
 package com.example.curate.fragments;
 
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,19 +48,6 @@ public class QueueFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		// Set up on playlist updated callback
-		mPlaylistUpdatedCallback = e -> {
-			if(e == null) {
-				mAdapter.notifyDataSetChanged();
-			}
-		};
-		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
@@ -90,6 +76,7 @@ public class QueueFragment extends Fragment {
 				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 
+				initializePlaylistUpdateCallback();
 			} else {
 				Toast.makeText(getContext(), "Could not load playlist", Toast.LENGTH_LONG).show();
 			}
@@ -100,6 +87,15 @@ public class QueueFragment extends Fragment {
 	public void onDestroy() {
 		super.onDestroy();
 		mParty.deregisterPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+	}
+
+	private void initializePlaylistUpdateCallback() {
+		mPlaylistUpdatedCallback = e -> {
+			if(e == null) {
+				mAdapter.notifyDataSetChanged();
+			}
+		};
+		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
 	}
 
 	/***
