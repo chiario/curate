@@ -194,30 +194,7 @@ public class Party extends ParseObject {
         return false;
     }
 
-    /***
-     * Deletes the current user's party
-     * TODO make sure to check this when there are clients vs admins
-     * @param callback callback to run after the cloud function is executed
-     */
-    public static void deleteParty(@Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
-            if (e == null) {
-                mCurrentParty = null;
-                Log.d("Party.java", "Party deleted");
-            }
-            else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not delete party!", e);
-            }
-            // Run the callback if it exists
-            if(callback != null) {
-                callback.done(e);
-            }
-        });
-    }
-
-    /** TODO - fix this!
+    /**
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed
      */
@@ -266,18 +243,18 @@ public class Party extends ParseObject {
         });
     }
 
-    /** Current user leaves the current party
-     *
+    /**
+     * Current user leaves the current party
      * @param callback
      */
-
     public static void leaveParty(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("leaveParty", params, (ParseUser user, ParseException e) -> {
             if (e == null) {
-                Log.d("Party.java", "User left party");
+                // Remove the current party from the singleton instance
                 mCurrentParty = null;
+                Log.d("Party.java", "User left party");
             } else {
                 Log.e("Party.java", "Could not leave party", e);
             }
@@ -288,6 +265,30 @@ public class Party extends ParseObject {
             }
         });
 
+    }
+
+    /***
+     * Deletes the current user's party
+     * TODO make sure to check this when there are clients vs admins
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void deleteParty(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
+            if (e == null) {
+                // Remove the current party from the singleton instance
+                mCurrentParty = null;
+                Log.d("Party.java", "Party deleted");
+            }
+            else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not delete party!", e);
+            }
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
     }
 
     /**
@@ -308,29 +309,6 @@ public class Party extends ParseObject {
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not get current party!", e);
-            }
-
-            // Run the callback if it exists
-            if(callback != null) {
-                callback.done(e);
-            }
-        });
-    }
-
-    /**
-     * Creates a new party with the current user as the admin
-     * @param callback callback to run after the cloud function is executed
-     */
-    public static void destroyParty(@Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-
-        ParseCloud.callFunctionInBackground("destroyParty", params, (Party party, ParseException e) -> {
-            if (e == null) {
-                // Remove the current party from the singleton instance
-                mCurrentParty = null;
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not destroy party!", e);
             }
 
             // Run the callback if it exists
