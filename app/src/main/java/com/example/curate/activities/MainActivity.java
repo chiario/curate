@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         ButterKnife.bind(this);
 
         // Checks if user owns the current party and adjusts view
-        isAdmin = ParseUser.getCurrentUser().getObjectId().equals(Party.getCurrentParty().getAdmin().getObjectId()); // TODO - fix this code
+        isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
         Log.d(TAG, "Current user is admin: " + isAdmin);
 
         int visibility = isAdmin ? View.VISIBLE : View.GONE;
