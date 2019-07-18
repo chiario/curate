@@ -143,14 +143,25 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		public void onClickLike(final View v) {
 			final PlaylistEntry entry = playlist.get(getAdapterPosition());
 			v.setSelected(!entry.isLikedByUser());
-			Party.getCurrentParty().likeSong(entry.getSong().getSpotifyId(), e -> {
-				if(e == null) {
-					notifyDataSetChanged();
-				} else {
-					v.setSelected(entry.isLikedByUser());
-					Toast.makeText(context, "Could not like song!", Toast.LENGTH_SHORT).show();
-				}
-			});
+			if(entry.isLikedByUser()) {
+				Party.getCurrentParty().unlikeSong(entry.getSong().getSpotifyId(), e -> {
+					if(e == null) {
+						notifyDataSetChanged();
+					} else {
+						v.setSelected(entry.isLikedByUser());
+						Toast.makeText(context, "Could not unlike song!", Toast.LENGTH_SHORT).show();
+					}
+				});
+			} else {
+				Party.getCurrentParty().likeSong(entry.getSong().getSpotifyId(), e -> {
+					if(e == null) {
+						notifyDataSetChanged();
+					} else {
+						v.setSelected(entry.isLikedByUser());
+						Toast.makeText(context, "Could not like song!", Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
 		}
 	}
 }
