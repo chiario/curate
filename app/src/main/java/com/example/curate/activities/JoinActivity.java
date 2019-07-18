@@ -1,13 +1,15 @@
 package com.example.curate.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -85,7 +87,21 @@ public class JoinActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnJoinParty)
     public void onJoinParty(View view) {
-        Party.joinParty("oFyv4EUtAz", e -> {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        final EditText etPartyCode = new EditText(this);
+        alertDialogBuilder.setView(etPartyCode);
+        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                joinParty(etPartyCode.getText().toString());
+            }
+        });
+
+        alertDialogBuilder.show();
+    }
+
+    public void joinParty(String partyId) {
+        Party.joinParty(partyId, e -> {
             if (e == null) {
                 switchToMainActivity();
             } else {
