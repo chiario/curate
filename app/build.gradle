@@ -48,6 +48,7 @@ dependencies {
     implementation 'com.parse.bolts:bolts-android:1.4.0'
     implementation 'com.github.parse-community.Parse-SDK-Android:parse:1.20.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+    implementation 'com.github.parse-community:ParseLiveQuery-Android:1.1.0'
 
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'
@@ -56,7 +57,6 @@ dependencies {
     implementation project(':spotify-app-remote')
     implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.codepath.libraries:android-oauth-handler:1.4.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.0.1' // TODO: remove this?
 
     // palette
     implementation 'androidx.palette:palette:1.0.0'
