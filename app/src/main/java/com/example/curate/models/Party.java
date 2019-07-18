@@ -4,12 +4,16 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
+import com.parse.ParseDecoder;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,6 +99,58 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Likes a song in the party's playlist
+     * @param spotifyId the spotifyId of the song to like
+     * @param callback callback to run after the cloud function is executed
+     */
+    public void likeSong(String spotifyId, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(Song.SPOTIFY_ID_KEY, spotifyId);
+
+        ParseCloud.callFunctionInBackground("likeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
+            if (e == null) {
+                // Preserve the playlist object so that it can be used in an adapter
+                mPlaylist.clear();
+                mPlaylist.addAll(playlist);
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not like song!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Unlikes a song in the party's playlist
+     * @param spotifyId the spotifyId of the song to unlike
+     * @param callback callback to run after the cloud function is executed
+     */
+    public void unlikeSong(String spotifyId, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(Song.SPOTIFY_ID_KEY, spotifyId);
+
+        ParseCloud.callFunctionInBackground("unlikeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
+            if (e == null) {
+                // Preserve the playlist object so that it can be used in an adapter
+                mPlaylist.clear();
+                mPlaylist.addAll(playlist);
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not unlike song!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
      * Updates the party's playlist.  The updated playlist can be accessed by calling getPlaylist()
      * in the callback
      * @param callback callback to run after the cloud function is executed
@@ -151,6 +207,7 @@ public class Party extends ParseObject {
         HashMap<String, Object> params = new HashMap<>();
         ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
             if (e == null) {
+                mCurrentParty = null;
                 Log.d("Party.java", "Party deleted");
             }
             else {
