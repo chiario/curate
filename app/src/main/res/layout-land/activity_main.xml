@@ -123,6 +123,14 @@
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent">
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="right"
+            app:constraint_referenced_ids="ibDeleteQueue,ibLeaveQueue"
+            tools:layout_editor_absoluteX="56dp" />
+
         <ImageButton
             android:id="@+id/ibDeleteQueue"
             android:layout_width="0dp"
@@ -163,7 +171,7 @@
             android:inputType="textPersonName"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ibSearch"
-            app:layout_constraintStart_toEndOf="@+id/ibDeleteQueue"
+            app:layout_constraintStart_toEndOf="@+id/barrier"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton

@@ -1,7 +1,6 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,17 +10,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.BaseRequestOptions;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
+import com.parse.ParseUser;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,11 +58,17 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		Context context = parent.getContext();
 		LayoutInflater inflater = LayoutInflater.from(context);
-
 		// Inflate the custom layout
 		View contactView = inflater.inflate(R.layout.item_song_queue, parent, false);
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
+		// Only show delete icon if current user is admin of current party
+		boolean isAdmin = ParseUser.getCurrentUser().getObjectId().equals(Party.getCurrentParty().getAdmin().getObjectId());
+		if (isAdmin) {
+			viewHolder.ibRemove.setVisibility(View.VISIBLE);
+		} else {
+			viewHolder.ibRemove.setVisibility(View.GONE);
+		}
 		return viewHolder;
 	}
 

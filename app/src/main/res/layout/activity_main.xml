@@ -11,11 +11,10 @@
         style="@style/AppTheme.SearchbarBackground"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ibDeleteQueue"
+        app:layout_constraintStart_toEndOf="@id/barrier"
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
@@ -54,6 +53,14 @@
             app:srcCompat="@drawable/ic_search" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="right"
+        app:constraint_referenced_ids="ibDeleteQueue,ibLeaveQueue"
+        tools:layout_editor_absoluteX="411dp" />
 
     <ImageButton
         android:id="@+id/ibDeleteQueue"

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -112,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         mPlayPauseButton.setVisibility(visibility);
         mSkipNextButton.setVisibility(visibility);
         mSkipPrevButton.setVisibility(visibility);
+        mSeekBar.setVisibility(visibility);
         if (isAdmin) {
             Spotify.connectRemote(this, mPlayerStateEventCallback, getString(R.string.clientId));
         }
@@ -145,15 +145,17 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @Override
     protected void onResume() {
         super.onResume();
-        // Check if Spotify app is installed on device
-        PackageManager pm = getPackageManager();
-        try {
-            pm.getPackageInfo("com.spotify.music", 0);
-            isSpotifyInstalled = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            isSpotifyInstalled = false;
-            Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
-            // TODO prompt installation
+        if (isAdmin) {
+            // Check if Spotify app is installed on device
+            PackageManager pm = getPackageManager();
+            try {
+                pm.getPackageInfo("com.spotify.music", 0);
+                isSpotifyInstalled = true;
+            } catch (PackageManager.NameNotFoundException e) {
+                isSpotifyInstalled = false;
+                Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
+                // TODO prompt installation
+            }
         }
     }
 
@@ -180,6 +182,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 break;
         }
         etSearch.setText("");
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
     private void setPlayerColor(Bitmap bitmap) {
@@ -217,42 +223,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
         activeFragment = fragment;
     }
-
-    /**
-     * Spotify Player event callback
-     * Updates current song views when new song begins playing
-     */
-//    @SuppressLint("SetTextI18n")
-    public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
-        @Override
-        public void onEvent(PlayerState playerState) {
-            // Update progressbar
-            if (playerState.playbackSpeed > 0) {
-                mTrackProgressBar.unpause();
-            } else {
-                mTrackProgressBar.pause();
-            }
-
-            // Invalidate play / pause
-            if (playerState.isPaused) {
-                mPlayPauseButton.setImageResource(R.drawable.btn_play);
-            } else {
-                mPlayPauseButton.setImageResource(R.drawable.btn_pause);
-            }
-
-            tvTitle.setText(playerState.track.name);
-            tvArtist.setText(playerState.track.artist.name);
-            // Get image from track
-            Spotify.setAlbumArt(playerState, ivAlbum);
-
-            // Invalidate seekbar length and position
-            mSeekBar.setMax((int) playerState.track.duration);
-            mTrackProgressBar.setDuration(playerState.track.duration);
-            mTrackProgressBar.update(playerState.playbackPosition);
-
-            mSeekBar.setEnabled(true);
-        }
-    };
 
    /* TODO Decide if we want this?
     @OnTextChanged(R.id.etSearch)
@@ -338,6 +308,44 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             finish();
         });
     }
+
+    //Methods for Spotify remote player communication
+
+    /**
+     * Spotify Player event callback
+     * Updates current song views when new song begins playing
+     */
+//    @SuppressLint("SetTextI18n")
+    public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
+        @Override
+        public void onEvent(PlayerState playerState) {
+            // Update progressbar
+            if (playerState.playbackSpeed > 0) {
+                mTrackProgressBar.unpause();
+            } else {
+                mTrackProgressBar.pause();
+            }
+
+            // Invalidate play / pause
+            if (playerState.isPaused) {
+                mPlayPauseButton.setImageResource(R.drawable.btn_play);
+            } else {
+                mPlayPauseButton.setImageResource(R.drawable.btn_pause);
+            }
+
+            tvTitle.setText(playerState.track.name);
+            tvArtist.setText(playerState.track.artist.name);
+            // Get image from track
+            Spotify.setAlbumArt(playerState, ivAlbum);
+
+            // Invalidate seekbar length and position
+            mSeekBar.setMax((int) playerState.track.duration);
+            mTrackProgressBar.setDuration(playerState.track.duration);
+            mTrackProgressBar.update(playerState.playbackPosition);
+
+            mSeekBar.setEnabled(true);
+        }
+    };
 
     @OnClick(R.id.skip_prev_button)
     public void onRestartSong() {
