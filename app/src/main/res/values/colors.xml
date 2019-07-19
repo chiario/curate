@@ -7,6 +7,7 @@
     <color name="colorAccent_90">#E6FF00A5</color>
     <color name="colorAccent_80">#CCFF00A5</color>
     <color name="colorAccent_70">#B3FF00A5</color>
+    <color name="colorAccent_text">#FF73CD</color>
     <color name="colorText">#BFFFFFFF</color>
     <color name="colorTextHint">#80FFFFFF</color>
     <color name="colorButton">#60FFFFFF</color>

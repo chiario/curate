@@ -6,7 +6,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -17,6 +21,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -330,20 +335,45 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     @OnClick(R.id.ibDeleteQueue)
     public void onDeleteQueue(View v) {
-        Party.deleteParty(e -> {
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete this party?")
+                .setMessage("You won't be able to undo this action!")
+                .setPositiveButton("Delete", (dialogInterface, i) -> {
+                    Party.deleteParty(e -> {
+                        Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
+
+        builder.show();
     }
 
     @OnClick(R.id.ibLeaveQueue)
     public void onLeaveQueue(View v) {
-        Party.leaveParty(e -> {
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        String message = "You can rejoin this party with the following code: " + party.getJoinCode();
+        int joinCodeColor = ContextCompat.getColor(this, R.color.colorAccent_text);
+        SpannableStringBuilder messageSpan = new SpannableStringBuilder(message);
+        messageSpan.setSpan(new ForegroundColorSpan(joinCodeColor),
+                message.length() - 4,
+                message.length(),
+                Spanned.SPAN_INCLUSIVE_INCLUSIVE
+        );
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Leave this party?")
+                .setMessage(messageSpan)
+                .setPositiveButton("Delete", (dialogInterface, i) -> {
+                    Party.leaveParty(e -> {
+                        Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
+
+        builder.show();
     }
 
     //Methods for Spotify remote player communication
