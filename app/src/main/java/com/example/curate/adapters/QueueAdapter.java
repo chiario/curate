@@ -27,7 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> implements ItemTouchHelperCallbacks.Adapter {
+public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 
 	// Instance variables
 	private Context context;
@@ -82,7 +82,11 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		holder.ibLike.setSelected(playlist.get(position).isLikedByUser());
 		holder.ibRemove.setSelected(false);
 
-		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
+		Glide
+				.with(context)
+				.load(song.getImageUrl())
+				.placeholder(R.drawable.ic_album_placeholder)
+				.into(holder.ivAlbum);
 	}
 
 	@Override
@@ -94,16 +98,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	@Override
 	public int getItemCount() {
 		return playlist.size();
-	}
-
-	public void clear() {
-		playlist.clear();
-		notifyDataSetChanged();
-	}
-
-	@Override
-	public void onItemDismiss(int position) {
-
 	}
 
 	public void onItemRemove(RecyclerView.ViewHolder viewHolder) {
@@ -125,6 +119,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
+		@BindView(R.id.clItem) ConstraintLayout clItem;
 
 		public ViewHolder(View itemView) {
 			super(itemView);

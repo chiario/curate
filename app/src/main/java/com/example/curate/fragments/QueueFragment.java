@@ -59,7 +59,7 @@ public class QueueFragment extends Fragment {
 	}
 
 	/***
-	 * Set up the adapter and recycler view when the fragment view is created.
+	 * Set up the mAdapter and recycler view when the fragment view is created.
 	 * @param view
 	 * @param savedInstanceState
 	 */
@@ -73,11 +73,8 @@ public class QueueFragment extends Fragment {
 			if(e == null) {
 				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
 				mAdapter.setHasStableIds(true);
-				Point size = new Point();
 
-				getActivity().getWindowManager().getDefaultDisplay().getSize(size);
-
-				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, size.x, getContext());
+				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
 				new ItemTouchHelper(callbacks.fullCallback).attachToRecyclerView(rvQueue);
 
 				rvQueue.setAdapter(mAdapter);

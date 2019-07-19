@@ -1,7 +1,6 @@
 package com.example.curate.fragments;
 
 
-import android.graphics.Canvas;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,7 +22,6 @@ import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.models.Song;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,17 +34,12 @@ public class SearchFragment extends Fragment {
 
 	private static final String TAG = "SearchFragment";
 
-	private static final String KEY_SEARCH = "search";
-
 	@BindView(R.id.rvSearch) RecyclerView rvSearch;
 	@BindView(R.id.progressBar) ProgressBar progressBar;
 	@BindView(R.id.clText) ConstraintLayout clText;
 	@BindView(R.id.tvError) TextView tvError;
 
-	SearchAdapter adapter;
-
-	List<Song> songs;
-
+	SearchAdapter mAdapter;
 
 	public SearchFragment() {
 		// Required empty public constructor
@@ -70,14 +63,14 @@ public class SearchFragment extends Fragment {
 	 */
 	public void executeSearch(String searchText) {
 		progressBar.setVisibility(View.VISIBLE);
-		adapter.clear();
+		mAdapter.clear();
 		hideText();
 		loadData(searchText);
 	}
 
 	public void newSearch() {
 		progressBar.setVisibility(View.INVISIBLE);
-		adapter.clear();
+		mAdapter.clear();
 		showText(getString(R.string.new_search));
 	}
 
@@ -90,7 +83,7 @@ public class SearchFragment extends Fragment {
 	@Override
 	public void onStop() {
 		super.onStop();
-		adapter.clear();
+		mAdapter.clear();
 	}
 
 	/***
@@ -108,7 +101,7 @@ public class SearchFragment extends Fragment {
 	}
 
 	/***
-	 * Set up the adapter and recycler view when the fragment view is created.
+	 * Set up the mAdapter and recycler view when the fragment view is created.
 	 * @param view
 	 * @param savedInstanceState
 	 */
@@ -117,13 +110,11 @@ public class SearchFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 
-
-		songs = new ArrayList<Song>();
-		// Create the adapter, along with onClick listener for the "add" button
-		adapter = new SearchAdapter(getContext(), songs);
-		adapter.setListener((SearchAdapter.OnSongAddedListener) getActivity());
-		// Set adapter, layout manger, and item decorations
-		rvSearch.setAdapter(adapter);
+		// Create the mAdapter, along with onClick listener for the "add" button
+		mAdapter = new SearchAdapter(getContext(), new ArrayList<Song>());
+		mAdapter.setListener((SearchAdapter.OnSongAddedListener) getActivity());
+		// Set mAdapter, layout manger, and item decorations
+		rvSearch.setAdapter(mAdapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 //		rvSearch.addItemDecoration(new DividerItemDecoration(rvSearch.getContext(),
 //				DividerItemDecoration.VERTICAL));
@@ -140,14 +131,13 @@ public class SearchFragment extends Fragment {
 		search.setQuery(searchText).setLimit(15).find(e -> {
 			progressBar.setVisibility(View.GONE);
 			if(e == null) {
-				adapter.clear();
-				adapter.addAll(search.getResults());
+				mAdapter.clear();
+				mAdapter.addAll(search.getResults());
 			} else {
 				if(e.getMessage().startsWith("400"))
 					showText(getString(R.string.no_search_result));
 				else
 					showText(getString(R.string.search_error));
-//				Toast.makeText(getContext(), "Could not search!", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

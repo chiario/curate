@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
+import com.example.curate.utils.Animations;
 
 public class ItemTouchHelperCallbacks {
 
@@ -25,18 +27,9 @@ public class ItemTouchHelperCallbacks {
 
 	private Context mContext;
 
-	private int lastDirection;
-
-	private int mWidth;
-
-	public interface Adapter {
-		void onItemDismiss(int position);
-	}
-
-	public ItemTouchHelperCallbacks(QueueAdapter adapter, int width, Context context) {
+	public ItemTouchHelperCallbacks(QueueAdapter adapter, Context context) {
 		mAdapter = adapter;
 		mContext = context;
-		mWidth = width;
 	}
 
 	public ItemTouchHelper.SimpleCallback fullCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -47,12 +40,17 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+			QueueAdapter.ViewHolder queueViewHolder = (QueueAdapter.ViewHolder) viewHolder;
 			if(direction == ItemTouchHelper.RIGHT) {
 				mAdapter.onItemRemove(viewHolder);
 			}
 			else if (direction == ItemTouchHelper.LEFT) {
 				mAdapter.onItemLike(viewHolder);
 				mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+				// TODO: Why is this animation not working?
+				Handler handler = new Handler();
+				handler.post(new Animations.PressRunnable(queueViewHolder.clItem,
+						queueViewHolder.ibLike.getX(), queueViewHolder.ibLike.getY()));
 			}
 		}
 
