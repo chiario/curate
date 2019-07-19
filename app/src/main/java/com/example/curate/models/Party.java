@@ -22,6 +22,7 @@ import java.util.List;
 @ParseClassName("Party")
 public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
+    private static final String JOIN_CODE_KEY = "joinCode";
     private static final String CURRENTLY_PLAYING_KEY = "curPlaying";
 
     private static Party mCurrentParty;
@@ -241,6 +242,14 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Gets the party's join code.  Other users can join the party through this code.
+     * @return the party's join code
+     */
+    public String getJoinCode() {
+        return getString(JOIN_CODE_KEY);
+    }
+
+    /**
      * Registers a new callback that is called when the party's playlist changes
      * @param callback
      */
@@ -335,11 +344,11 @@ public class Party extends ParseObject {
     /**
      * Adds current user to an existing party
      * @param callback callback to run after the cloud function is executed
-     * @param partyId the objectId of the party to join
+     * @param joinCode the join code of the party to join
      */
-    public static void joinParty(String partyId, @Nullable final SaveCallback callback) {
+    public static void joinParty(String joinCode, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("partyId", partyId);
+        params.put(JOIN_CODE_KEY, joinCode);
 
         ParseCloud.callFunctionInBackground("joinParty", params, (Party party, ParseException e) -> {
             if (e == null) {

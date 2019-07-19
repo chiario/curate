@@ -3,7 +3,9 @@ package com.example.curate.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -80,12 +82,16 @@ public class JoinActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnJoinParty)
     public void onJoinParty(View view) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        final EditText etPartyCode = new EditText(this);
-        alertDialogBuilder.setView(etPartyCode);
-        alertDialogBuilder.setPositiveButton("OK", (dialogInterface, i) -> joinParty(etPartyCode.getText().toString()));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        alertDialogBuilder.show();
+        builder.setTitle("Enter Join Code");
+        View viewInflated = LayoutInflater.from(this).inflate(R.layout.dialog_join, findViewById(android.R.id.content), false);
+        final EditText etPartyCode = viewInflated.findViewById(R.id.etJoinCode);
+        builder.setView(viewInflated);
+        builder.setPositiveButton("Submit", (dialogInterface, i) -> joinParty(etPartyCode.getText().toString()));
+        builder.setNegativeButton("Cancel", (dialogInterface, i) -> {});
+
+        builder.show();
     }
 
     public void joinParty(String partyId) {
