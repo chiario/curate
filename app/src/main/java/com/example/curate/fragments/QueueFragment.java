@@ -1,7 +1,6 @@
 package com.example.curate.fragments;
 
 
-import android.graphics.Canvas;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,8 +28,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class QueueFragment extends Fragment {
-	private static final String DEFAULT_SONG_ID = "7GhIk7Il098yCjg4BQjzvb";
-
 	private QueueAdapter mAdapter;
 	private Party mParty;
 	private SaveCallback mPlaylistUpdatedCallback;

@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
-    private TrackProgressBar mTrackProgressBar;
+    private Spotify.TrackProgressBar mTrackProgressBar;
     private QueueFragment queueFragment;
     private SearchFragment searchFragment;
     private Party party;
@@ -78,10 +78,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private boolean isSpotifyInstalled = false;
     private boolean isAdmin = false;
 
-    //TODO - delete these
-    private String testSongId = "7GhIk7Il098yCjg4BQjzvb";
-    private String testSongId2 = "37ZJ0p5Jm13JPevGcx4SkF";
-    private String testSongId3 = "43eBgYRTmu5BJnCJDBU5Hb";
+    private Spotify mSpotifyRemote;
+
 
     // Search Fragment Listener:
 
@@ -124,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         mSkipPrevButton.setVisibility(visibility);
         mSeekBar.setVisibility(visibility);
         if (isAdmin) {
-            Spotify.connectRemote(this, mPlayerStateEventCallback, getString(R.string.clientId));
+            mSpotifyRemote = new Spotify(this, mPlayerStateEventCallback, getString(R.string.clientId));
         } else {
             initializeSongUpdateCallback();
         }
@@ -152,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         }
 
         mSeekBar.setEnabled(false);
-        mTrackProgressBar = new TrackProgressBar(mSeekBar);
+        mTrackProgressBar = new Spotify.TrackProgressBar(mSpotifyRemote, mSeekBar);
+        mSpotifyRemote.setTrackProgressBar(mTrackProgressBar);
     }
 
     @Override
@@ -217,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                     tvArtist.setText(currentSong.getArtist());
                     Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
                 }
-//                Log.d(TAG, "Got callback. Current song is " + currentSong.toString());
 
             } else {
                 Log.d(TAG, "Error in song update callback", e);
@@ -226,9 +224,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         party.registerPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
-    }
 
     private void setPlayerColor(Bitmap bitmap) {
         Palette.from(bitmap).generate(p -> {
@@ -298,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         searchFragment.newSearch();
     }
 
-   // ButterKnife Listeners
+    // ButterKnife Listeners
 
 //   @OnTextChanged(R.id.etSearch)
 //   public void onSearchTextChange(CharSequence text) {
@@ -306,11 +301,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 //   }
 
 
-
     @OnFocusChange(R.id.etSearch)
     public void onSearchFocusChange(boolean hasFocus) {
-        if(hasFocus) {
-           focusSearch();
+        if (hasFocus) {
+            focusSearch();
         }
     }
 
@@ -321,16 +315,16 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     @OnClick(R.id.ibSearch)
     public void onSearchClick(View v) {
-        if(!etSearch.hasFocus())
+        if (!etSearch.hasFocus())
             focusSearch();
         else
-   	        search(v);
+            search(v);
     }
 
     @OnEditorAction(R.id.etSearch)
     public void onSearchEditorAction(TextView tv, int actionId) {
-       if (actionId == EditorInfo.IME_ACTION_SEARCH)
-           search((View) tv);
+        if (actionId == EditorInfo.IME_ACTION_SEARCH)
+            search((View) tv);
     }
 
     @OnClick(R.id.ibDeleteQueue)
@@ -386,118 +380,73 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
         @Override
         public void onEvent(PlayerState playerState) {
-            // Update progressbar
-            if (playerState.playbackSpeed > 0) {
-                mTrackProgressBar.unpause();
-            } else {
+            if (playerState.track == null) {
                 mTrackProgressBar.pause();
-            }
-
-            // Invalidate play / pause
-            if (playerState.isPaused) {
                 mPlayPauseButton.setImageResource(R.drawable.btn_play);
+                tvTitle.setText("--");
+                tvArtist.setText("--");
+                mSeekBar.setEnabled(false);
             } else {
-                mPlayPauseButton.setImageResource(R.drawable.btn_pause);
+                // Update progressbar
+                if (playerState.playbackSpeed > 0) {
+                    mTrackProgressBar.unpause();
+                } else {
+                    mTrackProgressBar.pause();
+                }
+
+                // Invalidate play / pause
+                if (playerState.isPaused) {
+                    mPlayPauseButton.setImageResource(R.drawable.btn_play);
+                } else {
+                    mPlayPauseButton.setImageResource(R.drawable.btn_pause);
+                }
+
+                tvTitle.setText(playerState.track.name);
+                tvArtist.setText(playerState.track.artist.name);
+                // Get image from track
+                mSpotifyRemote.setAlbumArt(playerState, ivAlbum);
+
+                // Invalidate seekbar length and position
+                mSeekBar.setMax((int) playerState.track.duration);
+                mTrackProgressBar.setDuration(playerState.track.duration);
+                mTrackProgressBar.update(playerState.playbackPosition);
+
+                mSeekBar.setEnabled(true);
             }
-
-            tvTitle.setText(playerState.track.name);
-            tvArtist.setText(playerState.track.artist.name);
-            // Get image from track
-            Spotify.setAlbumArt(playerState, ivAlbum);
-
-            // Invalidate seekbar length and position
-            mSeekBar.setMax((int) playerState.track.duration);
-            mTrackProgressBar.setDuration(playerState.track.duration);
-            mTrackProgressBar.update(playerState.playbackPosition);
-
-            mSeekBar.setEnabled(true);
         }
     };
 
     @OnClick(R.id.skip_prev_button)
     public void onRestartSong() {
-        Spotify.restartSong();
+        if (isSpotifyInstalled) {
+            mSpotifyRemote.restartSong();
+        }
     }
 
     @OnClick(R.id.play_pause_button)
     public void onPlayPause() {
-        Spotify.playPause();
+        if (isSpotifyInstalled) {
+            mSpotifyRemote.playPause();
+        }
     }
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        party.getNextSong(e -> {
-            try {
-                Spotify.playNextSong(party.getCurrentSong().getSpotifyId());
-            } catch (NullPointerException e1) {
-                Log.d(TAG, "No current song in playlist");
-                Spotify.playNextSong(getString(R.string.default_song_id));
-            }
-        });
-    }
+        if (isSpotifyInstalled) {
+            party.getNextSong(e -> {
 
-    public class TrackProgressBar {
-        private static final int LOOP_DURATION = 500;
-        private final SeekBar mSeekBar;
-        private final Handler mHandler;
+                if (e == null) {
+                    mSpotifyRemote.playNextSong(party.getCurrentSong().getSpotifyId());
 
-        private TrackProgressBar(SeekBar seekBar) {
-            mSeekBar = seekBar;
-            mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
-            mHandler = new Handler();
-        }
-
-        private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int timeRemaining = mSeekBar.getMax() - progress;
-                if (timeRemaining < 1500 && isAdmin) {
-                    party.getNextSong(e -> {
-                        try {
-                            Spotify.playNextSong(party.getCurrentSong().getSpotifyId());
-                        } catch (NullPointerException e1) {
-                            Log.d(TAG, "No current song in playlist");
-                            Spotify.playNextSong(getString(R.string.default_song_id));
-                        }
-                    });
+                } else {
+                    Log.e(TAG, "Error getting next song", e);
                 }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                Spotify.seekTo(seekBar.getProgress(), mTrackProgressBar);
-            }
-        };
-
-        private final Runnable mSeekRunnable = new Runnable() {
-            @Override
-            public void run() {
-                int progress = mSeekBar.getProgress();
-                mSeekBar.setProgress(progress + LOOP_DURATION);
-                mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
-            }
-        };
-
-
-        private void setDuration(long duration) {
-            mSeekBar.setMax((int) duration);
-        }
-
-        public void update(long progress) {
-            mSeekBar.setProgress((int) progress);
-        }
-
-        private void pause() {
-            mHandler.removeCallbacks(mSeekRunnable);
-        }
-
-        private void unpause() {
-            mHandler.removeCallbacks(mSeekRunnable);
-            mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
+                /*try {
+                    mSpotifyRemote.playNextSong(party.getCurrentSong().getSpotifyId());
+                } catch (Exception e1) {
+                    Toast.makeText(MainActivity.this, "Add another song!", Toast.LENGTH_LONG).show();
+                }*/
+            });
         }
     }
 }
