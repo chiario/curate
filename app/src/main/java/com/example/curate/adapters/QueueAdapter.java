@@ -1,36 +1,32 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.BaseRequestOptions;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
 
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> implements SongTouchHelperAdapter{
+public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> implements ItemTouchHelperCallbacks.Adapter {
 
 	// Instance variables
 	private Context context;
@@ -94,23 +90,17 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public void onItemDismiss(int position) {
-		playlist.remove(position);
-		notifyItemRemoved(position);
+
 	}
 
-	@Override
-	public void onItemMove(int fromPosition, int toPosition) {
-		// TODO: Hook up to proper cloud code
-		if (fromPosition < toPosition) {
-			for (int i = fromPosition; i < toPosition; i++) {
-				Collections.swap(playlist, i, i + 1);
-			}
-		} else {
-			for (int i = fromPosition; i > toPosition; i--) {
-				Collections.swap(playlist, i, i - 1);
-			}
-		}
-		notifyItemMoved(fromPosition, toPosition);
+	public void onItemRemove(RecyclerView.ViewHolder viewHolder) {
+		ViewHolder vh = (ViewHolder) viewHolder;
+		vh.onClickRemove(vh.ibRemove);
+	}
+
+	public void onItemLike(RecyclerView.ViewHolder viewHolder) {
+		ViewHolder vh = (ViewHolder) viewHolder;
+		vh.onClickLike(vh.ibLike);
 	}
 
 	/***

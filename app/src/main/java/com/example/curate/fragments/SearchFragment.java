@@ -1,6 +1,7 @@
 package com.example.curate.fragments;
 
 
+import android.graphics.Canvas;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -63,6 +64,10 @@ public class SearchFragment extends Fragment {
 		return fragment;
 	}
 
+	/***
+	 * Execute a search for the given string
+	 * @param searchText the string to search for
+	 */
 	public void executeSearch(String searchText) {
 		progressBar.setVisibility(View.VISIBLE);
 		adapter.clear();

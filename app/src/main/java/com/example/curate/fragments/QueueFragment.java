@@ -1,5 +1,8 @@
 package com.example.curate.fragments;
 
+
+import android.graphics.Canvas;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
 import com.example.curate.adapters.DividerItemDecoration;
+import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.QueueAdapter;
-import com.example.curate.adapters.SongTouchHelperCallback;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.parse.SaveCallback;
@@ -67,12 +70,16 @@ public class QueueFragment extends Fragment {
 		mParty = Party.getCurrentParty();
 		mParty.updatePlaylist(e -> {
 			if(e == null) {
-				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
-				ItemTouchHelper.Callback callback =
-						new SongTouchHelperCallback(mAdapter);
-				ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-				touchHelper.attachToRecyclerView(rvQueue);
-				rvQueue.setAdapter(mAdapter);
+				adapter = new QueueAdapter(getContext(), party.getPlaylist());
+
+				Point size = new Point();
+
+				getActivity().getWindowManager().getDefaultDisplay().getSize(size);
+
+				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(adapter, size.x, getContext());
+				new ItemTouchHelper(callbacks.fullCallback).attachToRecyclerView(rvQueue);
+
+				rvQueue.setAdapter(adapter);
 				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 

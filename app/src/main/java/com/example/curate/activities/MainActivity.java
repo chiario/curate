@@ -294,7 +294,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 //   }
 
 
-
+    /***
+     * OnFocusChange Listener for the search bar, calls focusSearch
+     * @param hasFocus the new focus state for the search bar
+     */
     @OnFocusChange(R.id.etSearch)
     public void onSearchFocusChange(boolean hasFocus) {
         if(hasFocus) {
