@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
+import com.example.curate.adapters.AnimatedLinearLayoutManager;
 import com.example.curate.adapters.DividerItemDecoration;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.QueueAdapter;
@@ -71,7 +72,7 @@ public class QueueFragment extends Fragment {
 		mParty.updatePlaylist(e -> {
 			if(e == null) {
 				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
-
+				mAdapter.setHasStableIds(true);
 				Point size = new Point();
 
 				getActivity().getWindowManager().getDefaultDisplay().getSize(size);
@@ -80,7 +81,7 @@ public class QueueFragment extends Fragment {
 				new ItemTouchHelper(callbacks.fullCallback).attachToRecyclerView(rvQueue);
 
 				rvQueue.setAdapter(mAdapter);
-				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
+				rvQueue.setLayoutManager(new AnimatedLinearLayoutManager(getContext()));
 				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 
 				initializePlaylistUpdateCallback();

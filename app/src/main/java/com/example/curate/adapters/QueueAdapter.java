@@ -86,6 +86,12 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	}
 
 	@Override
+	public long getItemId(int position) {
+		Song song = playlist.get(position).getSong();
+		return song.getSpotifyId().hashCode();
+	}
+
+	@Override
 	public int getItemCount() {
 		return playlist.size();
 	}
