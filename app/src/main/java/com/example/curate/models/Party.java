@@ -9,8 +9,11 @@ import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.livequery.ParseLiveQueryClient;
+import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,15 +23,39 @@ import java.util.List;
 public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String CURRENTLY_PLAYING_KEY = "curPlaying";
-    private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
 
     private static Party mCurrentParty;
-    private static Song mCurrentSong;
+    private Song mCurrentSong;
 
     private List<PlaylistEntry> mPlaylist;
+    private List<SaveCallback> mPlaylistUpdateCallbacks;
 
-    public Party() {
+    public Party() {}
+
+    /**
+     * Initializes the party object and sets up live queries
+     */
+    private void initialize() {
         mPlaylist = new ArrayList<>();
+        mPlaylistUpdateCallbacks = new ArrayList<>();
+
+        // Set up live query
+        ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
+        ParseQuery<Party> parseQuery = ParseQuery.getQuery(Party.class);
+        parseQuery.include("currPlaying");
+        parseQuery.whereEqualTo("objectId", getObjectId());
+        SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
+
+        // Listen for when the party is updated
+        handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
+            mCurrentSong = (Song) party.getParseObject("curPlaying");
+            updatePlaylist(e -> {
+                for(SaveCallback callback : mPlaylistUpdateCallbacks) {
+                    callback.done(e);
+                }
+            });
+        });
+
     }
 
     /**
@@ -213,6 +240,22 @@ public class Party extends ParseObject {
         return mPlaylist;
     }
 
+    /**
+     * Registers a new callback that is called when the party's playlist changes
+     * @param callback
+     */
+    public void registerPlaylistUpdateCallback(SaveCallback callback) {
+        mPlaylistUpdateCallbacks.add(callback);
+    }
+
+    /**
+     * Deregisters a callback that was added to free up memory
+     * @param callback
+     */
+    public void deregisterPlaylistUpdateCallback(SaveCallback callback) {
+        mPlaylistUpdateCallbacks.remove(callback);
+    }
+
     /***
      * Checks if a song is already added to the playlist
      * @param song song to check if added
@@ -227,27 +270,13 @@ public class Party extends ParseObject {
         return false;
     }
 
-    /***
-     * Deletes the current user's party
-     * TODO make sure to check this when there are clients vs admins
-     * @param callback callback to run after the cloud function is executed
+    /**
+     * @return the true if the logged in user is the admin of their party
      */
-    public static void deleteParty(@Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
-            if (e == null) {
-                mCurrentParty = null;
-                Log.d("Party.java", "Party deleted");
-            }
-            else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not delete party!", e);
-            }
-            // Run the callback if it exists
-            if(callback != null) {
-                callback.done(e);
-            }
-        });
+    public boolean isCurrentUserAdmin() {
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+        String adminId = getParseUser(ADMIN_KEY).getObjectId();
+        return currentUserId.equals(adminId);
     }
 
     /**
@@ -261,10 +290,39 @@ public class Party extends ParseObject {
             if (e == null) {
                 // Save the created party to the singleton instance
                 mCurrentParty = party;
+                mCurrentParty.initialize();
             }
             else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not create party!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Creates a new party with the current user as the admin
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void getExistingParty(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("getCurrentParty", params, (Party party, ParseException e) -> {
+            if (e == null) {
+                if (party == null) {
+                    Log.e("Party.java", "User's party has been deleted!");
+                } else {
+                    // Save the created party to the singleton instance
+                    mCurrentParty = party;
+                    mCurrentParty.initialize();
+                }
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get current party!", e);
             }
 
             // Run the callback if it exists
@@ -287,6 +345,7 @@ public class Party extends ParseObject {
             if (e == null) {
                 // Save the created party to the singleton instance
                 mCurrentParty = party;
+                mCurrentParty.initialize();
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not join party!", e);
@@ -299,18 +358,18 @@ public class Party extends ParseObject {
         });
     }
 
-    /** Current user leaves the current party
-     *
+    /**
+     * Current user leaves the current party
      * @param callback
      */
-
     public static void leaveParty(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("leaveParty", params, (ParseUser user, ParseException e) -> {
             if (e == null) {
-                Log.d("Party.java", "User left party");
+                // Remove the current party from the singleton instance
                 mCurrentParty = null;
+                Log.d("Party.java", "User left party");
             } else {
                 Log.e("Party.java", "Could not leave party", e);
             }
@@ -323,49 +382,22 @@ public class Party extends ParseObject {
 
     }
 
-    /**
-     * Get the party that the user is currently part of, null if the party does not exist
+    /***
+     * Deletes the current user's party
      * @param callback callback to run after the cloud function is executed
      */
-    public static void getExistingParty(@Nullable final SaveCallback callback) {
+    public static void deleteParty(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
-
-        ParseCloud.callFunctionInBackground("getCurrentParty", params, (Party party, ParseException e) -> {
-            if (e == null) {
-                if (party == null) {
-                    Log.e("Party.java", "User's party has been deleted!");
-                } else {
-                    // Save the created party to the singleton instance
-                    mCurrentParty = party;
-                }
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not get current party!", e);
-            }
-
-            // Run the callback if it exists
-            if(callback != null) {
-                callback.done(e);
-            }
-        });
-    }
-
-    /**
-     * Creates a new party with the current user as the admin
-     * @param callback callback to run after the cloud function is executed
-     */
-    public static void destroyParty(@Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-
-        ParseCloud.callFunctionInBackground("destroyParty", params, (Party party, ParseException e) -> {
+        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
             if (e == null) {
                 // Remove the current party from the singleton instance
                 mCurrentParty = null;
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not destroy party!", e);
+                Log.d("Party.java", "Party deleted");
             }
-
+            else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not delete party!", e);
+            }
             // Run the callback if it exists
             if(callback != null) {
                 callback.done(e);
@@ -378,14 +410,5 @@ public class Party extends ParseObject {
      */
     public static Party getCurrentParty() {
         return mCurrentParty;
-    }
-
-    /**
-     * Gets the party's admin
-     *
-     * @return the admin as a ParseUser
-     */
-    public ParseUser getAdmin() {
-        return mCurrentParty.getParseUser("admin"); //TODO - move this to Cloud??
     }
 }

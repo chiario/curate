@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.palette.graphics.Palette;
 
+import com.bumptech.glide.Glide;
 import com.example.curate.R;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SearchAdapter;
@@ -33,7 +34,8 @@ import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.Spotify;
-import com.parse.ParseUser;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
 
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private QueueFragment queueFragment;
     private SearchFragment searchFragment;
     private Party party;
+    private SaveCallback mCurrentSongUpdatedCallback;
     private boolean isSpotifyInstalled = false;
     private boolean isAdmin = false;
 
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         party = Party.getCurrentParty();
 
         // Checks if user owns the current party and adjusts view
-        isAdmin = ParseUser.getCurrentUser().getObjectId().equals(party.getAdmin().getObjectId());
+        isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
         Log.d(TAG, "Current user is admin: " + isAdmin);
 
         int visibility = isAdmin ? View.VISIBLE : View.GONE;
@@ -117,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         mSeekBar.setVisibility(visibility);
         if (isAdmin) {
             Spotify.connectRemote(this, mPlayerStateEventCallback, getString(R.string.clientId));
+        } else {
+            initializeSongUpdateCallback();
         }
 
 
@@ -185,6 +190,35 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 break;
         }
         etSearch.setText("");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        party.deregisterPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
+    }
+
+    private void initializeSongUpdateCallback() {
+        mCurrentSongUpdatedCallback = e -> {
+            if (e == null) {
+                Song currentSong = party.getCurrentSong();
+                if (currentSong != null) {
+                    try {
+                        currentSong.fetchIfNeeded();
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                    tvTitle.setText(currentSong.getTitle());
+                    tvArtist.setText(currentSong.getArtist());
+                    Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
+                }
+//                Log.d(TAG, "Got callback. Current song is " + currentSong.toString());
+
+            } else {
+                Log.d(TAG, "Error in song update callback", e);
+            }
+        };
+        party.registerPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
     }
 
     public boolean isAdmin() {
@@ -369,8 +403,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 Log.d(TAG, "No current song in playlist");
                 Spotify.playNextSong(getString(R.string.default_song_id));
             }
-
-            // TODO - notify adapter
         });
     }
 
@@ -397,7 +429,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                             Log.d(TAG, "No current song in playlist");
                             Spotify.playNextSong(getString(R.string.default_song_id));
                         }
-                        // TODO - notify adapter
                     });
                 }
             }

@@ -4,12 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,14 +21,13 @@ import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.parse.ParseUser;
 
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> implements SongTouchHelperAdapter{
+public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> implements ItemTouchHelperCallbacks.Adapter {
 
 	// Instance variables
 	private Context context;
@@ -63,7 +64,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
 		// Only show delete icon if current user is admin of current party
-		boolean isAdmin = ParseUser.getCurrentUser().getObjectId().equals(Party.getCurrentParty().getAdmin().getObjectId());
+		boolean isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
 		if (isAdmin) {
 			viewHolder.ibRemove.setVisibility(View.VISIBLE);
 		} else {
@@ -96,23 +97,17 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public void onItemDismiss(int position) {
-		playlist.remove(position);
-		notifyItemRemoved(position);
+
 	}
 
-	@Override
-	public void onItemMove(int fromPosition, int toPosition) {
-		// TODO: Hook up to proper cloud code
-		if (fromPosition < toPosition) {
-			for (int i = fromPosition; i < toPosition; i++) {
-				Collections.swap(playlist, i, i + 1);
-			}
-		} else {
-			for (int i = fromPosition; i > toPosition; i--) {
-				Collections.swap(playlist, i, i - 1);
-			}
-		}
-		notifyItemMoved(fromPosition, toPosition);
+	public void onItemRemove(RecyclerView.ViewHolder viewHolder) {
+		ViewHolder vh = (ViewHolder) viewHolder;
+		vh.onClickRemove(vh.ibRemove);
+	}
+
+	public void onItemLike(RecyclerView.ViewHolder viewHolder) {
+		ViewHolder vh = (ViewHolder) viewHolder;
+		vh.onClickLike(vh.ibLike);
 	}
 
 	/***

@@ -38,7 +38,6 @@ public class JoinActivity extends AppCompatActivity {
         if(ParseUser.getCurrentUser() == null) {
             ParseAnonymousUtils.logIn((user, e) -> {
                 if (e != null) {
-                    // TODO: disable the buttons or something?
                     Log.e("JoinActivity", "Anonymous login failed!", e);
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                     mProgressBar.setVisibility(View.GONE);
@@ -61,14 +60,9 @@ public class JoinActivity extends AppCompatActivity {
             }
         });
     }
-    //TODO - Fix bug: user can be part of a party that has been deleted
 
     private void switchToMainActivity() {
         Intent i = new Intent(this, MainActivity.class);
-
-
-        boolean isAdmin = ParseUser.getCurrentUser() == Party.getCurrentParty().get("admin");
-        i.putExtra("isAdmin", isAdmin);
         startActivity(i);
         finish();
     }

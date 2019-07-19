@@ -1,6 +1,8 @@
 package com.example.curate.fragments;
 
 
+import android.graphics.Canvas;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,26 +18,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
 import com.example.curate.adapters.DividerItemDecoration;
+import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.QueueAdapter;
-import com.example.curate.adapters.SongTouchHelperCallback;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-
-import java.util.List;
+import com.parse.SaveCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class QueueFragment extends Fragment {
-	// Instance variables
+	private static final String DEFAULT_SONG_ID = "7GhIk7Il098yCjg4BQjzvb";
+
+	private QueueAdapter mAdapter;
+	private Party mParty;
+	private SaveCallback mPlaylistUpdatedCallback;
+
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
-	private QueueAdapter adapter;
-	private List<Song> songs;
-	private Party party;
 
 	public QueueFragment() {
 		// Required empty public constructor
@@ -46,20 +45,11 @@ public class QueueFragment extends Fragment {
 	 * @return The new instance created
 	 */
 	public static QueueFragment newInstance() {
-//		Bundle args = new Bundle();
 		QueueFragment fragment = new  QueueFragment();
-//		fragment.setArguments(args);
 		fragment.setRetainInstance(true);
 		return fragment;
 	}
 
-	/***
-	 * Inflate the proper layout
-	 * @param inflater
-	 * @param container
-	 * @param savedInstanceState
-	 * @return
-	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
@@ -77,22 +67,42 @@ public class QueueFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		ButterKnife.bind(this, view);
 
-		party = Party.getCurrentParty();
-		party.updatePlaylist(e -> {
+		mParty = Party.getCurrentParty();
+		mParty.updatePlaylist(e -> {
 			if(e == null) {
-				adapter = new QueueAdapter(getContext(), party.getPlaylist());
-				ItemTouchHelper.Callback callback =
-						new SongTouchHelperCallback(adapter);
-				ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-				touchHelper.attachToRecyclerView(rvQueue);
-				rvQueue.setAdapter(adapter);
+				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
+
+				Point size = new Point();
+
+				getActivity().getWindowManager().getDefaultDisplay().getSize(size);
+
+				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, size.x, getContext());
+				new ItemTouchHelper(callbacks.fullCallback).attachToRecyclerView(rvQueue);
+
+				rvQueue.setAdapter(mAdapter);
 				rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 
+				initializePlaylistUpdateCallback();
 			} else {
 				Toast.makeText(getContext(), "Could not load playlist", Toast.LENGTH_LONG).show();
 			}
 		});
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mParty.deregisterPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+	}
+
+	private void initializePlaylistUpdateCallback() {
+		mPlaylistUpdatedCallback = e -> {
+			if(e == null) {
+				mAdapter.notifyDataSetChanged();
+			}
+		};
+		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
 	}
 
 	/***
@@ -100,11 +110,11 @@ public class QueueFragment extends Fragment {
 	 * @param song Song to add to the queue
 	 */
 	public void addSong(Song song) {
-		party.addSong(song, e -> {
-			if(e == null) {
-				adapter.notifyItemInserted(adapter.getItemCount() - 1);
-				Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
-			}
+		mParty.addSong(song, e -> {
+            if(e == null) {
+                mAdapter.notifyDataSetChanged();
+                Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
+            }
 		});
 	}
 }
