@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -22,6 +23,7 @@ public class Party extends ParseObject {
     private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
 
     private static Party mCurrentParty;
+    private static Song mCurrentSong;
 
     private List<PlaylistEntry> mPlaylist;
 
@@ -92,6 +94,37 @@ public class Party extends ParseObject {
                 callback.done(e);
             }
         });
+    }
+
+    /**
+     * Calls on the ParseCloud to remove the next song in the party's playlist and return it
+     * @param callback callback to run after the cloud function is executed
+     * @return the party's currently playing song
+     */
+    public void getNextSong(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("getNextSong", params, (FunctionCallback<Song>) (song, e) -> {
+            if (e == null) {
+                Log.d("Party.java", "got song " + song.getTitle());
+                mCurrentSong = song;
+            } else {
+                Log.e("Party.java", "Could not get the next song");
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Gets the party's current song.
+     * @return the current song
+     */
+    public Song getCurrentSong() {
+        return mCurrentSong;
     }
 
     /**
@@ -217,7 +250,7 @@ public class Party extends ParseObject {
         });
     }
 
-    /** TODO - fix this!
+    /**
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed
      */

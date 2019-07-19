@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private TrackProgressBar mTrackProgressBar;
     private QueueFragment queueFragment;
     private SearchFragment searchFragment;
+    private Party party;
     private boolean isSpotifyInstalled = false;
     private boolean isAdmin = false;
 
@@ -101,8 +102,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        party = Party.getCurrentParty();
+
         // Checks if user owns the current party and adjusts view
-        isAdmin = ParseUser.getCurrentUser().getObjectId().equals(Party.getCurrentParty().getAdmin().getObjectId()); // TODO - fix this code
+        isAdmin = ParseUser.getCurrentUser().getObjectId().equals(party.getAdmin().getObjectId());
         Log.d(TAG, "Current user is admin: " + isAdmin);
 
         int visibility = isAdmin ? View.VISIBLE : View.GONE;
@@ -359,8 +362,16 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        String songId = queueFragment.getNextSong();
-        Spotify.playNextSong(songId);
+        party.getNextSong(e -> {
+            try {
+                Spotify.playNextSong(party.getCurrentSong().getSpotifyId());
+            } catch (NullPointerException e1) {
+                Log.d(TAG, "No current song in playlist");
+                Spotify.playNextSong(getString(R.string.default_song_id));
+            }
+
+            // TODO - notify adapter
+        });
     }
 
     public class TrackProgressBar {
@@ -379,7 +390,15 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int timeRemaining = mSeekBar.getMax() - progress;
                 if (timeRemaining < 1500 && isAdmin) {
-                    Spotify.playNextSong(queueFragment.getNextSong());
+                    party.getNextSong(e -> {
+                        try {
+                            Spotify.playNextSong(party.getCurrentSong().getSpotifyId());
+                        } catch (NullPointerException e1) {
+                            Log.d(TAG, "No current song in playlist");
+                            Spotify.playNextSong(getString(R.string.default_song_id));
+                        }
+                        // TODO - notify adapter
+                    });
                 }
             }
 

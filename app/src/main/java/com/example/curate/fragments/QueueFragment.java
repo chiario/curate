@@ -20,8 +20,6 @@ import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.adapters.SongTouchHelperCallback;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -33,16 +31,11 @@ import butterknife.ButterKnife;
  * A simple {@link Fragment} subclass.
  */
 public class QueueFragment extends Fragment {
-
-
 	// Instance variables
-
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
-	QueueAdapter adapter;
-	List<Song> songs;
-	Party party;
-	String defaultSongId = "7GhIk7Il098yCjg4BQjzvb";
-
+	private QueueAdapter adapter;
+	private List<Song> songs;
+	private Party party;
 
 	public QueueFragment() {
 		// Required empty public constructor
@@ -107,31 +100,11 @@ public class QueueFragment extends Fragment {
 	 * @param song Song to add to the queue
 	 */
 	public void addSong(Song song) {
-		party.addSong(song, new SaveCallback() {
-			@Override
-			public void done(ParseException e) {
-				if(e == null) {
-					adapter.notifyItemInserted(adapter.getItemCount() - 1);
-					Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
-				}
+		party.addSong(song, e -> {
+			if(e == null) {
+				adapter.notifyItemInserted(adapter.getItemCount() - 1);
+				Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
 			}
 		});
-	}
-
-	public String getNextSong() {
-		final String[] songId = {defaultSongId};
-		try {
-			songId[0] = Party.getCurrentParty().getPlaylist().get(0).getSong().getSpotifyId();
-			Party.getCurrentParty().removeSong(songId[0], e -> {
-				if (e == null) {
-					adapter.notifyDataSetChanged();
-				} else {
-					songId[0] = defaultSongId;
-				}
-			});
-		} catch (IndexOutOfBoundsException e) {
-			songId[0] = defaultSongId;
-		}
-		return songId[0];
 	}
 }
