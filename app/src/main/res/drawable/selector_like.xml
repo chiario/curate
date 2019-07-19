@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_favorite" android:state_selected="true"/>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="200"
+    android:exitFadeDuration="200">
+    <item android:drawable="@drawable/ic_favorite" android:state_selected="true">
+        <animation-list></animation-list>
+    </item>
     <item android:drawable="@drawable/ic_favorite_outline"/>
 </selector>

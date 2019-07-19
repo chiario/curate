@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
     @BindView(R.id.seek_to) SeekBar mSeekBar;
     @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
-    @BindView(R.id.clCurPlaying) ConstraintLayout mPlayerBackground;
+    @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
     @BindView(R.id.ibDeleteQueue) ImageButton ibDeleteQueue;
     @BindView(R.id.ibLeaveQueue) ImageButton ibLeaveQueue;
     @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;

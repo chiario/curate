@@ -23,11 +23,10 @@ import java.util.List;
 public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String JOIN_CODE_KEY = "joinCode";
-    private static final String CURRENTLY_PLAYING_KEY = "curPlaying";
+    private static final String CURRENTLY_PLAYING_KEY = "currPlaying";
 
     private static Party mCurrentParty;
     private Song mCurrentSong;
-
     private List<PlaylistEntry> mPlaylist;
     private List<SaveCallback> mPlaylistUpdateCallbacks;
 
@@ -43,13 +42,13 @@ public class Party extends ParseObject {
         // Set up live query
         ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
         ParseQuery<Party> parseQuery = ParseQuery.getQuery(Party.class);
-        parseQuery.include("currPlaying");
+        parseQuery.include(CURRENTLY_PLAYING_KEY);
         parseQuery.whereEqualTo("objectId", getObjectId());
         SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
-            mCurrentSong = (Song) party.getParseObject("curPlaying");
+            mCurrentSong = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
             updatePlaylist(e -> {
                 for(SaveCallback callback : mPlaylistUpdateCallbacks) {
                     callback.done(e);
