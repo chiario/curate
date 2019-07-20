@@ -1,12 +1,14 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +17,8 @@ import com.bumptech.glide.Glide;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -27,7 +31,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	// Instance variables
 	private Context context;
 	private List<Song> songs;
-	private OnSongAddedListener onSongAddedListener;
 
 	/***
 	 * Creates the adapter for holding songs
@@ -37,14 +40,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	public SearchAdapter(Context context, List<Song> songs) {
 		this.context = context;
 		this.songs = songs;
-	}
-
-	public interface OnSongAddedListener {
-		public void onSongAdded(Song song);
-	}
-
-	public void setListener(OnSongAddedListener listener) {
-		onSongAddedListener = listener;
 	}
 
 	@NonNull
@@ -90,6 +85,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		}
 	}
 
+	public void onItemAdd(RecyclerView.ViewHolder viewHolder) {
+		ViewHolder searchViewHolder = (ViewHolder) viewHolder;
+		searchViewHolder.onClickLike(searchViewHolder.ibLike);
+	}
+
 	public void clear() {
 		songs.clear();
 		notifyDataSetChanged();
@@ -112,12 +112,20 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		@OnClick(R.id.ibLike)
 		public void onClickLike(View v) {
 			// Add song to the queue
-			if(onSongAddedListener != null) {
-				if(!ibLike.isSelected()) {
-					ibLike.setSelected(true);
-					// TODO have a cloud call here
-					onSongAddedListener.onSongAdded(songs.get(getAdapterPosition()));
-				}
+			if(!v.isSelected()) {
+				Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), new SaveCallback() {
+					@Override
+					public void done(ParseException e) {
+						if(e == null) {
+							notifyDataSetChanged();
+							Toast.makeText(context, "Song Added", Toast.LENGTH_SHORT).show();
+						}
+						else {
+							v.setSelected(false);
+							Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
 			}
 		}
 	}

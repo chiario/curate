@@ -4,6 +4,7 @@
     <item
         android:id="@+id/miSearch"
         android:icon="@drawable/ic_search"
+        android:orderInCategory="100"
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
@@ -18,4 +19,9 @@
     <item
         android:id="@+id/miDeleteParty"
         android:title="Delete Party" />
+    <item
+        android:id="@+id/miText"
+        android:orderInCategory="0"
+        android:title="Add songs to the queue!"
+        app:showAsAction="always|withText" />
 </menu>

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.curate.R;
+import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.models.Song;
 
@@ -112,7 +114,11 @@ public class SearchFragment extends Fragment {
 
 		// Create the mAdapter, along with onClick listener for the "add" button
 		mAdapter = new SearchAdapter(getContext(), new ArrayList<Song>());
-		mAdapter.setListener((SearchAdapter.OnSongAddedListener) getActivity());
+
+		// Attach Swipe listeners
+		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
+		new ItemTouchHelper(callbacks.addCallback).attachToRecyclerView(rvSearch);
+
 		// Set mAdapter, layout manger, and item decorations
 		rvSearch.setAdapter(mAdapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));

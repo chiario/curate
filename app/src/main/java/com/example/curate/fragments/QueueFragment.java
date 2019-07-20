@@ -72,7 +72,9 @@ public class QueueFragment extends Fragment {
 				mAdapter.setHasStableIds(true);
 
 				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
-				new ItemTouchHelper(callbacks.fullCallback).attachToRecyclerView(rvQueue);
+				new ItemTouchHelper(callbacks.likeCallback).attachToRecyclerView(rvQueue);
+				if(Party.getCurrentParty().isCurrentUserAdmin())
+					new ItemTouchHelper(callbacks.deleteCallback).attachToRecyclerView(rvQueue);
 
 				rvQueue.setAdapter(mAdapter);
 				rvQueue.setLayoutManager(new AnimatedLinearLayoutManager(getContext()));
@@ -106,10 +108,11 @@ public class QueueFragment extends Fragment {
 	 * Adds the given song to the queue
 	 * @param song Song to add to the queue
 	 */
-	public void addSong(Song song) {
+	public void addSong(Song song, View view) {
 		mParty.addSong(song, e -> {
             if(e == null) {
                 mAdapter.notifyDataSetChanged();
+                view.setSelected(true);
                 Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
             }
 		});

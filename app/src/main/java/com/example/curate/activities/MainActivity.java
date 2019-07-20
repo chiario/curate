@@ -58,7 +58,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements SearchAdapter.OnSongAddedListener, QueueAdapter.OnSongLikedListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -90,28 +90,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     private Spotify mSpotifyRemote;
 
-
-    // Search Fragment Listener:
-
-    /***
-     * Called when user adds a song from the SearchFragment. Adds the song to the (local for now)
-     * queue in the QueueFragment
-     * @param song Song to be added
-     */
-    @Override
-    public void onSongAdded(Song song) {
-        queueFragment.addSong(song);
-    }
-
-    /***
-     * Called when user likes a song in the QueueFragment
-     * @param song
-     */
-    @Override
-    public void onSongLiked(Song song) {
-        // TODO
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,13 +120,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         }
 
         // Checks if user owns the current party and adjusts view
-        // Checks if user owns the current party and adjusts view
         isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
         Log.d(TAG, "Current user is admin: " + isAdmin);
 
         int visibility = isAdmin ? View.VISIBLE : View.GONE;
-//        ibDeleteQueue.setVisibility(visibility);
-//        ibLeaveQueue.setVisibility(isAdmin ? View.GONE : View.VISIBLE);
         mPlayPauseButton.setVisibility(visibility);
         mSkipNextButton.setVisibility(visibility);
         mSkipPrevButton.setVisibility(visibility);
@@ -162,21 +137,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             initializeSongUpdateCallback();
         }
 
-
-
-
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-    }
-
-    public int pxToDp(int px) {
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
-    public int dpToPx(int dp) {
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     @Override
@@ -188,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         miSearch = menu.findItem(R.id.miSearch);
+        MenuItem miText = menu.findItem(R.id.miText);
         Drawable d = getDrawable(R.drawable.ic_search);
         if(d != null) {
             d.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
@@ -228,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 miSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                        miText.setVisible(false);
                         new Handler().post(() -> {
                             mSearchView.requestFocus();
                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -240,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
                     @Override
                     public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                        miText.setVisible(true);
                         return true;
                     }
                 });
@@ -406,19 +371,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 //   	    searchFragment.setSearchText(text.toString());
 //   }
 
-/*//    @OnFocusChange(R.id.etSearch)
-    public void onSearchFocusChange(boolean hasFocus) {
-        if(hasFocus) {
-           focusSearch();
-        }
-    }
-
-//    @OnClick(R.id.clSearch)
-    public void onSearchbarClick() {
-        focusSearch();
-    }*/
-
-//    @OnClick(R.id.ibDeleteQueue)
     public void onDeleteQueue() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete this party?")
@@ -435,7 +387,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         builder.show();
     }
 
-//    @OnClick(R.id.ibLeaveQueue)
     public void onLeaveQueue() {
         String message = "You can rejoin this party with the following code: " + party.getJoinCode();
         int joinCodeColor = ContextCompat.getColor(this, R.color.colorAccent_text);
