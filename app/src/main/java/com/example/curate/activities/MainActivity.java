@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -75,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
+    private MenuItem miSearch;
+    private SearchView mSearchView;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
     private Spotify.TrackProgressBar mTrackProgressBar;
@@ -184,20 +187,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         menu.findItem(R.id.miLeaveParty).setVisible(!isAdmin);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        MenuItem searchItem = menu.findItem(R.id.miSearch);
+        miSearch = menu.findItem(R.id.miSearch);
         Drawable d = getDrawable(R.drawable.ic_search);
         if(d != null) {
             d.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
-            searchItem.setIcon(d);
+            miSearch.setIcon(d);
         }
-        if(searchItem != null) {
-            final SearchView searchView = (SearchView) searchItem.getActionView();
-            if (searchView != null) {
-                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        if(miSearch != null) {
+            mSearchView = (SearchView) miSearch.getActionView();
+            if (mSearchView != null) {
+                mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+                mSearchView.setIconifiedByDefault(false);
+                mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        search(searchView, query);
+                        search(mSearchView, query);
+                        mSearchView.setQuery("", false);
+                        miSearch.collapseActionView();
                         return true;
                     }
 
@@ -207,15 +213,34 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                     }
                 });
 
-                searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View view, boolean hasFocus) {
                         if(hasFocus) {
                             display(searchFragment);
                             searchFragment.newSearch();
+                            miSearch.expandActionView();
                             showKeyboard(view);
                             //TODO show keyboard?
                         }
+                    }
+                });
+                miSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                        new Handler().post(() -> {
+                            mSearchView.requestFocus();
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            if (imm != null) { // it's never null. I've added this line just to make the compiler happy
+                                imm.showSoftInput(mSearchView.findFocus(), 0);
+                            }
+                        });
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                        return true;
                     }
                 });
 
@@ -228,6 +253,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()) {
             case R.id.miSearch:
+                if(!miSearch.isActionViewExpanded()) {
+                    miSearch.expandActionView();
+                    mSearchView.requestFocus();
+                }
                 break;
             case R.id.miGenerate:
                 break;

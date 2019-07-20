@@ -19,11 +19,13 @@
                 android:background="@color/white_10"
                 android:elevation="10dp"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
+
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/tbMain"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:layout_scrollFlags="scroll|enterAlways"/>
+                    android:theme="@style/AppTheme.Toolbar"
+                    app:layout_scrollFlags="scroll|enterAlways" />
             </com.google.android.material.appbar.AppBarLayout>
             <FrameLayout
                 android:id="@+id/flPlaceholder"
@@ -39,6 +41,7 @@
         android:layout_height="130dp"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
+        android:elevation="10dp"
         android:background="@color/white_10">
         <!-- Current Track -->
 
