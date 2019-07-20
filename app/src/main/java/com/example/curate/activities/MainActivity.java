@@ -1,26 +1,35 @@
 package com.example.curate.activities;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -35,6 +44,7 @@ import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.Spotify;
+import com.google.android.material.appbar.AppBarLayout;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 import com.spotify.protocol.client.Subscription;
@@ -44,8 +54,6 @@ import com.spotify.protocol.types.PlayerState;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnEditorAction;
-import butterknife.OnFocusChange;
 
 public class MainActivity extends AppCompatActivity implements SearchAdapter.OnSongAddedListener, QueueAdapter.OnSongLikedListener {
 
@@ -53,18 +61,19 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
-    @BindView(R.id.etSearch) EditText etSearch;
-    @BindView(R.id.ibSearch) ImageButton ibSearch;
+
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
     @BindView(R.id.seek_to) SeekBar mSeekBar;
     @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
     @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
-    @BindView(R.id.ibDeleteQueue) ImageButton ibDeleteQueue;
-    @BindView(R.id.ibLeaveQueue) ImageButton ibLeaveQueue;
     @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;
     @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
+    @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
+    @BindView(R.id.ablMain) AppBarLayout ablMain;
+    @BindView(R.id.tbMain) Toolbar tbMain;
+    @BindView(R.id.nsvCurrPlaying) NestedScrollView nsvCurrPlaying;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
     private Spotify.TrackProgressBar mTrackProgressBar;
@@ -107,8 +116,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
         party = Party.getCurrentParty();
 
-
-
         if(savedInstanceState != null) {
             queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
             searchFragment = (SearchFragment) fm.findFragmentByTag(KEY_SEARCH_FRAGMENT);
@@ -130,14 +137,14 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             display(queueFragment);
         }
 
-
+        // Checks if user owns the current party and adjusts view
         // Checks if user owns the current party and adjusts view
         isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
         Log.d(TAG, "Current user is admin: " + isAdmin);
 
         int visibility = isAdmin ? View.VISIBLE : View.GONE;
-        ibDeleteQueue.setVisibility(visibility);
-        ibLeaveQueue.setVisibility(isAdmin ? View.GONE : View.VISIBLE);
+//        ibDeleteQueue.setVisibility(visibility);
+//        ibLeaveQueue.setVisibility(isAdmin ? View.GONE : View.VISIBLE);
         mPlayPauseButton.setVisibility(visibility);
         mSkipNextButton.setVisibility(visibility);
         mSkipPrevButton.setVisibility(visibility);
@@ -150,6 +157,74 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         } else {
             initializeSongUpdateCallback();
         }
+
+
+
+
+        setSupportActionBar(tbMain);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) flPlaceholder.getLayoutParams();
+//        params.bottomMargin = nsvCurrPlaying.getHeight() + ablMain.getHeight();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.miSearch);
+        Drawable d = getDrawable(R.drawable.ic_search);
+        if(d != null) {
+            d.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+            searchItem.setIcon(d);
+        }
+        if(searchItem != null) {
+            final SearchView searchView = (SearchView) searchItem.getActionView();
+            if (searchView != null) {
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        search(searchView, query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                });
+
+                searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View view, boolean hasFocus) {
+                        if(hasFocus) {
+                            display(searchFragment);
+                            searchFragment.newSearch();
+                            showKeyboard(view);
+                            //TODO show keyboard?
+                        }
+                    }
+                });
+
+            }
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.miSearch:
+                break;
+            case R.id.miGenerate:
+                break;
+            case R.id.miLeaveParty:
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return false;
     }
 
     @Override
@@ -175,14 +250,15 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         super.onBackPressed();
         switch(activeFragment.getTag()) {
             case KEY_QUEUE_FRAGMENT:
-                // TODO decide what to do here: could dismiss the fragments and go back to login?
+                // TODO decide what to do here: could dismiss the fragments and go back to login
+                //  Maybe exit the party?
                 break;
             case KEY_SEARCH_FRAGMENT:
                 activeFragment = queueFragment;
-                etSearch.clearFocus();
+//                etSearch.clearFocus();
                 break;
         }
-        etSearch.setText("");
+//        etSearch.setText("");
     }
 
     @Override
@@ -242,8 +318,9 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
         ft.show(fragment);
         if(fragment.equals(searchFragment))
             ft.addToBackStack(fragment.getTag());
-        else if(fragment.equals(queueFragment))
-            etSearch.clearFocus();
+        else if(fragment.equals(queueFragment)) {
+//            etSearch.clearFocus();
+        }
         ft.commit();
 
         activeFragment = fragment;
@@ -258,64 +335,45 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void showKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
-        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        if (imm != null) {
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
-    private void search(View v) {
+    private void search(SearchView v, String query) {
         display(searchFragment);
-        searchFragment.executeSearch(etSearch.getText().toString());
-        etSearch.clearFocus();
+        searchFragment.executeSearch(query);
         hideKeyboard(v);
     }
 
-    public void focusSearch() {
-        etSearch.requestFocus();
-        showKeyboard(etSearch);
-        display(searchFragment);
-        searchFragment.newSearch();
-    }
-
-    // ButterKnife Listeners
+   // ButterKnife Listeners
 
 //   @OnTextChanged(R.id.etSearch)
 //   public void onSearchTextChange(CharSequence text) {
 //   	    searchFragment.setSearchText(text.toString());
 //   }
 
-
-    @OnFocusChange(R.id.etSearch)
+/*//    @OnFocusChange(R.id.etSearch)
     public void onSearchFocusChange(boolean hasFocus) {
-        if (hasFocus) {
-            focusSearch();
+        if(hasFocus) {
+           focusSearch();
         }
     }
 
-    @OnClick(R.id.clSearch)
+//    @OnClick(R.id.clSearch)
     public void onSearchbarClick() {
         focusSearch();
-    }
+    }*/
 
-    @OnClick(R.id.ibSearch)
-    public void onSearchClick(View v) {
-        if (!etSearch.hasFocus())
-            focusSearch();
-        else
-            search(v);
-    }
-
-    @OnEditorAction(R.id.etSearch)
-    public void onSearchEditorAction(TextView tv, int actionId) {
-        if (actionId == EditorInfo.IME_ACTION_SEARCH)
-            search((View) tv);
-    }
-
-    @OnClick(R.id.ibDeleteQueue)
+//    @OnClick(R.id.ibDeleteQueue)
     public void onDeleteQueue(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete this party?")
@@ -328,10 +386,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                     });
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});
+
         builder.show();
     }
 
-    @OnClick(R.id.ibLeaveQueue)
+//    @OnClick(R.id.ibLeaveQueue)
     public void onLeaveQueue(View v) {
         String message = "You can rejoin this party with the following code: " + party.getJoinCode();
         int joinCodeColor = ContextCompat.getColor(this, R.color.colorAccent_text);

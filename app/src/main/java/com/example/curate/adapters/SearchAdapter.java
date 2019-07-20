@@ -115,6 +115,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 			if(onSongAddedListener != null) {
 				if(!ibLike.isSelected()) {
 					ibLike.setSelected(true);
+					// TODO have a cloud call here
 					onSongAddedListener.onSongAdded(songs.get(getAdapterPosition()));
 				}
 			}
