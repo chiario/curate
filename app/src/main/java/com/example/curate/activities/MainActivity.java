@@ -2,15 +2,12 @@ package com.example.curate.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -19,7 +16,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +38,7 @@ import com.example.curate.utils.Spotify;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 
 import butterknife.BindView;
@@ -75,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     private SearchFragment searchFragment;
     private Party party;
     private SaveCallback mCurrentSongUpdatedCallback;
-    private boolean isSpotifyInstalled = false;
+
     private boolean isAdmin = false;
 
     private Spotify mSpotifyRemote;
@@ -110,22 +107,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
         party = Party.getCurrentParty();
 
-        // Checks if user owns the current party and adjusts view
-        isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
-        Log.d(TAG, "Current user is admin: " + isAdmin);
-
-        int visibility = isAdmin ? View.VISIBLE : View.GONE;
-        ibDeleteQueue.setVisibility(visibility);
-        ibLeaveQueue.setVisibility(isAdmin ? View.GONE : View.VISIBLE);
-        mPlayPauseButton.setVisibility(visibility);
-        mSkipNextButton.setVisibility(visibility);
-        mSkipPrevButton.setVisibility(visibility);
-        mSeekBar.setVisibility(visibility);
-        if (isAdmin) {
-            mSpotifyRemote = new Spotify(this, mPlayerStateEventCallback, getString(R.string.clientId));
-        } else {
-            initializeSongUpdateCallback();
-        }
 
 
         if(savedInstanceState != null) {
@@ -149,25 +130,33 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             display(queueFragment);
         }
 
+
+        // Checks if user owns the current party and adjusts view
+        isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
+        Log.d(TAG, "Current user is admin: " + isAdmin);
+
+        int visibility = isAdmin ? View.VISIBLE : View.GONE;
+        ibDeleteQueue.setVisibility(visibility);
+        ibLeaveQueue.setVisibility(isAdmin ? View.GONE : View.VISIBLE);
+        mPlayPauseButton.setVisibility(visibility);
+        mSkipNextButton.setVisibility(visibility);
+        mSkipPrevButton.setVisibility(visibility);
+        mSeekBar.setVisibility(visibility);
         mSeekBar.setEnabled(false);
-        mTrackProgressBar = new Spotify.TrackProgressBar(mSpotifyRemote, mSeekBar);
-        mSpotifyRemote.setTrackProgressBar(mTrackProgressBar);
+
+        if (isAdmin) {
+            mSpotifyRemote = new Spotify(this, mPlayerStateEventCallback, mPlayerContextEventCallback, getString(R.string.clientId));
+            mTrackProgressBar = new Spotify.TrackProgressBar(mSpotifyRemote, mSeekBar);
+        } else {
+            initializeSongUpdateCallback();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (isAdmin) {
-            // Check if Spotify app is installed on device
-            PackageManager pm = getPackageManager();
-            try {
-                pm.getPackageInfo("com.spotify.music", 0);
-                isSpotifyInstalled = true;
-            } catch (PackageManager.NameNotFoundException e) {
-                isSpotifyInstalled = false;
-                Toast.makeText(this, "Please install the Spotify app to proceed", Toast.LENGTH_LONG).show();
-                // TODO prompt installation
-            }
+            mSpotifyRemote.checkSpotifyInstalled();
         }
     }
 
@@ -208,15 +197,14 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 Song currentSong = party.getCurrentSong();
                 if (currentSong != null) {
                     try {
-                        currentSong.fetchIfNeeded();
+                        currentSong.fetchIfNeeded(); // TODO - work around this fetch; add ParseCloud function??
+                        tvTitle.setText(currentSong.getTitle());
+                        tvArtist.setText(currentSong.getArtist());
+                        Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
                     } catch (ParseException e1) {
                         e1.printStackTrace();
                     }
-                    tvTitle.setText(currentSong.getTitle());
-                    tvArtist.setText(currentSong.getArtist());
-                    Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
                 }
-
             } else {
                 Log.d(TAG, "Error in song update callback", e);
             }
@@ -340,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                     });
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});
-
         builder.show();
     }
 
@@ -371,12 +358,22 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     }
 
     //Methods for Spotify remote player communication
+    /**
+     * Admin's Spotify Player Context event callback
+     * Unlocks track progress bar when new track begins
+     */
+    public final Subscription.EventCallback<PlayerContext> mPlayerContextEventCallback = new Subscription.EventCallback<PlayerContext>() {
+        @Override
+        public void onEvent(PlayerContext playerContext) {
+            Log.d("Spotify.java", playerContext.toString());
+            mTrackProgressBar.unlock();
+        }
+    };
 
     /**
-     * Spotify Player event callback
-     * Updates current song views when new song begins playing
+     * Admin's Spotify Player State event callback
+     * Updates current song views whenever player state changes, e.g. on pause, play, new track
      */
-//    @SuppressLint("SetTextI18n")
     public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
         @Override
         public void onEvent(PlayerState playerState) {
@@ -390,11 +387,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 // Update progressbar
                 if (playerState.playbackSpeed > 0) {
                     mTrackProgressBar.unpause();
-                } else {
+                } else { // Playback is paused or buffering
                     mTrackProgressBar.pause();
                 }
 
-                // Invalidate play / pause
+                // Set play / pause button
                 if (playerState.isPaused) {
                     mPlayPauseButton.setImageResource(R.drawable.btn_play);
                 } else {
@@ -406,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
                 // Get image from track
                 mSpotifyRemote.setAlbumArt(playerState, ivAlbum);
 
-                // Invalidate seekbar length and position
+                // Set seekbar length and position
                 mSeekBar.setMax((int) playerState.track.duration);
                 mTrackProgressBar.setDuration(playerState.track.duration);
                 mTrackProgressBar.update(playerState.playbackPosition);
@@ -418,35 +415,22 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
     @OnClick(R.id.skip_prev_button)
     public void onRestartSong() {
-        if (isSpotifyInstalled) {
-            mSpotifyRemote.restartSong();
-        }
+        mSpotifyRemote.restartSong();
     }
 
     @OnClick(R.id.play_pause_button)
     public void onPlayPause() {
-        if (isSpotifyInstalled) {
-            mSpotifyRemote.playPause();
-        }
+        mSpotifyRemote.playPause();
     }
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        if (isSpotifyInstalled) {
-            party.getNextSong(e -> {
-
-                if (e == null) {
-                    mSpotifyRemote.playNextSong(party.getCurrentSong().getSpotifyId());
-
-                } else {
-                    Log.e(TAG, "Error getting next song", e);
-                }
-                /*try {
-                    mSpotifyRemote.playNextSong(party.getCurrentSong().getSpotifyId());
-                } catch (Exception e1) {
-                    Toast.makeText(MainActivity.this, "Add another song!", Toast.LENGTH_LONG).show();
-                }*/
-            });
-        }
+        party.getNextSong(e -> {
+            if (e == null) {
+                mSpotifyRemote.playCurrentSong();
+            } else {
+                Log.e(TAG, "Error getting next song", e);
+            }
+        });
     }
 }
