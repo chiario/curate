@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,6 +46,7 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.Spotify;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 import com.spotify.protocol.client.Subscription;
@@ -73,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
-    @BindView(R.id.nsvCurrPlaying) NestedScrollView nsvCurrPlaying;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
     private Spotify.TrackProgressBar mTrackProgressBar;
@@ -163,14 +164,25 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-//        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) flPlaceholder.getLayoutParams();
-//        params.bottomMargin = nsvCurrPlaying.getHeight() + ablMain.getHeight();
+    }
+
+    public int pxToDp(int px) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.miDeleteParty).setVisible(isAdmin);
+        menu.findItem(R.id.miLeaveParty).setVisible(!isAdmin);
+
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         MenuItem searchItem = menu.findItem(R.id.miSearch);
         Drawable d = getDrawable(R.drawable.ic_search);
@@ -220,6 +232,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
             case R.id.miGenerate:
                 break;
             case R.id.miLeaveParty:
+                onLeaveQueue();
+                break;
+            case R.id.miDeleteParty:
+                onDeleteQueue();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -374,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     }*/
 
 //    @OnClick(R.id.ibDeleteQueue)
-    public void onDeleteQueue(View v) {
+    public void onDeleteQueue() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete this party?")
                 .setMessage("You won't be able to undo this action!")
@@ -391,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.OnS
     }
 
 //    @OnClick(R.id.ibLeaveQueue)
-    public void onLeaveQueue(View v) {
+    public void onLeaveQueue() {
         String message = "You can rejoin this party with the following code: " + party.getJoinCode();
         int joinCodeColor = ContextCompat.getColor(this, R.color.colorAccent_text);
         SpannableStringBuilder messageSpan = new SpannableStringBuilder(message);
