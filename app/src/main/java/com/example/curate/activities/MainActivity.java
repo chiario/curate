@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableStringBuilder;
@@ -47,6 +48,7 @@ import com.example.curate.models.Song;
 import com.example.curate.utils.Animations;
 import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.Spotify;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.gms.location.LocationCallback;
@@ -105,26 +107,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         party = Party.getCurrentParty();
 
-        if(savedInstanceState != null) {
-            queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
-            searchFragment = (SearchFragment) fm.findFragmentByTag(KEY_SEARCH_FRAGMENT);
-            activeFragment = fm.findFragmentByTag(savedInstanceState.getString(KEY_ACTIVE));
-        }
-
-        if(queueFragment == null) {
-            queueFragment = QueueFragment.newInstance();
-            fm.beginTransaction().add(R.id.flPlaceholder, queueFragment, KEY_QUEUE_FRAGMENT).hide(queueFragment).commit();
-        }
-        if(searchFragment == null) {
-            searchFragment = SearchFragment.newInstance();
-            fm.beginTransaction().add(R.id.flPlaceholder, searchFragment, KEY_SEARCH_FRAGMENT).hide(searchFragment).commit();
-        }
-
-        if(activeFragment != null) {
-            display(activeFragment);
-        } else {
-            display(queueFragment);
-        }
+        initializeFragments(savedInstanceState);
 
         // Checks if user owns the current party and adjusts view
         isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
@@ -157,6 +140,29 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         }
     }
 
+    private void initializeFragments(Bundle savedInstanceState) {
+        if(savedInstanceState != null) {
+            queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
+            searchFragment = (SearchFragment) fm.findFragmentByTag(KEY_SEARCH_FRAGMENT);
+            activeFragment = fm.findFragmentByTag(savedInstanceState.getString(KEY_ACTIVE));
+        }
+
+        if(queueFragment == null) {
+            queueFragment = QueueFragment.newInstance();
+            fm.beginTransaction().add(R.id.flPlaceholder, queueFragment, KEY_QUEUE_FRAGMENT).hide(queueFragment).commit();
+        }
+        if(searchFragment == null) {
+            searchFragment = SearchFragment.newInstance();
+            fm.beginTransaction().add(R.id.flPlaceholder, searchFragment, KEY_SEARCH_FRAGMENT).hide(searchFragment).commit();
+        }
+
+        if(activeFragment != null) {
+            display(activeFragment);
+        } else {
+            display(queueFragment);
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
@@ -170,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     }
 
     private void registerLocationUpdater() {
+        // Update location when user moves
         mLocationManager.registerLocationUpdateCallback(new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -181,6 +188,17 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                     }
                 });
             }
+        });
+
+        // Force update location at least once
+        mLocationManager.getCurrentLocation(location -> {
+            party.updatePartyLocation(LocationManager.createGeoPointFromLocation(location), e -> {
+                if (e == null) {
+                    Log.d("MainActivity", "Party location updated!");
+                } else {
+                    Log.e("MainActivity", "yike couldnt update party location!", e);
+                }
+            });
         });
     }
 
