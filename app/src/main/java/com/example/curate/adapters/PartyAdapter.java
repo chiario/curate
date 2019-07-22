@@ -62,6 +62,8 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		// Todo load selected state and image into ViewHolder
 		Party party = mParties.get(position);
+
+		holder.tvJoinCode.setText(String.format("Join Code: %s", party.getJoinCode()));
 	}
 
 	@Override
@@ -74,6 +76,8 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 	 */
 	public class ViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.btnJoin) Button btnJoin;
+		@BindView(R.id.tvTitle) TextView tvTitle;
+		@BindView(R.id.tvJoinCode) TextView tvJoinCode;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
