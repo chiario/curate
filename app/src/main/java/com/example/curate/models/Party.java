@@ -26,10 +26,10 @@ public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String JOIN_CODE_KEY = "joinCode";
     private static final String CURRENTLY_PLAYING_KEY = "currPlaying";
+    private static final String NAME_KEY = "name";
     private static final String LOCATION_KEY = "location";
 
     private static Party mCurrentParty;
-//    private Song mCurrentSong;
     private List<PlaylistEntry> mPlaylist;
     private List<SaveCallback> mPlaylistUpdateCallbacks;
 
@@ -52,7 +52,6 @@ public class Party extends ParseObject {
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
             mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(party.getParseObject(CURRENTLY_PLAYING_KEY)));
-//            mCurrentSong = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
             updatePlaylist(e -> {
                 for(SaveCallback callback : mPlaylistUpdateCallbacks) {
                     callback.done(e);
@@ -139,7 +138,6 @@ public class Party extends ParseObject {
             if (e == null) {
                 Log.d("Party.java", "got song " + song.getTitle());
                 mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY)));
-//                mCurrentSong = song;
             } else {
                 Log.e("Party.java", "Could not get the next song");
             }
@@ -157,7 +155,14 @@ public class Party extends ParseObject {
      */
     public Song getCurrentSong() {
         return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
-//        return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
+    }
+
+    /**
+     * Get's the party's name
+     * @return the name as a string
+     */
+    public String getName() {
+        return getString(NAME_KEY);
     }
 
     /**

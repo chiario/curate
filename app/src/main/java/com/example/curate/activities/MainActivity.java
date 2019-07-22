@@ -13,7 +13,6 @@ import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -40,8 +39,7 @@ import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
 import com.example.curate.R;
-import com.example.curate.adapters.QueueAdapter;
-import com.example.curate.adapters.SearchAdapter;
+import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
@@ -64,7 +62,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements InfoDialogFragment.InfoDialogListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -82,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
+
     private MenuItem miSearch;
+    private MenuItem miInfo;
     private SearchView mSearchView;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         miSearch = menu.findItem(R.id.miSearch);
+        miInfo = menu.findItem(R.id.miInfo);
         MenuItem miText = menu.findItem(R.id.miText);
         Drawable d = getDrawable(R.drawable.ic_search);
         if(d != null) {
@@ -252,6 +253,16 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+        miInfo.setOnMenuItemClickListener(menuItem -> {
+            // Retrieve the current party's name
+            String name = party.getName();
+            String joinCode = party.getJoinCode();
+            // Open a new instance of the InfoDialogFragment, passing in the current party's name and code
+            InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode);
+            infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
+            infoDialogFragment.show(fm, "fragment_party_info");
+            return true;
+        });
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -276,6 +287,11 @@ public class MainActivity extends AppCompatActivity {
         if (isAdmin) {
             mSpotifyRemote.checkSpotifyInstalled();
         }
+    }
+
+    @Override
+    public void onFinishInfoDialog() {
+        onDeleteQueue();
     }
 
     /***
