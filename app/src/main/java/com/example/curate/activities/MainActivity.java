@@ -45,6 +45,7 @@ import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
+import com.example.curate.utils.Animations;
 import com.example.curate.utils.Spotify;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -145,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-        menu.findItem(R.id.miDeleteParty).setVisible(isAdmin);
-        menu.findItem(R.id.miLeaveParty).setVisible(!isAdmin);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         miSearch = menu.findItem(R.id.miSearch);
@@ -222,14 +221,6 @@ public class MainActivity extends AppCompatActivity {
                     miSearch.expandActionView();
                     mSearchView.requestFocus();
                 }
-                break;
-            case R.id.miGenerate:
-                break;
-            case R.id.miLeaveParty:
-                onLeaveQueue();
-                break;
-            case R.id.miDeleteParty:
-                onDeleteQueue();
                 break;
             default:
                 return super.onOptionsItemSelected(item);

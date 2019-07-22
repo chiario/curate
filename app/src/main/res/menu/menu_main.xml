@@ -9,16 +9,9 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
     <item
-        android:id="@+id/miLeaveParty"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="Leave Party"/>
-    <item
-        android:id="@+id/miGenerate"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="Generate Code"/>
-    <item
-        android:id="@+id/miDeleteParty"
-        android:title="Delete Party" />
+        android:id="@+id/miInfo"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="Party Info"/>
     <item
         android:id="@+id/miText"
         android:orderInCategory="0"
