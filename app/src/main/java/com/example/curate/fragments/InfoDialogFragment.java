@@ -24,7 +24,7 @@ public class InfoDialogFragment extends DialogFragment {
     private static final String JOIN_CODE_KEY = "joinCode";
 
     @BindView(R.id.etName) EditText etPartyName;
-    @BindView(R.id.tvCode) TextView etJoinCode;
+    @BindView(R.id.tvCode) TextView tvJoinCode;
     @BindView(R.id.btnDelete) Button btnDeleteParty;
 
     public interface InfoDialogListener {
@@ -70,7 +70,7 @@ public class InfoDialogFragment extends DialogFragment {
         String partyName = getArguments().getString(PARTY_NAME_KEY);
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
         etPartyName.setText(partyName);
-
+        tvJoinCode.setText(joinCode);
     }
 
     @Override

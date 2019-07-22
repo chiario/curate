@@ -66,7 +66,6 @@
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorHint">@color/colorTextHint</item>
         <item name="android:background">@null</item>
-        <item name="android:textCursorDrawable">@null</item>
         <item name="android:colorAccent">@color/colorText</item>
         <item name="android:textColorHighlight">@color/colorTextHint</item>
         <item name="android:gravity">center</item>
