@@ -2,6 +2,7 @@ package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +35,8 @@ public class InfoDialogFragment extends DialogFragment {
     @BindView(R.id.btnDelete) Button btnDeleteParty;
     @BindView(R.id.ivQR) ImageView ivQR;
 
+    private Toolbar toolbar;
+
     public interface InfoDialogListener {
         void onFinishInfoDialog();
     }
@@ -55,14 +59,14 @@ public class InfoDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
     }
 
-    //Use this instead of onCreateDialog because the entire view is defined by our custom xml
+    // Use this instead of onCreateDialog because the entire view is defined by our custom xml
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View inflateView = inflater.inflate(R.layout.fragment_info_dialog, container, false); //TODO- attach to root??
-        //set a toolbar here if we want
-        return inflateView;
+        View view = inflater.inflate(R.layout.fragment_info_dialog, container, false); //TODO- attach to root??
+        toolbar = view.findViewById(R.id.toolbar);
+        return view;
     }
 
     @Override
@@ -70,7 +74,16 @@ public class InfoDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ButterKnife.bind(this, view);
-        //add toolbar ops here if we want
+        // Set the toolbar
+        toolbar.setNavigationOnClickListener(v -> {
+            dismiss();
+        });
+        toolbar.inflateMenu(R.menu.menu_info);
+        toolbar.setOnMenuItemClickListener(menuItem -> {
+            Log.d("InfoDialogFragment", "Save button selected");
+            dismiss();
+            return true;
+        });
 
         // Fetch arguments from bundle
         String partyName = getArguments().getString(PARTY_NAME_KEY);
