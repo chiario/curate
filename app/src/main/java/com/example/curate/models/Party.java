@@ -8,6 +8,7 @@ import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -24,6 +25,7 @@ public class Party extends ParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String JOIN_CODE_KEY = "joinCode";
     private static final String CURRENTLY_PLAYING_KEY = "currPlaying";
+    private static final String LOCATION_KEY = "location";
 
     private static Party mCurrentParty;
     private Song mCurrentSong;
@@ -232,6 +234,27 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Creates a new party with the current user as the admin
+     * @param callback callback to run after the cloud function is executed
+     */
+    public void updatePartyLocation(ParseGeoPoint location, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(LOCATION_KEY, location);
+
+        ParseCloud.callFunctionInBackground("updatePartyLocation", params, (Party party, ParseException e) -> {
+            if (e != null) {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not update party location!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
      * Gets the party's playlist.  Make sure to call updatePlaylist() before getting this value for
      * the first time otherwise it will be empty.
      * @return a list of playlist entries representing this party's playlist
@@ -336,6 +359,29 @@ public class Party extends ParseObject {
             // Run the callback if it exists
             if(callback != null) {
                 callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Gets a list of parties near a location
+     * @param location the location near which to find parties
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void getNearbyParties(ParseGeoPoint location, @Nullable final FunctionCallback<List<Party>> callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(LOCATION_KEY, location);
+        // TODO: add max distance field
+
+        ParseCloud.callFunctionInBackground("getNearbyParties", params, (List<Party> parties, ParseException e) -> {
+            if (e != null) {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get nearby parties!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(parties, e);
             }
         });
     }
