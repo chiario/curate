@@ -63,6 +63,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 		// Todo load selected state and image into ViewHolder
 		Party party = mParties.get(position);
 
+		holder.tvTitle.setText(party.getName());
 		holder.tvJoinCode.setText(String.format("Join Code: %s", party.getJoinCode()));
 	}
 

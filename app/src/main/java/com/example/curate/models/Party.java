@@ -380,7 +380,8 @@ public class Party extends ParseObject {
     public static void getNearbyParties(ParseGeoPoint location, @Nullable final FunctionCallback<List<Party>> callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(LOCATION_KEY, location);
-        // TODO: add max distance field
+        // TODO: maybe make location a little more accurate
+        params.put("maxDistance", 5); //miles lol
 
         ParseCloud.callFunctionInBackground("getNearbyParties", params, (List<Party> parties, ParseException e) -> {
             if (e != null) {
