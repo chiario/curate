@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import com.example.curate.models.Party;
+import com.example.curate.models.Song;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.PlayerApi;
@@ -45,6 +46,7 @@ public class Spotify {
             mPlayerApi = mSpotifyAppRemote.getPlayerApi();
             onSubscribeToPlayerState();
             onSubscribeToPlayerContext();
+            playCurrentSong();
         }
 
         @Override
@@ -136,9 +138,16 @@ public class Spotify {
      *
      */
     public void playCurrentSong() {
-        String songId = Party.getCurrentParty().getCurrentSong().getSpotifyId();
-        Log.d(TAG, "Playing track " + songId);
-        mPlayerApi.play("spotify:track:" + songId);
+        try {
+            Song currSong = Party.getCurrentParty().getCurrentSong().fetchIfNeeded();
+            String songId = currSong.getSpotifyId();
+//            String songId = Party.getCurrentParty().getCurrentSong().getSpotifyId();
+            Log.d(TAG, "Playing track " + songId);
+            mPlayerApi.play("spotify:track:" + songId);
+        } catch (Exception e) {
+            Log.e(TAG, "Error playing current song", e);
+            pause();
+        }
     }
 
     /**

@@ -19,6 +19,7 @@ import com.parse.livequery.SubscriptionHandling;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @ParseClassName("Party")
 public class Party extends ParseObject {
@@ -28,7 +29,7 @@ public class Party extends ParseObject {
     private static final String LOCATION_KEY = "location";
 
     private static Party mCurrentParty;
-    private Song mCurrentSong;
+//    private Song mCurrentSong;
     private List<PlaylistEntry> mPlaylist;
     private List<SaveCallback> mPlaylistUpdateCallbacks;
 
@@ -50,7 +51,8 @@ public class Party extends ParseObject {
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
-            mCurrentSong = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
+            mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(party.getParseObject(CURRENTLY_PLAYING_KEY)));
+//            mCurrentSong = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
             updatePlaylist(e -> {
                 for(SaveCallback callback : mPlaylistUpdateCallbacks) {
                     callback.done(e);
@@ -136,7 +138,8 @@ public class Party extends ParseObject {
         ParseCloud.callFunctionInBackground("getNextSong", params, (FunctionCallback<Song>) (song, e) -> {
             if (e == null) {
                 Log.d("Party.java", "got song " + song.getTitle());
-                mCurrentSong = song;
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY)));
+//                mCurrentSong = song;
             } else {
                 Log.e("Party.java", "Could not get the next song");
             }
@@ -153,7 +156,8 @@ public class Party extends ParseObject {
      * @return the current song
      */
     public Song getCurrentSong() {
-        return mCurrentSong;
+        return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
+//        return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
     }
 
     /**
