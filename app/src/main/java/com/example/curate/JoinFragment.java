@@ -125,7 +125,12 @@ public class JoinFragment extends Fragment {
 
     @OnClick(R.id.btnScan)
     public void onScan(View view) {
-       IntentIntegrator.forSupportFragment(this).initiateScan();
+       IntentIntegrator.forSupportFragment(this)
+               .setOrientationLocked(false)
+               .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+               .setPrompt("Scan a party barcode from the Admin's info page")
+               .setBeepEnabled(false)
+               .initiateScan();
     }
 
     @Override
@@ -133,7 +138,7 @@ public class JoinFragment extends Fragment {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
             if(result.getContents() == null) {
-                Toast.makeText(getContext(), "Cancelled", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "No QR Scanned", Toast.LENGTH_LONG).show();
             } else {
                 joinParty(result.getContents());
             }
