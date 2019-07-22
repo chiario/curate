@@ -24,8 +24,10 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -46,6 +48,11 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.Spotify;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
@@ -65,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
+    // TODO: Does 100 work as a request code?
+    private static final int BARCODE_READER_REQUEST_CODE = 100;
 
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
@@ -303,6 +312,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         }
         return false;
     }
+
+
 
     @Override
     protected void onResume() {

@@ -1,10 +1,12 @@
 package com.example.curate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +21,8 @@ import android.widget.Toast;
 import com.example.curate.adapters.PartyAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.List;
 
@@ -30,6 +34,7 @@ import butterknife.OnClick;
 public class JoinFragment extends Fragment {
     @BindView(R.id.rvNearby) RecyclerView rvNearby;
     @BindView(R.id.etJoinCode) EditText etJoinCode;
+
 
     private SelectFragment.OnOptionSelected mListener;
     private View mRootView;
@@ -62,6 +67,7 @@ public class JoinFragment extends Fragment {
         } else {
             mLocationManager.requestPermissions();
         }
+
 
         return mRootView;
     }
@@ -117,9 +123,32 @@ public class JoinFragment extends Fragment {
 
     }
 
+    @OnClick(R.id.btnScan)
+    public void onScan(View view) {
+       IntentIntegrator.forSupportFragment(this).initiateScan();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            if(result.getContents() == null) {
+                Toast.makeText(getContext(), "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                joinParty(result.getContents());
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     @OnClick(R.id.btnJoin)
     public void onJoinParty(View view) {
         String joinCode = etJoinCode.getText().toString();
+        joinParty(joinCode);
+    }
+
+    public void joinParty(String joinCode) {
         Party.joinParty(joinCode, e -> {
             if (e == null) {
                 if (mListener != null) {
