@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,6 +31,7 @@ public class InfoDialogFragment extends DialogFragment {
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvCode) TextView tvJoinCode;
     @BindView(R.id.btnDelete) Button btnDeleteParty;
+    @BindView(R.id.ivQR) ImageView ivQR;
 
     public interface InfoDialogListener {
         void onFinishInfoDialog();
@@ -69,6 +75,17 @@ public class InfoDialogFragment extends DialogFragment {
         // Fetch arguments from bundle
         String partyName = getArguments().getString(PARTY_NAME_KEY);
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
+
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            // TODO: Fix hardcoded size
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 200, 200);
+            ivQR.setImageBitmap(bitmap);
+        }
+        catch (WriterException e) {
+            e.printStackTrace();
+        }
+
         if (partyName != null) {
             etPartyName.setText(partyName);
         } else {
