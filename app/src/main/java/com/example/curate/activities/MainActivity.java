@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -46,9 +47,13 @@ import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.Animations;
+import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.Spotify;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.material.snackbar.Snackbar;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 import com.spotify.protocol.client.Subscription;
@@ -90,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAdmin = false;
 
     private Spotify mSpotifyRemote;
+    private LocationManager mLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +146,42 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        if(isAdmin) {
+            mLocationManager = new LocationManager(this);
+            if(mLocationManager.hasNecessaryPermissions()) {
+                registerLocationUpdater();
+            } else {
+                mLocationManager.requestPermissions();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Location permission has been granted, register location updater
+                registerLocationUpdater();
+            } else {
+                Log.i(TAG, "Location permission was not granted.");
+            }
+        }
+    }
+
+    private void registerLocationUpdater() {
+        mLocationManager.registerLocationUpdateCallback(new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                party.updatePartyLocation(LocationManager.createGeoPointFromLocation(locationResult.getLastLocation()), e -> {
+                    if (e == null) {
+                        Log.d("MainActivity", "Party location updated!");
+                    } else {
+                        Log.e("MainActivity", "yike couldnt update party location!", e);
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -391,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Leave this party?")
                 .setMessage(messageSpan)
-                .setPositiveButton("Delete", (dialogInterface, i) -> {
+                .setPositiveButton("Leave", (dialogInterface, i) -> {
                     Party.leaveParty(e -> {
                         Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                         startActivity(intent);
