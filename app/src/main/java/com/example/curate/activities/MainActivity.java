@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableStringBuilder;
@@ -47,9 +46,6 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.Spotify;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
@@ -83,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @BindView(R.id.tbMain) Toolbar tbMain;
 
     private MenuItem miSearch;
-    private MenuItem miInfo;
     private SearchView mSearchView;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
@@ -208,8 +203,10 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         miSearch = menu.findItem(R.id.miSearch);
-        miInfo = menu.findItem(R.id.miInfo);
+        MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miText = menu.findItem(R.id.miText);
+        MenuItem miLeave = menu.findItem(R.id.miLeave);
+
         Drawable d = getDrawable(R.drawable.ic_search);
         if(d != null) {
             d.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
@@ -280,6 +277,15 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             infoDialogFragment.show(fm, "fragment_party_info");
             return true;
         });
+        miLeave.setOnMenuItemClickListener(menuItem -> {
+           onLeaveQueue();
+           return true;
+        });
+
+        miInfo.setVisible(isAdmin);
+        miInfo.setEnabled(isAdmin);
+        miLeave.setVisible(!isAdmin);
+        miLeave.setVisible(!isAdmin);
         return super.onCreateOptionsMenu(menu);
     }
 

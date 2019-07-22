@@ -5,21 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.curate.R;
-import com.example.curate.SelectFrament;
+import com.example.curate.SelectFragment;
 import com.example.curate.models.Party;
-import com.example.curate.models.Song;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -32,14 +26,14 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 	// Instance variables
 	private Context mContext;
 	private List<Party> mParties;
-	private SelectFrament.OnOptionSelected mListener;
+	private SelectFragment.OnOptionSelected mListener;
 
 	/***
 	 * Creates the adapter for holding mParties
 	 * @param context The context the adapter is being created from
 	 * @param parties The initial list of parties to display
 	 */
-	public PartyAdapter(Context context, List<Party> parties, SelectFrament.OnOptionSelected listener) {
+	public PartyAdapter(Context context, List<Party> parties, SelectFragment.OnOptionSelected listener) {
 		mContext = context;
 		mParties = parties;
 		mListener = listener;

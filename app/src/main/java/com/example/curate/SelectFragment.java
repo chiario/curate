@@ -2,11 +2,6 @@ package com.example.curate;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +9,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 
 import com.example.curate.models.Party;
 import com.parse.ParseAnonymousUtils;
@@ -23,19 +22,19 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SelectFrament extends Fragment {
+public class SelectFragment extends Fragment {
     @BindView(R.id.buttonContainer) ConstraintLayout mButtonContainer;
     @BindView(R.id.progressBar) ProgressBar mProgressBar;
 
     private OnOptionSelected mListener;
     private View mRootView;
 
-    public SelectFrament() {
+    public SelectFragment() {
         // Required empty public constructor
     }
 
-    public static SelectFrament newInstance() {
-        SelectFrament fragment = new SelectFrament();
+    public static SelectFragment newInstance() {
+        SelectFragment fragment = new SelectFragment();
         return fragment;
     }
 
@@ -102,15 +101,25 @@ public class SelectFrament extends Fragment {
 
     @OnClick(R.id.btnCreateParty)
     public void onCreateParty(View view) {
-        Party.createParty(e -> {
-            if(e == null) {
-                if (mListener != null) {
-                    mListener.onPartyObtained();
-                }
-            } else {
-                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        EditText etName = new EditText(getContext());
+        builder.setTitle("Add a name")
+                .setView(etName)
+                .setPositiveButton("add", (dialogInterface, i) -> {
+                    Party.createParty(etName.getText().toString(), e -> {
+                        if(e == null) {
+                            if (mListener != null) {
+                                mListener.onPartyObtained();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
+
+        builder.show();
+
     }
 
     @OnClick(R.id.btnJoinParty)

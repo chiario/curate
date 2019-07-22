@@ -2,15 +2,10 @@ package com.example.curate;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,20 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.curate.adapters.AnimatedLinearLayoutManager;
-import com.example.curate.adapters.DividerItemDecoration;
-import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.PartyAdapter;
-import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
-import com.parse.ParseAnonymousUtils;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -45,7 +31,7 @@ public class JoinFragment extends Fragment {
     @BindView(R.id.rvNearby) RecyclerView rvNearby;
     @BindView(R.id.etJoinCode) EditText etJoinCode;
 
-    private SelectFrament.OnOptionSelected mListener;
+    private SelectFragment.OnOptionSelected mListener;
     private View mRootView;
     private LocationManager mLocationManager;
     private PartyAdapter mAdapter;
@@ -83,8 +69,8 @@ public class JoinFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof SelectFrament.OnOptionSelected) {
-            mListener = (SelectFrament.OnOptionSelected) context;
+        if (context instanceof SelectFragment.OnOptionSelected) {
+            mListener = (SelectFragment.OnOptionSelected) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnOptionSelected");

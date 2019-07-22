@@ -69,7 +69,11 @@ public class InfoDialogFragment extends DialogFragment {
         // Fetch arguments from bundle
         String partyName = getArguments().getString(PARTY_NAME_KEY);
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
-        etPartyName.setText(partyName);
+        if (partyName != null) {
+            etPartyName.setText(partyName);
+        } else {
+            etPartyName.setHint("Add a party name...");
+        }
         tvJoinCode.setText(joinCode);
     }
 

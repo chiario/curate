@@ -7,11 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.curate.JoinFragment;
-import com.example.curate.SelectFrament;
+import com.example.curate.SelectFragment;
 import com.example.curate.R;
 
-public class JoinActivity extends AppCompatActivity implements SelectFrament.OnOptionSelected {
-    SelectFrament mSelectFragment;
+public class JoinActivity extends AppCompatActivity implements SelectFragment.OnOptionSelected {
+    SelectFragment mSelectFragment;
     JoinFragment mJoinFragment;
     FragmentManager mFragmentManager;
 
@@ -20,7 +20,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFrament.OnO
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
-        mSelectFragment = SelectFrament.newInstance();
+        mSelectFragment = SelectFragment.newInstance();
         mJoinFragment = JoinFragment.newInstance();
         mFragmentManager = getSupportFragmentManager();
 

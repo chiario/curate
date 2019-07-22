@@ -2,6 +2,17 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/miLeave"
+        android:icon="@android:drawable/ic_menu_set_as"
+        android:orderInCategory="0"
+        android:title="Leave Party"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/miText"
+        android:orderInCategory="50"
+        android:title="Add songs to the queue!"
+        app:showAsAction="always|withText" />
+    <item
         android:id="@+id/miSearch"
         android:icon="@drawable/ic_search"
         android:orderInCategory="100"
@@ -10,11 +21,9 @@
         app:showAsAction="always|collapseActionView" />
     <item
         android:id="@+id/miInfo"
+        android:orderInCategory="200"
         android:icon="@android:drawable/ic_menu_info_details"
-        android:title="Party Info"/>
-    <item
-        android:id="@+id/miText"
-        android:orderInCategory="0"
-        android:title="Add songs to the queue!"
-        app:showAsAction="always|withText" />
+        android:title="Party Info"
+        app:showAsAction="always" />
+
 </menu>

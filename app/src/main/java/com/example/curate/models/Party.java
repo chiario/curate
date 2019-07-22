@@ -166,6 +166,30 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Sets the current party name
+     * @param name the new name for the party
+     * @param callback callback to run after the cloud function is executed
+     */
+    public void setName(String name, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(NAME_KEY, name);
+
+        ParseCloud.callFunctionInBackground("setPartyName", params, (ParseUser user, ParseException e) -> {
+            if (e == null) {
+                Log.d("Party.java", "Success changing party name!");
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not change party name!", e);
+            }
+
+            // Run the callback if it exists
+            if (callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
      * Likes a song in the party's playlist
      * @param spotifyId the spotifyId of the song to like
      * @param callback callback to run after the cloud function is executed
@@ -323,8 +347,9 @@ public class Party extends ParseObject {
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed
      */
-    public static void createParty(@Nullable final SaveCallback callback) {
+    public static void createParty(String name, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
+        params.put(NAME_KEY, name);
 
         ParseCloud.callFunctionInBackground("createParty", params, (Party party, ParseException e) -> {
             if (e == null) {
