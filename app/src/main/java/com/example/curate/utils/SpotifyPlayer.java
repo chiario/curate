@@ -22,10 +22,11 @@ import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 
-public class Spotify {
-    private static final String TAG = "Spotify.java";
+public class SpotifyPlayer {
+    private static final String TAG = "SpotifyPlayer.java";
     private static final String REDIRECT_URI = "http://com.example.curate/callback";
     private static final ErrorCallback mErrorCallback = throwable -> Log.e(TAG, throwable + "Boom!");
+
     private static Subscription.EventCallback<PlayerState> mPlayerStateEventCallback;
     private static Subscription.EventCallback<PlayerContext> mPlayerContextEventCallback;
     private static String CLIENT_ID;
@@ -34,6 +35,7 @@ public class Spotify {
     private Subscription<PlayerContext> mPlayerContextSubscription;
     private PlayerApi mPlayerApi;
     private Context mContext;
+    private TrackProgressBar mTrackProgressBar;
     private boolean isSpotifyInstalled;
 
 
@@ -54,16 +56,19 @@ public class Spotify {
             if (error instanceof NotLoggedInException || error instanceof UserNotAuthorizedException) {
                 Log.e(TAG, error.toString());
                 // Show login button and trigger the login flow from auth library when clicked TODO
-                Log.d(TAG, "User is not logged in to Spotify", error);
+                Log.d(TAG, "User is not logged in to SpotifyPlayer", error);
             } else if (error instanceof CouldNotFindSpotifyApp) {
-                Log.e(TAG, "User does not have Spotify app installed on device", error);
-                // Show button to download Spotify TODO
+                Log.e(TAG, "User does not have SpotifyPlayer app installed on device", error);
+                // Show button to download SpotifyPlayer TODO
             }
         }
     };
 
-    public Spotify(Context context, Subscription.EventCallback<PlayerState> eventCallback,
-                   Subscription.EventCallback<PlayerContext> contextEventCallback, String clientId) {
+    public SpotifyPlayer(Context context,
+                         Subscription.EventCallback<PlayerState> eventCallback,
+                         Subscription.EventCallback<PlayerContext> contextEventCallback,
+                         String clientId,
+                         SeekBar seekBar) {
         mContext = context;
         mPlayerStateEventCallback = eventCallback;
         mPlayerContextEventCallback = contextEventCallback;
@@ -77,10 +82,11 @@ public class Spotify {
                     .showAuthView(true)
                     .build(), mConnectionListener);
         }
+        mTrackProgressBar = new TrackProgressBar(seekBar);
     }
 
     /**
-     * Subscribes remote player to the Spotify app's player state
+     * Subscribes remote player to the SpotifyPlayer app's player state
      *
      */
     private void onSubscribeToPlayerState() {
@@ -91,7 +97,24 @@ public class Spotify {
         }
 
         mPlayerStateSubscription = (Subscription<PlayerState>) mPlayerApi.subscribeToPlayerState()
-                .setEventCallback(mPlayerStateEventCallback)
+                .setEventCallback(playerState -> {
+                    if (playerState.track == null) {
+                        mTrackProgressBar.pause();
+                        mTrackProgressBar.setEnabled(false);
+                    } else {
+                        // Update progressbar
+                        if (playerState.playbackSpeed > 0) {
+                            mTrackProgressBar.unpause();
+                        } else { // Playback is paused or buffering
+                            mTrackProgressBar.pause();
+                        }
+                        mTrackProgressBar.setDuration(playerState.track.duration);
+                        mTrackProgressBar.update(playerState.playbackPosition);
+                        mTrackProgressBar.setEnabled(true);
+                    }
+
+                    mPlayerStateEventCallback.onEvent(playerState);
+                })
                 .setLifecycleCallback(new Subscription.LifecycleCallback() {
                     @Override
                     public void onStart() {
@@ -107,7 +130,7 @@ public class Spotify {
     }
 
     /**
-     * Subscribes remote player to the Spotify app's player context
+     * Subscribes remote player to the SpotifyPlayer app's player context
      *
      */
     private void onSubscribeToPlayerContext() {
@@ -118,7 +141,10 @@ public class Spotify {
         }
 
         mPlayerContextSubscription = (Subscription<PlayerContext>) mPlayerApi.subscribeToPlayerContext()
-                .setEventCallback(mPlayerContextEventCallback)
+                .setEventCallback(playerContext -> {
+                    mTrackProgressBar.unlock();
+                    mPlayerContextEventCallback.onEvent(playerContext);
+                })
                 .setLifecycleCallback(new Subscription.LifecycleCallback() {
                     @Override
                     public void onStart() {
@@ -151,7 +177,7 @@ public class Spotify {
     }
 
     /**
-     * Checks if Spotify app is installed on device by searching for the package name
+     * Checks if SpotifyPlayer app is installed on device by searching for the package name
      */
     public void checkSpotifyInstalled() {
         PackageManager pm = mContext.getPackageManager();
@@ -160,13 +186,13 @@ public class Spotify {
             isSpotifyInstalled = true;
         } catch (PackageManager.NameNotFoundException e) {
             isSpotifyInstalled = false;
-            Log.e(TAG, "Spotify app is not installed");
+            Log.e(TAG, "SpotifyPlayer app is not installed");
             // TODO prompt installation
         }
     }
 
     /**
-     * Seeks to a new position in the current song playing on Spotify
+     * Seeks to a new position in the current song playing on SpotifyPlayer
      *
      * @param progress New position to seek to
      */
@@ -209,20 +235,18 @@ public class Spotify {
                 .setErrorCallback(mErrorCallback);
     }
 
-    public static class TrackProgressBar {
+    public class TrackProgressBar {
         private static final int LOOP_DURATION = 500;
         private SeekBar mSeekBar;
         private Handler mHandler;
-        private Spotify mSpotifyPlayer;
         // Lock ensures TrackProgressBar doesn't call getNextSong multiple times
         // before new song begins playing
         private boolean locked;
 
-        public TrackProgressBar(Spotify spotifyPlayer, SeekBar seekBar) {
+        public TrackProgressBar(SeekBar seekBar) {
             mSeekBar = seekBar;
             mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
             mHandler = new Handler();
-            mSpotifyPlayer = spotifyPlayer;
             locked = false;
         }
 
@@ -241,11 +265,11 @@ public class Spotify {
                         Log.d(TAG, "Locked");
                         Party.getCurrentParty().getNextSong(e -> {
                             if (e == null) {
-                                mSpotifyPlayer.playCurrentSong();
+                                SpotifyPlayer.this.playCurrentSong();
                                 // TrackProgressBar is unlocked inside the PlayerContext
                                 // subscription when new song begins playing
                             } else {
-                                mSpotifyPlayer.pause();
+                                SpotifyPlayer.this.pause();
                                 Log.e(TAG, "Error getting next song", e);
                                 unlock();
                             }
@@ -260,7 +284,7 @@ public class Spotify {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mSpotifyPlayer.seekTo(seekBar.getProgress());
+                SpotifyPlayer.this.seekTo(seekBar.getProgress());
             }
         };
 
@@ -288,6 +312,10 @@ public class Spotify {
         public void unpause() {
             mHandler.removeCallbacks(mSeekRunnable);
             mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
+        }
+
+        public void setEnabled(boolean isEnabled) {
+            mSeekBar.setEnabled(isEnabled);
         }
 
         // Only called in the PlayerContext event subscription once next song has begun playing
