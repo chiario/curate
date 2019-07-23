@@ -52,10 +52,9 @@ public class Party extends ParseObject {
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
-
-            ParseObject currentSong = party.getParseObject(CURRENTLY_PLAYING_KEY);
-            if (currentSong != null) {
-                mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) currentSong);
+            Song currentlyPlaying = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
+            if(currentlyPlaying != null) {
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, currentlyPlaying);
             }
             updatePlaylist(e -> {
                 for(SaveCallback callback : mPlaylistUpdateCallbacks) {
