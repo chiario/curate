@@ -132,6 +132,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         if(isAdmin) {
             mLocationManager = new LocationManager(this);
