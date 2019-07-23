@@ -1,49 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="fill_parent"
-    android:fitsSystemWindows="true"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/clCurrPlaying"
         android:fitsSystemWindows="true"
-        tools:mContext=".activities.MainActivity"
-        android:layout_above="@id/clCurrPlaying">
-            <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/ablMain"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white_10"
-                android:elevation="10dp"
-                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
+        tools:mContext=".activities.MainActivity">
 
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/tbMain"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:theme="@style/AppTheme.Toolbar"
-                    app:layout_scrollFlags="scroll|enterAlways" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/ablMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white_10"
+            android:elevation="10dp"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
 
-            </com.google.android.material.appbar.AppBarLayout>
-            <FrameLayout
-                android:id="@+id/flPlaceholder"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/tbMain"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@id/clCurrPlaying"
-                android:layout_below="@id/ablMain"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                android:layout_height="?attr/actionBarSize"
+                android:theme="@style/AppTheme.Toolbar"
+                app:layout_scrollFlags="scroll|enterAlways"
+                android:background="@color/colorAccent_70"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/flPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clCurrPlaying"
         android:layout_width="match_parent"
         android:layout_height="130dp"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:elevation="10dp"
-        android:background="@color/white_10">
+        android:background="@color/white_10"
+        android:elevation="10dp">
         <!-- Current Track -->
 
         <ImageView

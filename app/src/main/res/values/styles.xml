@@ -5,10 +5,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:background">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:textViewStyle">@style/AppTheme.TextView</item>
         <item name="android:colorControlHighlight">@color/colorAccent</item>
-        <!--<item name="android:imageButtonStyle">@style/AppTheme.ImageButton</item>-->
+        <item name="editTextStyle">@style/AppTheme.EditText</item>
     </style>
 
     <style name="AppTheme.SeekBar" parent="Widget.AppCompat.SeekBar">
@@ -44,14 +44,17 @@
     </style>
 
     <style name="AppTheme.Toolbar" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/colorAccent</item>
-        <item name="android:itemBackground">@color/colorAccent</item>
         <item name="android:actionMenuTextColor">@color/white</item>
+        <item name="android:actionBarItemBackground">@android:color/transparent</item>
     </style>
 
     <style name="AppTheme.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="android:queryBackground">@drawable/searchbar_background</item>
         <item name="android:queryHint">Search for a song!</item>
+    </style>
+
+    <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@null</item>
     </style>
 
     <style name="AppTheme.SearchEditText" parent="Widget.AppCompat.EditText">
@@ -150,7 +153,7 @@
 
     <style name="Dialog.FullScreen" parent="Theme.AppCompat.Dialog">
         <item name="android:windowIsFloating">false</item>
-        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:padding">0dp</item>
     </style>
 </resources>
