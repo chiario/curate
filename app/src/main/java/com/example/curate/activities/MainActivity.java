@@ -24,10 +24,8 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -48,11 +46,6 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.Spotify;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
@@ -66,7 +59,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogFragment.InfoDialogListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogFragment.SaveInfoListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -88,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @BindView(R.id.tbMain) Toolbar tbMain;
 
     private MenuItem miSearch;
+    private MenuItem miText;
     private SearchView mSearchView;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
@@ -143,6 +137,22 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                 mLocationManager.requestPermissions();
             }
         }
+    }
+
+    @Override
+    public void onSaveInfo(String newName, boolean locationEnabled) {
+        Party.setPartyName(newName, e -> {
+            if (e == null) {
+                miText.setTitle(party.getName());
+            } else {
+                Log.e(TAG, "Couldn't save party name!", e);
+            }
+        });
+        Party.setLocationEnabled(locationEnabled, e -> {
+            if (e != null) {
+                Log.e(TAG, "Couldn't change location preferences!", e);
+            }
+        });
     }
 
     private void initializeFragments(Bundle savedInstanceState) {
@@ -215,8 +225,10 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         miSearch = menu.findItem(R.id.miSearch);
         MenuItem miInfo = menu.findItem(R.id.miInfo);
-        MenuItem miText = menu.findItem(R.id.miText);
+        miText = menu.findItem(R.id.miText);
         MenuItem miLeave = menu.findItem(R.id.miLeave);
+
+        miText.setTitle(party.getName());
 
         Drawable d = getDrawable(R.drawable.ic_search);
         if(d != null) {
@@ -325,10 +337,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         }
     }
 
-    @Override
-    public void onFinishInfoDialog() {
-        onDeleteQueue();
-    }
 
     /***
      * Saves currently active fragment
@@ -456,21 +464,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 //   	    searchFragment.setSearchText(text.toString());
 //   }
 
-    public void onDeleteQueue() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Delete this party?")
-                .setMessage("You won't be able to undo this action!")
-                .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    Party.deleteParty(e -> {
-                        Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                        startActivity(intent);
-                        finish();
-                    });
-                })
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
 
-        builder.show();
-    }
 
     public void onLeaveQueue() {
         String message = "You can rejoin this party with the following code: " + party.getJoinCode();

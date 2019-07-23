@@ -22,7 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             android:paddingStart="6dp"
             android:paddingEnd="16dp"
-            app:navigationIcon="@drawable/ic_cancel" />
+            app:navigationIcon="@drawable/selector_remove" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -47,35 +47,70 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btnDelete"
-        app:layout_constraintStart_toStartOf="@+id/btnDelete"
-        app:layout_constraintTop_toBottomOf="@+id/tvCode"
+        android:minWidth="200dp"
+        android:minHeight="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/flJoinCode"
         app:srcCompat="@color/offwhite" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/flJoinCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etName">
+
+        <TextView
+            android:id="@+id/tvJoinText"
+            style="@style/AppTheme.TextView.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Join Code: "
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvCode"
+            style="@style/AppTheme.TextView.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/placeholder_join_code"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvJoinText"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     <TextView
-        android:id="@+id/tvCode"
+        android:id="@+id/tvDelete"
         style="@style/AppTheme.TextView.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/placeholder_join_code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etName" />
+        android:text="Delete Queue"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="@+id/ivQR"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="@+id/ivQR"
+        app:layout_constraintTop_toBottomOf="@+id/switchLocation" />
 
-    <Button
-        android:id="@+id/btnDelete"
-        style="@style/AppTheme.Button.Highlighted"
+    <Switch
+        android:id="@+id/switchLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/btn_delete_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="Location Services    "
+        app:layout_constraintEnd_toEndOf="@+id/ivQR"
+        app:layout_constraintStart_toStartOf="@+id/ivQR"
         app:layout_constraintTop_toBottomOf="@+id/ivQR" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

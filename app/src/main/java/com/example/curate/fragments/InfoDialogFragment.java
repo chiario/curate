@@ -1,23 +1,27 @@
 package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
+import com.example.curate.models.Party;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -32,13 +36,19 @@ public class InfoDialogFragment extends DialogFragment {
 
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvCode) TextView tvJoinCode;
-    @BindView(R.id.btnDelete) Button btnDeleteParty;
+    @BindView(R.id.tvDelete) TextView tvDeleteParty;
     @BindView(R.id.ivQR) ImageView ivQR;
+    @BindView(R.id.switchLocation) Switch switchLocation;
 
     private Toolbar toolbar;
 
-    public interface InfoDialogListener {
-        void onFinishInfoDialog();
+    // Calls deleteQueue in the MainActivity
+    public interface DeleteQueueListener {
+        void onDeleteQueue();
+    }
+
+    public interface SaveInfoListener {
+        void onSaveInfo(String newName, boolean locationEnabled);
     }
 
     // Empty constructor required
@@ -74,13 +84,19 @@ public class InfoDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ButterKnife.bind(this, view);
-        // Set the toolbar
+
+        // Set the toolbar and click listeners
         toolbar.setNavigationOnClickListener(v -> {
             dismiss();
         });
+        toolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.white), PorterDuff.Mode.SRC_IN);
         toolbar.inflateMenu(R.menu.menu_info);
         toolbar.setOnMenuItemClickListener(menuItem -> {
             Log.d("InfoDialogFragment", "Save button selected");
+            String newName = etPartyName.getText().toString();
+            boolean locationEnabled = switchLocation.isChecked();
+            SaveInfoListener listener = (SaveInfoListener) getActivity();
+            listener.onSaveInfo(newName, locationEnabled);
             dismiss();
             return true;
         });
@@ -99,16 +115,19 @@ public class InfoDialogFragment extends DialogFragment {
             e.printStackTrace();
         }
 
+        // Set party name and join code
         if (partyName != null) {
             etPartyName.setText(partyName);
         } else {
             etPartyName.setHint("Add a party name...");
         }
         tvJoinCode.setText(joinCode);
+        switchLocation.setChecked(Party.getLocationEnabled());
     }
 
     @Override
     public void onResume() {
+        // Set dimensions to make the dialog fragment fullscreen
         WindowManager.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
         params.height = WindowManager.LayoutParams.MATCH_PARENT;
@@ -117,11 +136,18 @@ public class InfoDialogFragment extends DialogFragment {
         super.onResume();
     }
 
-    @OnClick(R.id.btnDelete)
-    public void onDeleteParty() {
-        // Close dialog and return to the activity through the listener
-        InfoDialogListener listener = (InfoDialogListener) getActivity();
-        listener.onFinishInfoDialog();
-        dismiss();
+    @OnClick(R.id.tvDelete)
+    public void onDeleteQueue() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Delete this party?")
+                .setMessage("You won't be able to undo this action!")
+                .setPositiveButton("Delete", (dialogInterface, i) -> {
+                    DeleteQueueListener listener = (DeleteQueueListener) getActivity();
+                    listener.onDeleteQueue();
+                    dismiss();
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
+
+        builder.show();
     }
 }

@@ -6,7 +6,7 @@
         android:icon="@android:drawable/ic_menu_set_as"
         android:orderInCategory="0"
         android:title="Leave Party"
-        app:showAsAction="always" />
+        app:showAsAction="always|never" />
     <item
         android:id="@+id/miText"
         android:orderInCategory="50"

@@ -28,6 +28,7 @@ public class Party extends ParseObject {
     private static final String CURRENTLY_PLAYING_KEY = "currPlaying";
     private static final String NAME_KEY = "name";
     private static final String LOCATION_KEY = "location";
+    private static final String LOCATION_PERMISSION_KEY = "locationEnabled";
 
     private static Party mCurrentParty;
     private List<PlaylistEntry> mPlaylist;
@@ -51,7 +52,11 @@ public class Party extends ParseObject {
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
-            mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(party.getParseObject(CURRENTLY_PLAYING_KEY)));
+
+            ParseObject currentSong = party.getParseObject(CURRENTLY_PLAYING_KEY);
+            if (currentSong != null) {
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) currentSong);
+            }
             updatePlaylist(e -> {
                 for(SaveCallback callback : mPlaylistUpdateCallbacks) {
                     callback.done(e);
@@ -170,13 +175,13 @@ public class Party extends ParseObject {
      * @param name the new name for the party
      * @param callback callback to run after the cloud function is executed
      */
-    public void setName(String name, @Nullable final SaveCallback callback) {
+    public static void setPartyName(String name, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(NAME_KEY, name);
 
-        ParseCloud.callFunctionInBackground("setPartyName", params, (ParseUser user, ParseException e) -> {
+        ParseCloud.callFunctionInBackground("setPartyName", params, (Party party, ParseException e) -> {
             if (e == null) {
-                Log.d("Party.java", "Success changing party name!");
+                mCurrentParty = party;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not change party name!", e);
@@ -422,6 +427,37 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Sets the current party's location preferences
+     * @param permissions boolean value to set location enabling to
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void setLocationEnabled(boolean permissions, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(LOCATION_PERMISSION_KEY, permissions);
+
+        ParseCloud.callFunctionInBackground("setLocationEnabled", params, (Party party, ParseException e) -> {
+            if (e == null) {
+                mCurrentParty = party;
+            } else {
+                Log.e("Party.java", "Could not set location permissions!", e);
+            }
+
+            // Run the callback if it exists
+            if (callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Gets the current party's location preferences
+     * @return the boolean value of location enabling
+     */
+    public static boolean getLocationEnabled() {
+        return mCurrentParty.getBoolean(LOCATION_PERMISSION_KEY);
+    }
+
+    /**
      * Adds current user to an existing party
      * @param callback callback to run after the cloud function is executed
      * @param joinCode the join code of the party to join
@@ -500,4 +536,5 @@ public class Party extends ParseObject {
     public static Party getCurrentParty() {
         return mCurrentParty;
     }
+
 }
