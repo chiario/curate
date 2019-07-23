@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
 import android.os.Handler;
@@ -52,8 +53,12 @@ public class ItemTouchHelperCallbacks {
 			if(dX > 0) {
 				int height = itemView.getBottom() - itemView.getTop();
 				int width = height / 3;
+				ColorDrawable background = new ColorDrawable();
+				background.setColor(mContext.getResources().getColor(R.color.colorSecondary));
+				background.setBounds(0, itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
+				background.draw(c);
 				Drawable d = mContext.getDrawable(R.drawable.ic_circle_cancel);
-				d.setTint(mContext.getResources().getColor(R.color.colorSecondary));
+				d.setTint(mContext.getResources().getColor(R.color.white));
 				Rect iconDest = new Rect(itemView.getLeft() + width , itemView.getTop() + width, itemView.getLeft()+ 2*width,itemView.getBottom() - width);
 				d.setBounds(iconDest);
 				d.draw(c);
@@ -70,13 +75,8 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-			QueueAdapter.ViewHolder queueViewHolder = (QueueAdapter.ViewHolder) viewHolder;
 			((QueueAdapter) mAdapter).onItemLike(viewHolder);
 			((QueueAdapter) mAdapter).notifyItemChanged(viewHolder.getAdapterPosition());
-			// TODO: Why is this animation not working?
-			Handler handler = new Handler();
-			handler.post(new Animations.PressRunnable(queueViewHolder.clItem,
-					queueViewHolder.ibLike.getX(), queueViewHolder.ibLike.getY()));
 		}
 
 		@Override
@@ -88,8 +88,12 @@ public class ItemTouchHelperCallbacks {
 			int height = itemView.getBottom() - itemView.getTop();
 			int width = height / 3;
 			if(dX < 0) {
+				ColorDrawable background = new ColorDrawable();
+				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
+				background.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight() + (int) dX, itemView.getBottom());
+				background.draw(c);
 				Drawable d = mContext.getDrawable(R.drawable.ic_favorite);
-				d.setTint(mContext.getResources().getColor(R.color.colorAccent));
+				d.setTint(mContext.getResources().getColor(R.color.white));
 				Rect iconDest = new Rect(itemView.getRight() - 2*width , itemView.getTop() + width, itemView.getRight() - width,itemView.getBottom() - width);
 				d.setBounds(iconDest);
 				d.draw(c);
@@ -124,13 +128,18 @@ public class ItemTouchHelperCallbacks {
 			int height = itemView.getBottom() - itemView.getTop();
 			int width = height / 3;
 			if(dX < 0) {
+				ColorDrawable background = new ColorDrawable();
+				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
+				background.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight() + (int) dX, itemView.getBottom());
+				background.draw(c);
 				Drawable d = mContext.getDrawable(R.drawable.ic_favorite);
-				d.setTint(mContext.getResources().getColor(R.color.colorAccent));
+				d.setTint(mContext.getResources().getColor(R.color.white));
 				Rect iconDest = new Rect(itemView.getRight() - 2*width , itemView.getTop() + width, itemView.getRight() - width,itemView.getBottom() - width);
 				d.setBounds(iconDest);
 				d.draw(c);
 			}
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 		}
+
 	};
 }
