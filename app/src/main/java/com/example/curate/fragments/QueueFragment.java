@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,8 @@ public class QueueFragment extends Fragment {
 	private SaveCallback mPlaylistUpdatedCallback;
 
 	@BindView(R.id.rvQueue) RecyclerView rvQueue;
+	@BindView(R.id.textContainer) LinearLayout textContainer;
+	@BindView(R.id.tvError) TextView tvError;
 
 	public QueueFragment() {
 		// Required empty public constructor
@@ -68,6 +72,8 @@ public class QueueFragment extends Fragment {
 		mParty = Party.getCurrentParty();
 		mParty.updatePlaylist(e -> {
 			if(e == null) {
+				textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
+
 				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
 				mAdapter.setHasStableIds(true);
 
@@ -99,22 +105,9 @@ public class QueueFragment extends Fragment {
 		mPlaylistUpdatedCallback = e -> {
 			if(e == null) {
 				mAdapter.notifyDataSetChanged();
+				textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 			}
 		};
 		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
-	}
-
-	/***
-	 * Adds the given song to the queue
-	 * @param song Song to add to the queue
-	 */
-	public void addSong(Song song, View view) {
-		mParty.addSong(song, e -> {
-            if(e == null) {
-                mAdapter.notifyDataSetChanged();
-                view.setSelected(true);
-                Toast.makeText(getContext(), "Song Added!", Toast.LENGTH_SHORT).show();
-            }
-		});
 	}
 }

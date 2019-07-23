@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -38,7 +38,7 @@ public class SearchFragment extends Fragment {
 
 	@BindView(R.id.rvSearch) RecyclerView rvSearch;
 	@BindView(R.id.progressBar) ProgressBar progressBar;
-	@BindView(R.id.clText) ConstraintLayout clText;
+	@BindView(R.id.textContainer) LinearLayout textContainer;
 	@BindView(R.id.tvError) TextView tvError;
 
 	SearchAdapter mAdapter;
@@ -138,7 +138,11 @@ public class SearchFragment extends Fragment {
 			progressBar.setVisibility(View.GONE);
 			if(e == null) {
 				mAdapter.clear();
-				mAdapter.addAll(search.getResults());
+				if(search.getResults().isEmpty()) {
+					showText(getString(R.string.no_search_result));
+				} else {
+					mAdapter.addAll(search.getResults());
+				}
 			} else {
 				if(e.getMessage().startsWith("400"))
 					showText(getString(R.string.no_search_result));
@@ -149,11 +153,11 @@ public class SearchFragment extends Fragment {
 	}
 
 	private void showText(String text) {
-		clText.setVisibility(View.VISIBLE);
+		textContainer.setVisibility(View.VISIBLE);
 		tvError.setText(text);
 	}
 
 	private void hideText() {
-		clText.setVisibility(View.GONE);
+		textContainer.setVisibility(View.GONE);
 	}
 }
