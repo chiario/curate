@@ -342,22 +342,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     }
 
 
-    public void onDeleteQueue() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Delete this party?")
-                .setMessage("You won't be able to undo this action!")
-                .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    Party.deleteParty(e -> {
-                        Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                        startActivity(intent);
-                        finish();
-                    });
-                })
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {
-                });
-    }
-
-
     public void onLeaveQueue() {
         String message = "You can rejoin this party with the following code: " + party.getJoinCode();
         int joinCodeColor = ContextCompat.getColor(this, R.color.colorAccent_text);
