@@ -50,6 +50,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:background="@color/white_10"
-        android:elevation="10dp"/>
+        android:background="@android:color/transparent"
+        android:elevation="10dp" />
 </RelativeLayout>
