@@ -6,7 +6,7 @@
         android:icon="@android:drawable/ic_menu_set_as"
         android:orderInCategory="0"
         android:title="Leave Party"
-        app:showAsAction="always|never" />
+        app:showAsAction="collapseActionView" />
     <item
         android:id="@+id/miText"
         android:orderInCategory="50"
@@ -21,9 +21,9 @@
         app:showAsAction="always|collapseActionView" />
     <item
         android:id="@+id/miInfo"
-        android:orderInCategory="200"
         android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="200"
         android:title="Party Info"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView" />
 
 </menu>

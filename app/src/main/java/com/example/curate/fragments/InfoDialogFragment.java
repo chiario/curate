@@ -42,13 +42,10 @@ public class InfoDialogFragment extends DialogFragment {
 
     private Toolbar toolbar;
 
-    // Calls deleteQueue in the MainActivity
-    public interface DeleteQueueListener {
-        void onDeleteQueue();
-    }
 
-    public interface SaveInfoListener {
+    public interface InfoDialogListener {
         void onSaveInfo(String newName, boolean locationEnabled);
+        void onDeleteQueue();
     }
 
     // Empty constructor required
@@ -95,7 +92,7 @@ public class InfoDialogFragment extends DialogFragment {
             Log.d("InfoDialogFragment", "Save button selected");
             String newName = etPartyName.getText().toString();
             boolean locationEnabled = switchLocation.isChecked();
-            SaveInfoListener listener = (SaveInfoListener) getActivity();
+            InfoDialogListener listener = (InfoDialogListener) getActivity();
             listener.onSaveInfo(newName, locationEnabled);
             dismiss();
             return true;
@@ -142,7 +139,7 @@ public class InfoDialogFragment extends DialogFragment {
         builder.setTitle("Delete this party?")
                 .setMessage("You won't be able to undo this action!")
                 .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    DeleteQueueListener listener = (DeleteQueueListener) getActivity();
+                    InfoDialogListener listener = (InfoDialogListener) getActivity();
                     listener.onDeleteQueue();
                     dismiss();
                 })

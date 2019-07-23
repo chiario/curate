@@ -59,7 +59,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogFragment.SaveInfoListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogFragment.InfoDialogListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -152,6 +152,15 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             if (e != null) {
                 Log.e(TAG, "Couldn't change location preferences!", e);
             }
+        });
+    }
+
+    @Override
+    public void onDeleteQueue() {
+        Party.deleteParty(e -> {
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
