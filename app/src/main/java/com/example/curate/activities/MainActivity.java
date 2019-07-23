@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -20,44 +18,29 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.palette.graphics.Palette;
 
-import com.bumptech.glide.Glide;
 import com.example.curate.R;
+import com.example.curate.fragments.BottomPlayerAdminFragment;
+import com.example.curate.fragments.BottomPlayerClientFragment;
 import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
-import com.example.curate.models.Song;
-import com.example.curate.utils.LocationManager;
-import com.example.curate.utils.Spotify;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerContext;
-import com.spotify.protocol.types.PlayerState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements InfoDialogFragment.SaveInfoListener {
 
@@ -65,36 +48,24 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
-    // TODO: Does 100 work as a request code?
     private static final int BARCODE_READER_REQUEST_CODE = 100;
 
-    @BindView(R.id.tvTitle) TextView tvTitle;
-    @BindView(R.id.tvArtist) TextView tvArtist;
-    @BindView(R.id.ivAlbum) ImageView ivAlbum;
-    @BindView(R.id.seek_to) SeekBar mSeekBar;
-    @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
-    @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
-    @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;
-    @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
+    @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
 
     private MenuItem miSearch;
     private MenuItem miText;
     private SearchView mSearchView;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
-    private Spotify.TrackProgressBar mTrackProgressBar;
     private QueueFragment queueFragment;
     private SearchFragment searchFragment;
+    private Fragment mBottomPlayerFragment;
     private Party party;
-    private SaveCallback mCurrentSongUpdatedCallback;
 
     private boolean isAdmin = false;
-
-    private Spotify mSpotifyRemote;
-    private LocationManager mLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,33 +81,18 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
         Log.d(TAG, "Current user is admin: " + isAdmin);
 
-        int visibility = isAdmin ? View.VISIBLE : View.GONE;
-        mPlayPauseButton.setVisibility(visibility);
-        mSkipNextButton.setVisibility(visibility);
-        mSkipPrevButton.setVisibility(visibility);
-        mSeekBar.setVisibility(visibility);
-        mSeekBar.setEnabled(false);
-
         if (isAdmin) {
-            mSpotifyRemote = new Spotify(this, mPlayerStateEventCallback, mPlayerContextEventCallback, getString(R.string.clientId));
-            mTrackProgressBar = new Spotify.TrackProgressBar(mSpotifyRemote, mSeekBar);
+            mBottomPlayerFragment = BottomPlayerAdminFragment.newInstance();
+            fm.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
         } else {
-            initializeSongUpdateCallback();
+            mBottomPlayerFragment = BottomPlayerClientFragment.newInstance();
+            fm.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
         }
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setLogo(R.mipmap.ic_launcher);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-
-        if(isAdmin) {
-            mLocationManager = new LocationManager(this);
-            if(mLocationManager.hasNecessaryPermissions()) {
-                registerLocationUpdater();
-            } else {
-                mLocationManager.requestPermissions();
-            }
-        }
     }
 
     @Override
@@ -180,41 +136,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Location permission has been granted, register location updater
-                registerLocationUpdater();
-            } else {
-                Log.i(TAG, "Location permission was not granted.");
-            }
-        }
-    }
-
-    private void registerLocationUpdater() {
-        // Update location when user moves
-        mLocationManager.registerLocationUpdateCallback(new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                party.updatePartyLocation(LocationManager.createGeoPointFromLocation(locationResult.getLastLocation()), e -> {
-                    if (e == null) {
-                        Log.d("MainActivity", "Party location updated!");
-                    } else {
-                        Log.e("MainActivity", "yike couldnt update party location!", e);
-                    }
-                });
-            }
-        });
-
-        // Force update location at least once
-        mLocationManager.getCurrentLocation(location -> {
-            party.updatePartyLocation(LocationManager.createGeoPointFromLocation(location), e -> {
-                if (e == null) {
-                    Log.d("MainActivity", "Party location updated!");
-                } else {
-                    Log.e("MainActivity", "yike couldnt update party location!", e);
-                }
-            });
-        });
+        mBottomPlayerFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -327,13 +249,11 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         return false;
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
         if (isAdmin) {
-            mSpotifyRemote.checkSpotifyInstalled();
+//            mAdminManager.checkSpotifyInstalled();
         }
     }
 
@@ -362,51 +282,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                 break;
         }
 //        etSearch.setText("");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        party.deregisterPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
-    }
-
-    private void initializeSongUpdateCallback() {
-        mCurrentSongUpdatedCallback = e -> {
-            if (e == null) {
-                Song currentSong = party.getCurrentSong();
-                if (currentSong != null) {
-                    try {
-                        currentSong.fetchIfNeeded(); // TODO - work around this fetch; add ParseCloud function??
-                        tvTitle.setText(currentSong.getTitle());
-                        tvArtist.setText(currentSong.getArtist());
-                        Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
-                    } catch (ParseException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            } else {
-                Log.d(TAG, "Error in song update callback", e);
-            }
-        };
-        party.registerPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
-    }
-
-
-    private void setPlayerColor(Bitmap bitmap) {
-        Palette.from(bitmap).generate(p -> {
-            // Load default colors
-            int backgroundColor = ContextCompat.getColor(MainActivity.this, R.color.asphalt);
-            int textColor = ContextCompat.getColor(MainActivity.this, R.color.white);
-
-            Palette.Swatch swatch = p.getDarkMutedSwatch();
-            if(swatch != null) {
-                backgroundColor = swatch.getRgb();
-            }
-
-            mPlayerBackground.setBackgroundColor(backgroundColor);
-            tvTitle.setTextColor(textColor);
-            tvArtist.setTextColor(textColor);
-        });
     }
 
     /***
@@ -457,13 +332,21 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         hideKeyboard(v);
     }
 
-   // ButterKnife Listeners
 
-//   @OnTextChanged(R.id.etSearch)
-//   public void onSearchTextChange(CharSequence text) {
-//   	    searchFragment.setSearchText(text.toString());
-//   }
-
+    public void onDeleteQueue() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete this party?")
+                .setMessage("You won't be able to undo this action!")
+                .setPositiveButton("Delete", (dialogInterface, i) -> {
+                    Party.deleteParty(e -> {
+                        Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                });
+    }
 
 
     public void onLeaveQueue() {
@@ -489,82 +372,5 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});
 
         builder.show();
-    }
-
-    //Methods for Spotify remote player communication
-    /**
-     * Admin's Spotify Player Context event callback
-     * Unlocks track progress bar when new track begins
-     */
-    public final Subscription.EventCallback<PlayerContext> mPlayerContextEventCallback = new Subscription.EventCallback<PlayerContext>() {
-        @Override
-        public void onEvent(PlayerContext playerContext) {
-            Log.d("Spotify.java", playerContext.toString());
-            mTrackProgressBar.unlock();
-        }
-    };
-
-    /**
-     * Admin's Spotify Player State event callback
-     * Updates current song views whenever player state changes, e.g. on pause, play, new track
-     */
-    public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = new Subscription.EventCallback<PlayerState>() {
-        @Override
-        public void onEvent(PlayerState playerState) {
-            if (playerState.track == null) {
-                mTrackProgressBar.pause();
-                mPlayPauseButton.setImageResource(R.drawable.btn_play);
-                tvTitle.setText("--");
-                tvArtist.setText("--");
-                mSeekBar.setEnabled(false);
-            } else {
-                // Update progressbar
-                if (playerState.playbackSpeed > 0) {
-                    mTrackProgressBar.unpause();
-                } else { // Playback is paused or buffering
-                    mTrackProgressBar.pause();
-                }
-
-                // Set play / pause button
-                if (playerState.isPaused) {
-                    mPlayPauseButton.setImageResource(R.drawable.btn_play);
-                } else {
-                    mPlayPauseButton.setImageResource(R.drawable.btn_pause);
-                }
-
-                tvTitle.setText(playerState.track.name);
-                tvArtist.setText(playerState.track.artist.name);
-                // Get image from track
-                mSpotifyRemote.setAlbumArt(playerState, ivAlbum);
-
-                // Set seekbar length and position
-                mSeekBar.setMax((int) playerState.track.duration);
-                mTrackProgressBar.setDuration(playerState.track.duration);
-                mTrackProgressBar.update(playerState.playbackPosition);
-
-                mSeekBar.setEnabled(true);
-            }
-        }
-    };
-
-    @OnClick(R.id.skip_prev_button)
-    public void onRestartSong() {
-        mSpotifyRemote.restartSong();
-    }
-
-    @OnClick(R.id.play_pause_button)
-    public void onPlayPause() {
-        mSpotifyRemote.playPause();
-    }
-
-    @OnClick(R.id.skip_next_button)
-    public void onSkipNext() {
-        party.getNextSong(e -> {
-            if (e == null) {
-                mSpotifyRemote.playCurrentSong();
-            } else {
-                Log.e(TAG, "Error getting next song", e);
-            }
-        });
     }
 }
