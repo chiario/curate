@@ -32,6 +32,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	// Instance variables
 	private Context context;
 	private List<PlaylistEntry> playlist;
+	private boolean isUpdating;
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -98,6 +99,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		vh.onClickLike(vh.ibLike);
 	}
 
+	public boolean isUpdating() {return isUpdating;}
+
 	/***
 	 * Internal ViewHolder model for each item.
 	 */
@@ -116,12 +119,15 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibDelete)
 		public void onClickRemove(View v) {
+			if(isUpdating) return;
+			isUpdating = true;
 			v.setSelected(true);
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), e -> {
 				if(e == null) {
 					// TODO change this: playlist might reorder
 					notifyItemRemoved(getAdapterPosition());
 				}
+				isUpdating = false;
 			});
 		}
 

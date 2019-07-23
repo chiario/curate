@@ -35,6 +35,11 @@ public class ItemTouchHelperCallbacks {
 
 	public ItemTouchHelper.SimpleCallback deleteCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 		@Override
+		public boolean isItemViewSwipeEnabled() {
+			return !((QueueAdapter) mAdapter).isUpdating();
+		}
+
+		@Override
 		public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
 			return false;
 		}
@@ -82,8 +87,9 @@ public class ItemTouchHelperCallbacks {
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 			View itemView = viewHolder.itemView;
-			if(!isCurrentlyActive) {
+			if(!isCurrentlyActive || ((QueueAdapter)recyclerView.getAdapter()).isUpdating()) {
 				c.drawColor(mContext.getResources().getColor(R.color.colorBackground));
+				return;
 			}
 			int height = itemView.getBottom() - itemView.getTop();
 			int width = height / 3;
