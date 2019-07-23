@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseUser;

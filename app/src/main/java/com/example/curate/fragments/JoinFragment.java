@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.curate.R;
 import com.example.curate.adapters.PartyAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
