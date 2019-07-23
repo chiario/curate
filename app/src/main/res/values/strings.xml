@@ -20,4 +20,7 @@
     <string name="btn_create_text">Create</string>
     <string name="nearby_join_code">Join Code:</string>
     <string name="nearby_party_name">Test Party</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

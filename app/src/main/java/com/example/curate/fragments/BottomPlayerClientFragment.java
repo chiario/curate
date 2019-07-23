@@ -6,12 +6,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -36,9 +38,14 @@ public class BottomPlayerClientFragment extends Fragment {
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
+    @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
+    @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
 
     private SaveCallback mCurrentSongUpdatedCallback;
     private Party mParty;
+
+    private ConstraintSet mCollapsed;
+    private ConstraintSet mExpanded;
 
     public BottomPlayerClientFragment() {
         // Required empty public constructor
@@ -47,6 +54,33 @@ public class BottomPlayerClientFragment extends Fragment {
     public static BottomPlayerClientFragment newInstance() {
         BottomPlayerClientFragment fragment = new BottomPlayerClientFragment();
         return fragment;
+    }
+
+    /***
+     * Set the bottom players expanded state
+     * @param isExpanded The new state to be in
+     */
+    private void setExpanded(boolean isExpanded) {
+        if(isExpanded) {
+            mExpanded.applyTo(mPlayerBackground);
+            ivAlbum.setVisibility(View.VISIBLE);
+            ibExpandCollapse.setSelected(true);
+        }
+        else {
+            mCollapsed.applyTo(mPlayerBackground);
+            ivAlbum.setVisibility(View.GONE);
+            ibExpandCollapse.setSelected(false);
+        }
+    }
+
+    @OnClick(R.id.ibExpandCollapse)
+    public void onClickExpandCollapse(View v) {
+        setExpanded(!ibExpandCollapse.isSelected());
+    }
+
+    @OnClick(R.id.clCurrPlaying)
+    public void onClickClCurrPlaying(View v) {
+        setExpanded(!ibExpandCollapse.isSelected());
     }
 
     @Override
@@ -62,7 +96,11 @@ public class BottomPlayerClientFragment extends Fragment {
         mParty = Party.getCurrentParty();
 
         initializeSongUpdateCallback();
-
+        mCollapsed = new ConstraintSet();
+        mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_client_collapsed);
+        mExpanded = new ConstraintSet();
+        mExpanded.clone(getContext(), R.layout.fragment_bottom_player_client);
+        setExpanded(false);
         return view;
     }
 

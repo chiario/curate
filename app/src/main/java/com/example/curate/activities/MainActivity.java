@@ -38,6 +38,7 @@ import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.models.Party;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     private boolean isAdmin = false;
 
+    private BottomSheetBehavior bottomSheetBehavior;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,11 +86,11 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         if (isAdmin) {
             mBottomPlayerFragment = BottomPlayerAdminFragment.newInstance();
-            fm.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
+
         } else {
             mBottomPlayerFragment = BottomPlayerClientFragment.newInstance();
-            fm.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
         }
+        fm.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);

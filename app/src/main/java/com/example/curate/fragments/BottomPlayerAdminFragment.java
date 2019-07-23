@@ -5,12 +5,14 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -38,6 +40,9 @@ public class BottomPlayerAdminFragment extends Fragment {
     @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
     @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;
     @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
+    @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
+    private ConstraintSet mCollapsed;
+    private ConstraintSet mExpanded;
 
     private SpotifyPlayer mSpotifyPlayer;
     private LocationManager mLocationManager;
@@ -74,6 +79,11 @@ public class BottomPlayerAdminFragment extends Fragment {
         } else {
             mLocationManager.requestPermissions();
         }
+        mCollapsed = new ConstraintSet();
+        mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_admin_collapsed);
+        mExpanded = new ConstraintSet();
+        mExpanded.clone(getContext(), R.layout.fragment_bottom_player_admin);
+        setExpanded(false);
 
         return view;
     }
@@ -136,6 +146,36 @@ public class BottomPlayerAdminFragment extends Fragment {
                 Log.e("AdminManager", "Error getting next song", e);
             }
         });
+    }
+
+    private void setExpanded(boolean isExpanded) {
+        if(isExpanded) {
+            mExpanded.applyTo(mPlayerBackground);
+            setVisibility(View.VISIBLE);
+            ibExpandCollapse.setSelected(true);
+        }
+        else {
+            mCollapsed.applyTo(mPlayerBackground);
+            setVisibility(View.GONE);
+            ibExpandCollapse.setSelected(false);
+        }
+    }
+
+    private void setVisibility(int visibility) {
+        ivAlbum.setVisibility(visibility);
+        mSeekBar.setVisibility(visibility);
+        mSkipNextButton.setVisibility(visibility);
+        mSkipPrevButton.setVisibility(visibility);
+    }
+
+    @OnClick(R.id.clCurrPlaying)
+    public void onClickClCurrPlaying(View v) {
+        setExpanded(!ibExpandCollapse.isSelected());
+    }
+
+    @OnClick(R.id.ibExpandCollapse)
+    public void onClickExpandCollapse(View v) {
+        setExpanded(!ibExpandCollapse.isSelected());
     }
 
     private void registerLocationUpdater() {
