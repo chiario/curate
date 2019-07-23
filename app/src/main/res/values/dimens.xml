@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_player_client_height_collapsed">56dp</dimen>
+    <dimen name="bottom_player_client_height_expanded">112dp</dimen>
+    <dimen name="bottom_player_admin_height_collapsed">56dp</dimen>
+    <dimen name="bottom_player_admin_height_expanded">140dp</dimen>
+
+</resources>

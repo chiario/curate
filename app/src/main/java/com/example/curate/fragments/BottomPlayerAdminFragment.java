@@ -8,6 +8,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
+import android.text.Layout;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.Fade;
+import android.transition.Scene;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,21 +156,31 @@ public class BottomPlayerAdminFragment extends Fragment {
     }
 
     private void setExpanded(boolean isExpanded) {
+        ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
         if(isExpanded) {
             mExpanded.applyTo(mPlayerBackground);
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_expanded));
+            mPlayerBackground.setLayoutParams(params);
             setVisibility(View.VISIBLE);
+            setButtonVisibility(View.VISIBLE);
             ibExpandCollapse.setSelected(true);
         }
         else {
             mCollapsed.applyTo(mPlayerBackground);
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_collapsed));
             setVisibility(View.GONE);
+            setButtonVisibility(View.INVISIBLE);
             ibExpandCollapse.setSelected(false);
+            mPlayerBackground.setLayoutParams(params);
         }
     }
 
     private void setVisibility(int visibility) {
         ivAlbum.setVisibility(visibility);
         mSeekBar.setVisibility(visibility);
+    }
+
+    private void setButtonVisibility(int visibility) {
         mSkipNextButton.setVisibility(visibility);
         mSkipPrevButton.setVisibility(visibility);
     }

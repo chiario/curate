@@ -2,6 +2,8 @@ package com.example.curate.fragments;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,15 +63,20 @@ public class BottomPlayerClientFragment extends Fragment {
      * @param isExpanded The new state to be in
      */
     private void setExpanded(boolean isExpanded) {
+        ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
         if(isExpanded) {
             mExpanded.applyTo(mPlayerBackground);
             ivAlbum.setVisibility(View.VISIBLE);
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_expanded));
             ibExpandCollapse.setSelected(true);
+            mPlayerBackground.setLayoutParams(params);
         }
         else {
             mCollapsed.applyTo(mPlayerBackground);
             ivAlbum.setVisibility(View.GONE);
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_collapsed));
             ibExpandCollapse.setSelected(false);
+            mPlayerBackground.setLayoutParams(params);
         }
     }
 

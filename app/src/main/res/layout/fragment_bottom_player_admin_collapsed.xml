@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/clCurrPlaying"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -84,12 +85,10 @@
         android:id="@+id/skip_prev_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         android:background="?attr/actionBarItemBackground"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
-        app:layout_constraintStart_toEndOf="@+id/ivAlbum"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/play_pause_button"
+        app:layout_constraintStart_toStartOf="@+id/play_pause_button"
         app:layout_constraintTop_toTopOf="@+id/play_pause_button"
         app:srcCompat="@drawable/btn_prev" />
 
@@ -99,23 +98,21 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
         android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvTitle"
-        app:layout_constraintVertical_bias="0.25"
         app:srcCompat="@drawable/btn_play" />
 
     <ImageView
         android:id="@+id/skip_next_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         android:background="?attr/actionBarItemBackground"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/play_pause_button"
-        app:layout_constraintTop_toTopOf="@+id/play_pause_button"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/play_pause_button"
+        app:layout_constraintStart_toStartOf="@+id/play_pause_button"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/btn_next" />
 </androidx.constraintlayout.widget.ConstraintLayout>
