@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
-import com.example.curate.SelectFragment;
+import com.example.curate.fragments.SelectFragment;
 import com.example.curate.models.Party;
 
 import java.util.List;

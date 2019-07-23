@@ -2,26 +2,13 @@ package com.example.curate.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.curate.JoinFragment;
-import com.example.curate.SelectFragment;
+import com.example.curate.fragments.JoinFragment;
+import com.example.curate.fragments.SelectFragment;
 import com.example.curate.R;
-import com.example.curate.models.Party;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-import com.parse.ParseAnonymousUtils;
-import com.parse.ParseUser;
-
-import butterknife.OnClick;
 
 public class JoinActivity extends AppCompatActivity implements SelectFragment.OnOptionSelected {
     SelectFragment mSelectFragment;
