@@ -8,5 +8,16 @@
     <string name="test_song_id_2">43eBgYRTmu5BJnCJDBU5Hb</string>
     <string name="low_storage_error">Not enough storage!</string>
     <string name="no_camera_permission">Camera permission not given</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
+    <string name="placeholder_artist">Some Artist</string>
+    <string name="placeholder_song_name">Test Song Name</string>
+    <string name="placeholder_join_code">0000</string>
+    <string name="btn_delete_text">Delete</string>
+    <string name="enter_join_code_text">Enter Join Code</string>
+    <string name="btn_join_text">Join</string>
+    <string name="btn_scan_text">Scan QR code</string>
+    <string name="find_nearby_parties">Find nearby parties</string>
+    <string name="btn_create_text">Create</string>
+    <string name="nearby_join_code">Join Code:</string>
+    <string name="nearby_party_name">Test Party</string>
 </resources>
