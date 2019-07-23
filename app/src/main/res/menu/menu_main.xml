@@ -13,5 +13,9 @@
         android:orderInCategory="1"
         android:title="Party Info"
         app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/miSettings"
+        android:title="Settings"
+        app:showAsAction="collapseActionView"/>
 
 </menu>

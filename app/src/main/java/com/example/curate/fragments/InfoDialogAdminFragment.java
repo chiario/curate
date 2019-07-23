@@ -1,63 +1,51 @@
 package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
-import com.example.curate.models.Party;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class InfoDialogFragment extends DialogFragment {
+public class InfoDialogAdminFragment extends DialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String JOIN_CODE_KEY = "joinCode";
+    private static final String DELETE_TAG = "DeleteQueue";
 
-    @BindView(R.id.etName) EditText etPartyName;
+
+    @BindView(R.id.tvName) TextView tvPartyName;
     @BindView(R.id.tvCode) TextView tvJoinCode;
-    @BindView(R.id.tvDelete) TextView tvDeleteParty;
+    @BindView(R.id.btnDelete) Button btnDelete;
     @BindView(R.id.ivQR) ImageView ivQR;
-    @BindView(R.id.switchLocation) Switch switchLocation;
 
-    private Toolbar toolbar;
+    private OnFragmentInteractionListener mListener;
 
-
-    public interface InfoDialogListener {
-        void onSaveInfo(String newName, boolean locationEnabled);
-        void onDeleteQueue();
+    public InfoDialogAdminFragment() {
+        // Required empty public constructor
     }
 
-    // Empty constructor required
-    public InfoDialogFragment() {}
-
-    public static InfoDialogFragment newInstance(String partyName, String joinCode) {
-        InfoDialogFragment infoDialogFragment = new InfoDialogFragment();
+    public static InfoDialogAdminFragment newInstance(String partyName, String joinCode) {
+        InfoDialogAdminFragment infoDialogAdminFragment = new InfoDialogAdminFragment();
         Bundle args = new Bundle();
         args.putString(PARTY_NAME_KEY, partyName);
         args.putString(JOIN_CODE_KEY, joinCode);
-        infoDialogFragment.setArguments(args);
-        return infoDialogFragment;
+        infoDialogAdminFragment.setArguments(args);
+        return infoDialogAdminFragment;
     }
 
 
@@ -71,8 +59,7 @@ public class InfoDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_info_dialog, container, false); //TODO- attach to root??
-        toolbar = view.findViewById(R.id.toolbar);
+        View view = inflater.inflate(R.layout.fragment_info_dialog_admin, container, false);
         return view;
     }
 
@@ -82,21 +69,10 @@ public class InfoDialogFragment extends DialogFragment {
 
         ButterKnife.bind(this, view);
 
-        // Set the toolbar and click listeners
-        toolbar.setNavigationOnClickListener(v -> {
-            dismiss();
-        });
-        toolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.white), PorterDuff.Mode.SRC_IN);
-        toolbar.inflateMenu(R.menu.menu_info);
-        toolbar.setOnMenuItemClickListener(menuItem -> {
-            Log.d("InfoDialogFragment", "Save button selected");
-            String newName = etPartyName.getText().toString();
-            boolean locationEnabled = switchLocation.isChecked();
-            InfoDialogListener listener = (InfoDialogListener) getActivity();
-            listener.onSaveInfo(newName, locationEnabled);
-            dismiss();
-            return true;
-        });
+        // Store the listener (activity)
+        mListener = (OnFragmentInteractionListener) getContext();
+        // Set on click listener for delete button
+        btnDelete.setOnClickListener(view1 -> onDeleteQueue());
 
         // Fetch arguments from bundle
         String partyName = getArguments().getString(PARTY_NAME_KEY);
@@ -114,33 +90,20 @@ public class InfoDialogFragment extends DialogFragment {
 
         // Set party name and join code
         if (partyName != null) {
-            etPartyName.setText(partyName);
+            tvPartyName.setText(partyName);
         } else {
-            etPartyName.setHint("Add a party name...");
+            tvPartyName.setHint("Add a party name...");
         }
         tvJoinCode.setText(joinCode);
-        switchLocation.setChecked(Party.getLocationEnabled());
     }
 
-    @Override
-    public void onResume() {
-        // Set dimensions to make the dialog fragment fullscreen
-        WindowManager.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = WindowManager.LayoutParams.MATCH_PARENT;
-        getDialog().getWindow().setAttributes(params);
 
-        super.onResume();
-    }
-
-    @OnClick(R.id.tvDelete)
-    public void onDeleteQueue() {
+    private void onDeleteQueue() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Delete this party?")
                 .setMessage("You won't be able to undo this action!")
                 .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    InfoDialogListener listener = (InfoDialogListener) getActivity();
-                    listener.onDeleteQueue();
+                    mListener.onFragmentMessage(DELETE_TAG, null, null);
                     dismiss();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});

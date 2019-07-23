@@ -8,9 +8,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -33,9 +29,12 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.curate.R;
 import com.example.curate.fragments.BottomPlayerAdminFragment;
 import com.example.curate.fragments.BottomPlayerClientFragment;
-import com.example.curate.fragments.InfoDialogFragment;
+import com.example.curate.fragments.InfoDialogAdminFragment;
+import com.example.curate.fragments.InfoDialogClientFragment;
+import com.example.curate.fragments.OnFragmentInteractionListener;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
+import com.example.curate.fragments.SettingsDialogFragment;
 import com.example.curate.models.Party;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -43,13 +42,16 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogFragment.InfoDialogListener {
+public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
     private static final int BARCODE_READER_REQUEST_CODE = 100;
+    private static final String LEAVE_TAG = "LeaveQueue";
+    private static final String DELETE_TAG = "DeleteQueue";
+    private static final String SAVE_TAG = "SaveInfo";
 
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
@@ -96,31 +98,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
-    @Override
-    public void onSaveInfo(String newName, boolean locationEnabled) {
-        Party.setPartyName(newName, e -> {
-            if (e == null) {
-//                miText.setTitle(party.getName());
-            } else {
-                Log.e(TAG, "Couldn't save party name!", e);
-            }
-        });
-        Party.setLocationEnabled(locationEnabled, e -> {
-            if (e != null) {
-                Log.e(TAG, "Couldn't change location preferences!", e);
-            }
-        });
-    }
-
-    @Override
-    public void onDeleteQueue() {
-        Party.deleteParty(e -> {
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
-        });
-    }
-
     private void initializeFragments(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
             queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
@@ -158,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         MenuItem miInfo = menu.findItem(R.id.miInfo);
 //        miText = menu.findItem(R.id.miText);
         MenuItem miLeave = menu.findItem(R.id.miLeave);
+        MenuItem miSettings = menu.findItem(R.id.miSettings);
 
 //        miText.setTitle(party.getName());
 
@@ -196,22 +174,38 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             }
 
         miInfo.setOnMenuItemClickListener(menuItem -> {
-            // Retrieve the current party's name
+            // Retrieve the current party's name and join code
             String name = party.getName();
             String joinCode = party.getJoinCode();
-            // Open a new instance of the InfoDialogFragment, passing in the current party's name and code
-            InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode);
-            infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
-            infoDialogFragment.show(fm, "fragment_party_info");
+            if (isAdmin) {
+                // Open a new instance of the InfoDialogAdminFragment, passing in the current party's name and code
+                InfoDialogAdminFragment infoDialogAdminFragment = InfoDialogAdminFragment.newInstance(name, joinCode);
+                infoDialogAdminFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
+                infoDialogAdminFragment.show(fm, "fragment_party_info");
+            } else {
+                // Open a new instance of the InfoDialogClientFragment, passing in the current party's name and code
+                InfoDialogClientFragment infoDialogClientFragment = InfoDialogClientFragment.newInstance(name, joinCode);
+                infoDialogClientFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
+                infoDialogClientFragment.show(fm, "fragment_party_info");
+            }
             return true;
         });
         miLeave.setOnMenuItemClickListener(menuItem -> {
            onLeaveQueue();
            return true;
         });
+        miSettings.setOnMenuItemClickListener(menuItem -> {
+            // Retrieve the current party's name and location preferences
+            String name = party.getName();
+            boolean locationEnabled = Party.getLocationEnabled();
+            SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance(name, locationEnabled);
+            settingsDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
+            settingsDialogFragment.show(fm, "fragment_admin_settings");
+            return true;
+        });
 
-        miInfo.setVisible(isAdmin);
-        miInfo.setEnabled(isAdmin);
+        miSettings.setVisible(isAdmin);
+        miSettings.setEnabled(isAdmin);
         miLeave.setVisible(!isAdmin);
         miLeave.setVisible(!isAdmin);
         return super.onCreateOptionsMenu(menu);
@@ -301,28 +295,56 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     }
 
 
-    public void onLeaveQueue() {
-        String message = "You can rejoin this party with the following code: " + party.getJoinCode();
-        int joinCodeColor = ContextCompat.getColor(this, R.color.colorAccent_text);
-        SpannableStringBuilder messageSpan = new SpannableStringBuilder(message);
-        messageSpan.setSpan(new ForegroundColorSpan(joinCodeColor),
-                message.length() - 4,
-                message.length(),
-                Spanned.SPAN_INCLUSIVE_INCLUSIVE
-        );
+    private void onLeaveQueue() {
+        Party.leaveParty(e -> {
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Leave this party?")
-                .setMessage(messageSpan)
-                .setPositiveButton("Leave", (dialogInterface, i) -> {
-                    Party.leaveParty(e -> {
-                        Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                        startActivity(intent);
-                        finish();
-                    });
-                })
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
+    }
 
-        builder.show();
+    private void onDeleteQueue() {
+        Party.deleteParty(e -> {
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+    private void onSaveInfo(String newName, Boolean locationEnabled) {
+        Log.d(TAG, "Saving changes to party");
+        Party.setPartyName(newName, e -> {
+            if (e != null) {
+                Log.e(TAG, "Could not save party name!", e);
+            }
+        });
+        Party.setLocationEnabled(locationEnabled, e -> {
+            if (e != null) {
+                Log.e(TAG, "Could not save location preferences!", e);
+            }
+        });
+    }
+
+    @Override
+    public void onFragmentMessage(String TAG, String newName, Boolean locationEnabled) {
+        Log.d(TAG, "Received fragment message with tag" + TAG);
+        switch (TAG) {
+            case DELETE_TAG:
+                if (isAdmin) {
+                    onDeleteQueue();
+                }
+                break;
+            case LEAVE_TAG:
+                if (!isAdmin) {
+                    onLeaveQueue();
+                }
+                break;
+            case SAVE_TAG:
+                if (isAdmin) {
+                    onSaveInfo(newName, locationEnabled);
+                }
+                break;
+        }
     }
 }
