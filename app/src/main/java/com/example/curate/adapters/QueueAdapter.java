@@ -32,7 +32,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	// Instance variables
 	private Context context;
 	private List<PlaylistEntry> playlist;
-	private OnSongLikedListener onSongLikedListener;
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -42,16 +41,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public QueueAdapter(Context context, List<PlaylistEntry> playlist) {
 		this.context = context;
 		this.playlist = playlist;
-	}
-
-
-	// Todo figure out the future of these listeners
-	public interface OnSongLikedListener {
-		public void onSongLiked(Song song);
-	}
-
-	public void setListener(OnSongLikedListener listener) {
-		onSongLikedListener = listener;
 	}
 
 	@NonNull
@@ -75,7 +64,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		// Todo load selected state and image into ViewHolder
 		Song song = playlist.get(position).getSong();
 		holder.tvArtist.setText(song.getArtist());
 		holder.tvTitle.setText(song.getTitle());
