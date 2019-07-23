@@ -9,6 +9,8 @@
         <item name="android:textViewStyle">@style/AppTheme.TextView</item>
         <item name="android:colorControlHighlight">@color/colorAccent</item>
         <item name="editTextStyle">@style/AppTheme.EditText</item>
+        <item name="searchViewStyle">@style/AppTheme.SearchView</item>
+        <item name="actionOverflowMenuStyle">@style/AppTheme.ThemeOverlay.MyTheme</item>
     </style>
 
     <style name="AppTheme.SeekBar" parent="Widget.AppCompat.SeekBar">
@@ -43,14 +45,39 @@
         <item name="android:tint">@color/offwhite</item>
     </style>
 
-    <style name="AppTheme.Toolbar" parent="Widget.AppCompat.Toolbar">
+    <style name="AppTheme.Toolbar.Rounded" parent="Widget.AppCompat.Toolbar">
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="android:actionBarItemBackground">@android:color/transparent</item>
+        <item name="android:searchViewStyle">@style/AppTheme.SearchView</item>
+        <item name="android:elevation">0dp</item>
+        <!--<item name="android:background">@drawable/searchbar_background</item>-->
+        <item name="android:background">@drawable/searchbar_background</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="popupTheme">@style/AppTheme.ThemeOverlay.MyTheme</item>
+        <!--<item name=""-->
+    </style>
+    
+    <style name="AppTheme.ThemeOverlay.MyTheme" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:minHeight">32dip</item>
+        <item name="android:maxHeight">32dip</item>
+        <item name="android:padding">0dip</item>
+        <item name="android:dropDownVerticalOffset">0dp</item>
+        <item name="android:background">@color/mediumGray</item>
     </style>
 
     <style name="AppTheme.SearchView" parent="Widget.AppCompat.SearchView">
-        <item name="android:queryBackground">@drawable/searchbar_background</item>
+        <item name="queryBackground">@android:color/transparent</item>
+        <item name="android:queryBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="background">@android:color/transparent</item>
         <item name="android:queryHint">Search for a song!</item>
+        <item name="queryHint">Search for a song!</item>
+        <item name="layout">@layout/searchview</item>
+        <item name="android:layout">@layout/searchview</item>
     </style>
 
     <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">

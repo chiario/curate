@@ -4,25 +4,13 @@
     <item
         android:id="@+id/miLeave"
         android:icon="@android:drawable/ic_menu_set_as"
-        android:orderInCategory="0"
+        android:orderInCategory="200"
         android:title="Leave Party"
         app:showAsAction="collapseActionView" />
     <item
-        android:id="@+id/miText"
-        android:orderInCategory="50"
-        android:title="Add songs to the queue!"
-        app:showAsAction="always|withText" />
-    <item
-        android:id="@+id/miSearch"
-        android:icon="@drawable/ic_search"
-        android:orderInCategory="100"
-        android:title="Search"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always|collapseActionView" />
-    <item
         android:id="@+id/miInfo"
         android:icon="@android:drawable/ic_menu_info_details"
-        android:orderInCategory="200"
+        android:orderInCategory="1"
         android:title="Party Info"
         app:showAsAction="collapseActionView" />
 

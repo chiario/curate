@@ -18,11 +18,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
-import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -55,10 +55,10 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
     @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
+    @BindView(R.id.miSearch) SearchView mSearchView;
 
-    private MenuItem miSearch;
-    private MenuItem miText;
-    private SearchView mSearchView;
+
+    //    private MenuItem miText;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
     private QueueFragment queueFragment;
@@ -94,15 +94,13 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
     }
 
     @Override
     public void onSaveInfo(String newName, boolean locationEnabled) {
         Party.setPartyName(newName, e -> {
             if (e == null) {
-                miText.setTitle(party.getName());
+//                miText.setTitle(party.getName());
             } else {
                 Log.e(TAG, "Couldn't save party name!", e);
             }
@@ -157,20 +155,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         inflater.inflate(R.menu.menu_main, menu);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        miSearch = menu.findItem(R.id.miSearch);
         MenuItem miInfo = menu.findItem(R.id.miInfo);
-        miText = menu.findItem(R.id.miText);
+//        miText = menu.findItem(R.id.miText);
         MenuItem miLeave = menu.findItem(R.id.miLeave);
 
-        miText.setTitle(party.getName());
+//        miText.setTitle(party.getName());
 
-        Drawable d = getDrawable(R.drawable.ic_search);
-        if(d != null) {
-            d.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
-            miSearch.setIcon(d);
-        }
-        if(miSearch != null) {
-            mSearchView = (SearchView) miSearch.getActionView();
+
+
             if (mSearchView != null) {
                 mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
                 mSearchView.setIconifiedByDefault(false);
@@ -178,8 +170,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                     @Override
                     public boolean onQueryTextSubmit(String query) {
                         search(mSearchView, query);
-                        mSearchView.setQuery("", false);
-                        miSearch.collapseActionView();
+//                        mSearchView.setQuery("", false);
+                        mSearchView.clearFocus();
                         return true;
                     }
 
@@ -195,35 +187,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                         if(hasFocus) {
                             display(searchFragment);
                             searchFragment.newSearch();
-                            miSearch.expandActionView();
                             showKeyboard(view);
                             //TODO show keyboard?
                         }
                     }
                 });
-                miSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                        miText.setVisible(false);
-                        new Handler().post(() -> {
-                            mSearchView.requestFocus();
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            if (imm != null) { // it's never null. I've added this line just to make the compiler happy
-                                imm.showSoftInput(mSearchView.findFocus(), 0);
-                            }
-                        });
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-                        miText.setVisible(true);
-                        return true;
-                    }
-                });
 
             }
-        }
+
         miInfo.setOnMenuItemClickListener(menuItem -> {
             // Retrieve the current party's name
             String name = party.getName();
@@ -244,21 +215,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         miLeave.setVisible(!isAdmin);
         miLeave.setVisible(!isAdmin);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.miSearch:
-                if(!miSearch.isActionViewExpanded()) {
-                    miSearch.expandActionView();
-                    mSearchView.requestFocus();
-                }
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return false;
     }
 
     @Override
