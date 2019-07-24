@@ -2,6 +2,10 @@ package com.example.curate.fragments;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -36,6 +40,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.graphics.Typeface.BOLD;
+import static android.graphics.Typeface.NORMAL;
+
 public class BottomPlayerClientFragment extends Fragment {
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
@@ -48,6 +55,10 @@ public class BottomPlayerClientFragment extends Fragment {
 
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
+
+    private String mTrackName = "--";
+    private String mArtistName = "--";
+    private boolean isExpanded;
 
     public BottomPlayerClientFragment() {
         // Required empty public constructor
@@ -63,6 +74,7 @@ public class BottomPlayerClientFragment extends Fragment {
      * @param isExpanded The new state to be in
      */
     private void setExpanded(boolean isExpanded) {
+        this.isExpanded = isExpanded;
         ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
         if(isExpanded) {
             mExpanded.applyTo(mPlayerBackground);
@@ -77,6 +89,29 @@ public class BottomPlayerClientFragment extends Fragment {
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_collapsed));
             ibExpandCollapse.setSelected(false);
             mPlayerBackground.setLayoutParams(params);
+        }
+        updateText();
+    }
+
+    private void updateText() {
+        int flag = SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE;
+        if(isExpanded) {
+            tvTitle.setText(mTrackName);
+            tvTitle.setTypeface(null, BOLD);
+            tvArtist.setText(mArtistName);
+            tvArtist.setVisibility(View.VISIBLE);
+        }
+        else {
+            tvTitle.setSelected(true);
+            tvTitle.setTypeface(null, NORMAL);
+            SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
+            SpannableString artist = new SpannableString(mArtistName);
+            title.setSpan(new StyleSpan(BOLD), 0, title.length(), flag);
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            builder.append(title);
+            builder.append(artist);
+            tvTitle.setText(builder);
+            tvArtist.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -124,8 +159,9 @@ public class BottomPlayerClientFragment extends Fragment {
                 if (currentSong != null) {
                     try {
                         currentSong.fetchIfNeeded(); // TODO - work around this fetch; add ParseCloud function??
-                        tvTitle.setText(currentSong.getTitle());
-                        tvArtist.setText(currentSong.getArtist());
+                        mTrackName = currentSong.getTitle();
+                        mArtistName = currentSong.getArtist();
+                        updateText();
                         Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
                     } catch (ParseException e1) {
                         e1.printStackTrace();

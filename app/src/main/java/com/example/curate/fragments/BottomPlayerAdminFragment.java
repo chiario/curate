@@ -2,6 +2,10 @@ package com.example.curate.fragments;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +34,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.graphics.Typeface.BOLD;
+import static android.graphics.Typeface.NORMAL;
+
 public class BottomPlayerAdminFragment extends Fragment {
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
@@ -45,6 +52,10 @@ public class BottomPlayerAdminFragment extends Fragment {
 
     private SpotifyPlayer mSpotifyPlayer;
     private LocationManager mLocationManager;
+
+    private String mTrackName = "--";
+    private String mArtistName = "--";
+    private boolean isExpanded;
 
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
@@ -109,8 +120,9 @@ public class BottomPlayerAdminFragment extends Fragment {
     private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
         if (playerState.track == null) {
             mPlayPauseButton.setImageResource(R.drawable.btn_play);
-            tvTitle.setText("--");
-            tvArtist.setText("--");
+            mArtistName = "--";
+            mTrackName = "--";
+            updateText();
         } else {
             // Set play / pause button
             if (playerState.isPaused) {
@@ -119,8 +131,9 @@ public class BottomPlayerAdminFragment extends Fragment {
                 mPlayPauseButton.setImageResource(R.drawable.btn_pause);
             }
 
-            tvTitle.setText(playerState.track.name);
-            tvArtist.setText(playerState.track.artist.name);
+            mTrackName = playerState.track.name;
+            mArtistName = playerState.track.artist.name;
+            updateText();
             // Get image from track
             mSpotifyPlayer.setAlbumArt(playerState, ivAlbum);
         }
@@ -149,6 +162,7 @@ public class BottomPlayerAdminFragment extends Fragment {
 
     private void setExpanded(boolean isExpanded) {
         ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
+        this.isExpanded = isExpanded;
         if(isExpanded) {
             mExpanded.applyTo(mPlayerBackground);
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_expanded));
@@ -164,6 +178,29 @@ public class BottomPlayerAdminFragment extends Fragment {
             setButtonVisibility(View.INVISIBLE);
             ibExpandCollapse.setSelected(false);
             mPlayerBackground.setLayoutParams(params);
+        }
+        updateText();
+    }
+
+    private void updateText() {
+        int flag = SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE;
+        if(isExpanded) {
+            tvTitle.setText(mTrackName);
+            tvTitle.setTypeface(null, BOLD);
+            tvArtist.setText(mArtistName);
+            tvArtist.setVisibility(View.VISIBLE);
+        }
+        else {
+            tvTitle.setSelected(true);
+            tvTitle.setTypeface(null, NORMAL);
+            SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
+            SpannableString artist = new SpannableString(mArtistName);
+            title.setSpan(new StyleSpan(BOLD), 0, title.length(), flag);
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            builder.append(title);
+            builder.append(artist);
+            tvTitle.setText(builder);
+            tvArtist.setVisibility(View.INVISIBLE);
         }
     }
 
