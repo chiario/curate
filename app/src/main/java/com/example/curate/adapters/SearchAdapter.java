@@ -118,8 +118,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		public void onClickLike(View v) {
 			// Add song to the queue
 			if(isUpdating) return;
-			isUpdating = true;
 			if(!v.isSelected()) {
+				isUpdating = true;
 				Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), new SaveCallback() {
 					@Override
 					public void done(ParseException e) {

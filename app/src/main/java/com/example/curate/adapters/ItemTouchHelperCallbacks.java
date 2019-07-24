@@ -55,6 +55,10 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+			if(((QueueAdapter.ViewHolder) viewHolder).isDeleted) {
+				return;
+			}
+
 			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isUpdating()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;

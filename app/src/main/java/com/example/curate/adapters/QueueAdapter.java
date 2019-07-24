@@ -112,20 +112,28 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 
+		public boolean isDeleted = false;
+
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
+
+
 
 		@OnClick(R.id.ibDelete)
 		public void onClickRemove(View v) {
 			if(isUpdating) return;
 			isUpdating = true;
 			v.setSelected(true);
+			isDeleted = true;
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), e -> {
 				if(e == null) {
 					// TODO change this: playlist might reorder
 					notifyItemRemoved(getAdapterPosition());
+				}
+				else {
+					isDeleted = false;
 				}
 				isUpdating = false;
 			});
