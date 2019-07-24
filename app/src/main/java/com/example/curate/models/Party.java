@@ -155,6 +155,32 @@ public class Party extends ParseObject {
     }
 
     /**
+     * Calls on the ParseCloud to remove the specified song from the playlist and set it as
+     * currently playing instead.
+     * @param spotifyId the Spotify ID of the song to set as currently playing
+     * @param callback callback to run after the cloud function is executed
+     * @return the party's currently playing song
+     */
+    public void setCurrentlyPlaying(String spotifyId, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(Song.SPOTIFY_ID_KEY, spotifyId);
+
+        ParseCloud.callFunctionInBackground("setCurrentlyPlaying", params, (FunctionCallback<Song>) (song, e) -> {
+            if (e == null) {
+                Log.d("Party.java", "got song " + song.getTitle());
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY)));
+            } else {
+                Log.e("Party.java", "Could not set the next song");
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
      * Gets the party's current song.
      * @return the current song
      */

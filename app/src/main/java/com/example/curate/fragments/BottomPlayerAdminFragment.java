@@ -151,13 +151,7 @@ public class BottomPlayerAdminFragment extends Fragment {
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        Party.getCurrentParty().getNextSong(e -> {
-            if (e == null) {
-                mSpotifyPlayer.playCurrentSong();
-            } else {
-                Log.e("AdminManager", "Error getting next song", e);
-            }
-        });
+        mSpotifyPlayer.playNextSong();
     }
 
     private void setExpanded(boolean isExpanded) {

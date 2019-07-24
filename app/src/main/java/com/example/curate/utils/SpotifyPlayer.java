@@ -8,7 +8,9 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import com.example.curate.models.Party;
+import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.parse.ParseException;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.PlayerApi;
@@ -21,6 +23,8 @@ import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
+
+import java.util.List;
 
 public class SpotifyPlayer {
     private static final String TAG = "SpotifyPlayer.java";
@@ -48,6 +52,7 @@ public class SpotifyPlayer {
             mPlayerApi = mSpotifyAppRemote.getPlayerApi();
             onSubscribeToPlayerState();
             onSubscribeToPlayerContext();
+
             playCurrentSong();
         }
 
@@ -142,7 +147,6 @@ public class SpotifyPlayer {
 
         mPlayerContextSubscription = (Subscription<PlayerContext>) mPlayerApi.subscribeToPlayerContext()
                 .setEventCallback(playerContext -> {
-                    mTrackProgressBar.unlock();
                     mPlayerContextEventCallback.onEvent(playerContext);
                 })
                 .setLifecycleCallback(new Subscription.LifecycleCallback() {
@@ -166,14 +170,30 @@ public class SpotifyPlayer {
     public void playCurrentSong() {
         try {
             Song currSong = Party.getCurrentParty().getCurrentSong().fetchIfNeeded();
-            String songId = currSong.getSpotifyId();
-//            String songId = Party.getCurrentParty().getCurrentSong().getSpotifyId();
-            Log.d(TAG, "Playing track " + songId);
-            mPlayerApi.play("spotify:track:" + songId);
-        } catch (Exception e) {
-            Log.e(TAG, "Error playing current song", e);
+            String spotifyId = currSong.getSpotifyId();
+            Log.d(TAG, "Playing track " + spotifyId);
+            mPlayerApi.play("spotify:track:" + spotifyId);
+        } catch (ParseException e) {
+            Log.e(TAG, "Could not get next song!");
             pause();
         }
+    }
+
+    public void playNextSong() {
+        List<PlaylistEntry> playlist = Party.getCurrentParty().getPlaylist();
+        if(playlist.isEmpty()) {
+            Log.e(TAG, "Playlist is empty!");
+            return;
+        }
+        String spotifyId = playlist.get(0).getSong().getSpotifyId();
+        Log.d(TAG, "Playing track " + spotifyId);
+        mPlayerApi.play("spotify:track:" + spotifyId);
+        Party.getCurrentParty().setCurrentlyPlaying(spotifyId, e -> {
+            if (e == null) {
+            } else {
+                Log.e(TAG, "Error setting next song", e);
+            }
+        });
     }
 
     /**
@@ -236,55 +256,41 @@ public class SpotifyPlayer {
     }
 
     public class TrackProgressBar {
+        private static final int NEXT_SONG_DELAY = 1000;
         private static final int LOOP_DURATION = 500;
         private SeekBar mSeekBar;
         private Handler mHandler;
-        // Lock ensures TrackProgressBar doesn't call getNextSong multiple times
-        // before new song begins playing
-        private boolean locked;
+        private boolean mIsBeingTouched;
 
         public TrackProgressBar(SeekBar seekBar) {
             mSeekBar = seekBar;
             mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
             mHandler = new Handler();
-            locked = false;
+            mIsBeingTouched = false;
         }
 
         private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener
                 = new SeekBar.OnSeekBarChangeListener() {
-
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int timeRemaining = mSeekBar.getMax() - progress;
-                if (timeRemaining < 3000) {
-                    Log.d(TAG, "It's time!!");
-                    // Check if Party is already in the process of getting a new song
-                    if (!locked) {
-                        // Lock the TrackProgressBar so it doesn't begin new call to getNextSong
-                        locked = true;
-                        Log.d(TAG, "Locked");
-                        Party.getCurrentParty().getNextSong(e -> {
-                            if (e == null) {
-                                SpotifyPlayer.this.playCurrentSong();
-                                // TrackProgressBar is unlocked inside the PlayerContext
-                                // subscription when new song begins playing
-                            } else {
-                                SpotifyPlayer.this.pause();
-                                Log.e(TAG, "Error getting next song", e);
-                                unlock();
-                            }
-                        });
-                    }
+                if (timeRemaining < NEXT_SONG_DELAY && !mIsBeingTouched) {
+                    mHandler.removeCallbacks(mSeekRunnable);
+                    playNextSong();
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                mIsBeingTouched = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                SpotifyPlayer.this.seekTo(seekBar.getProgress());
+                int timeRemaining = mSeekBar.getMax() - seekBar.getProgress();
+                int progress = timeRemaining > NEXT_SONG_DELAY ? seekBar.getProgress() : mSeekBar.getMax() - NEXT_SONG_DELAY;
+                SpotifyPlayer.this.seekTo(progress);
+                mIsBeingTouched = false;
             }
         };
 
@@ -303,6 +309,8 @@ public class SpotifyPlayer {
 
         public void update(long progress) {
             mSeekBar.setProgress((int) progress);
+            mHandler.removeCallbacks(mSeekRunnable);
+            mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
         }
 
         public void pause() {
@@ -316,12 +324,6 @@ public class SpotifyPlayer {
 
         public void setEnabled(boolean isEnabled) {
             mSeekBar.setEnabled(isEnabled);
-        }
-
-        // Only called in the PlayerContext event subscription once next song has begun playing
-        // or if there is an error in getting the next song
-        public void unlock() {
-            locked = false;
         }
     }
 
