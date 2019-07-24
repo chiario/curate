@@ -1,6 +1,7 @@
 package com.example.curate.fragments;
 
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +44,7 @@ public class SearchFragment extends Fragment {
 	@BindView(R.id.progressBar) ProgressBar progressBar;
 	@BindView(R.id.textContainer) LinearLayout textContainer;
 	@BindView(R.id.tvError) TextView tvError;
+	@BindView(R.id.tvDescription) TextView tvDescription;
 
 	SearchAdapter mAdapter;
 
@@ -73,6 +78,7 @@ public class SearchFragment extends Fragment {
 	public void newSearch() {
 		progressBar.setVisibility(View.INVISIBLE);
 		mAdapter.clear();
+		showSearchDesciption(null);
 		showText(getString(R.string.new_search));
 	}
 
@@ -86,6 +92,7 @@ public class SearchFragment extends Fragment {
 	public void onStop() {
 		super.onStop();
 		mAdapter.clear();
+		showSearchDesciption(null);
 	}
 
 	/***
@@ -139,8 +146,10 @@ public class SearchFragment extends Fragment {
 			if(e == null) {
 				mAdapter.clear();
 				if(search.getResults().isEmpty()) {
+					showSearchDesciption(null);
 					showText(getString(R.string.no_search_result));
 				} else {
+					showSearchDesciption(searchText);
 					mAdapter.addAll(search.getResults());
 				}
 			} else {
@@ -155,6 +164,20 @@ public class SearchFragment extends Fragment {
 	private void showText(String text) {
 		textContainer.setVisibility(View.VISIBLE);
 		tvError.setText(text);
+	}
+
+	private void showSearchDesciption(@Nullable String query) {
+		if(query == null) {
+			tvDescription.setVisibility(View.GONE);
+		} else {
+			String text = String.format("Showing results for \"%s\"", query);
+			SpannableStringBuilder builder = new SpannableStringBuilder(text);
+			builder.setSpan(new StyleSpan(Typeface.BOLD),
+					21, text.length() - 1,
+					Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+			tvDescription.setText(builder);
+			tvDescription.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void hideText() {
