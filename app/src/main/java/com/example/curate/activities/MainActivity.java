@@ -130,14 +130,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         MenuItem miInfo = menu.findItem(R.id.miInfo);
-//        miText = menu.findItem(R.id.miText);
-        MenuItem miLeave = menu.findItem(R.id.miLeave);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
-
-//        miText.setTitle(party.getName());
-
-
-
             if (mSearchView != null) {
                 mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
                 mSearchView.setIconifiedByDefault(false);
@@ -187,10 +180,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
             }
             return true;
         });
-        miLeave.setOnMenuItemClickListener(menuItem -> {
-           onLeaveQueue();
-           return true;
-        });
         miSettings.setOnMenuItemClickListener(menuItem -> {
             // Retrieve the current party's name and location preferences
             String name = party.getName();
@@ -203,8 +192,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
         miSettings.setVisible(isAdmin);
         miSettings.setEnabled(isAdmin);
-        miLeave.setVisible(!isAdmin);
-        miLeave.setVisible(!isAdmin);
         return super.onCreateOptionsMenu(menu);
     }
 

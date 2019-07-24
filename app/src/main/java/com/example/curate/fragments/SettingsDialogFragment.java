@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.app.AlertDialog;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,10 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
@@ -19,6 +22,7 @@ import com.example.curate.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class SettingsDialogFragment extends DialogFragment {
@@ -28,6 +32,8 @@ public class SettingsDialogFragment extends DialogFragment {
 
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
+    @BindView(R.id.clUserLimit) ConstraintLayout clUserLimit;
+    @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
 
     private String partyName;
     private Boolean locationEnabled;
@@ -102,6 +108,21 @@ public class SettingsDialogFragment extends DialogFragment {
 
         etPartyName.setText(partyName);
         switchLocation.setChecked(locationEnabled);
+
+    }
+
+    @OnClick(R.id.clUserLimit)
+    public void setUserLimit() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        EditText etUserLimitNumber = new EditText(getContext());
+        builder.setView(etUserLimitNumber)
+                .setTitle("Set a user limit")
+                .setPositiveButton("OK", (dialogInterface, i) -> {
+                    String limit = etUserLimitNumber.getText().toString();
+                    tvUserLimitNumber.setText(limit);
+                })
+                .setNegativeButton("CANCEL", (dialogInterface, i) -> dismiss())
+                .show();
 
     }
 }
