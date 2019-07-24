@@ -74,7 +74,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/logo_placeholder" />
+            app:srcCompat="@drawable/curatelogo" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
