@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,10 +14,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -312,18 +309,28 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         });
     }
 
-    private void onSaveInfo(String newName, Boolean locationEnabled) {
+    private void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled) {
         Log.d(TAG, "Saving changes to party");
-        Party.setPartyName(newName, e -> {
-            if (e != null) {
-                Log.e(TAG, "Could not save party name!", e);
-            }
-        });
-        Party.setLocationEnabled(locationEnabled, e -> {
-            if (e != null) {
-                Log.e(TAG, "Could not save location preferences!", e);
-            }
-        });
+        if (newName != null) {
+            Party.setPartyName(newName, e -> {
+                if (e != null) {
+                    Log.e(TAG, "Could not save party name!", e);
+                }
+            });
+        }
+        if (locationEnabled != null) {
+            Party.setLocationEnabled(locationEnabled, e -> {
+                if (e != null) {
+                    Log.e(TAG, "Could not save location preferences!", e);
+                } else {
+                    if (locationEnabled) {
+                        ((BottomPlayerAdminFragment) mBottomPlayerFragment).registerLocationUpdater();
+                    } else {
+                        ((BottomPlayerAdminFragment) mBottomPlayerFragment).deregisterLocationUpdater();
+                    }
+                }
+            });
+        }
     }
 
     @Override

@@ -2,19 +2,6 @@ package com.example.curate.fragments;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.fragment.app.Fragment;
-
-import android.text.Layout;
-import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
-import android.transition.Fade;
-import android.transition.Scene;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +10,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
 import com.example.curate.models.Party;
@@ -81,7 +73,7 @@ public class BottomPlayerAdminFragment extends Fragment {
                 mSeekBar);
 
         mLocationManager = new LocationManager(getContext());
-        if(mLocationManager.hasNecessaryPermissions()) {
+        if(mLocationManager.hasNecessaryPermissions() && Party.getLocationEnabled()) {
             registerLocationUpdater();
         } else {
             mLocationManager.requestPermissions();
@@ -106,7 +98,7 @@ public class BottomPlayerAdminFragment extends Fragment {
      * Admin's SpotifyPlayer Player Context event callback
      * Unlocks track progress bar when new track begins
      */
-    public final Subscription.EventCallback<PlayerContext> mPlayerContextEventCallback = playerContext -> {
+    private final Subscription.EventCallback<PlayerContext> mPlayerContextEventCallback = playerContext -> {
         Log.d("SpotifyPlayer.java", playerContext.toString());
     };
 
@@ -114,7 +106,7 @@ public class BottomPlayerAdminFragment extends Fragment {
      * Admin's SpotifyPlayer Player State event callback
      * Updates current song views whenever player state changes, e.g. on pause, play, new track
      */
-    public final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
+    private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
         if (playerState.track == null) {
             mPlayPauseButton.setImageResource(R.drawable.btn_play);
             tvTitle.setText("--");
@@ -195,7 +187,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         setExpanded(!ibExpandCollapse.isSelected());
     }
 
-    private void registerLocationUpdater() {
+    public void registerLocationUpdater() {
         // Update location when user moves
         mLocationManager.registerLocationUpdateCallback(new LocationCallback() {
             @Override
@@ -224,10 +216,32 @@ public class BottomPlayerAdminFragment extends Fragment {
         });
     }
 
+    public void deregisterLocationUpdater() {
+        mLocationManager.deregisterLocationUpdateCallback(new LocationCallback() {
+            /*// TODO - Override methods?
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+            }
+
+            @Override
+            public void onLocationAvailability(LocationAvailability locationAvailability) {
+                super.onLocationAvailability(locationAvailability);
+                Log.d("MainActivity", "Location availability: " + locationAvailability.isLocationAvailable());
+            }*/
+        });
+        Party.clearLocation(e -> {
+            if (e != null) {
+                Log.e("MainActivity", "Couldn't clear location!", e);
+            }
+        }); // TODO - fix this synchronization error (The methods in LocationCallback are never called so we can't clear this in the callback?)
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && Party.getLocationEnabled()) {
                 // Location permission has been granted, register location updater
                 registerLocationUpdater();
             } else {

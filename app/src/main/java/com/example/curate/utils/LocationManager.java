@@ -17,8 +17,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.ParseGeoPoint;
 
-import java.util.function.Function;
-
 public class LocationManager {
     public static final int PERMISSION_REQUEST_CODE = 7;
     private static final String[] LOCATION_PERMISSION = {Manifest.permission.ACCESS_FINE_LOCATION};

@@ -36,6 +36,7 @@ public class Party extends ParseObject {
 
     public Party() {}
 
+
     /**
      * Initializes the party object and sets up live queries
      */
@@ -271,7 +272,7 @@ public class Party extends ParseObject {
     }
 
     /**
-     * Creates a new party with the current user as the admin
+     * Updates the party's location
      * @param callback callback to run after the cloud function is executed
      */
     public void updatePartyLocation(ParseGeoPoint location, @Nullable final SaveCallback callback) {
@@ -282,6 +283,26 @@ public class Party extends ParseObject {
             if (e != null) {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not update party location!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Sets the party's location to undefined
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void clearLocation(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("clearPartyLocation", params, (Party party, ParseException e) -> {
+            if (e != null) {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not clear party location!", e);
             }
 
             // Run the callback if it exists

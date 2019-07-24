@@ -14,18 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SettingsDialogFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class SettingsDialogFragment extends DialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String LOCATION_PERMISSIONS_KEY = "locationEnabled";
@@ -34,6 +29,8 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
 
+    private String partyName;
+    private Boolean locationEnabled;
     private Toolbar toolbar;
 
     private OnFragmentInteractionListener mListener;
@@ -50,7 +47,6 @@ public class SettingsDialogFragment extends DialogFragment {
      * @param locationEnabled the current party's location enabled setting
      * @return A new instance of fragment SettingsDialogFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static SettingsDialogFragment newInstance(String name, boolean locationEnabled) {
         SettingsDialogFragment fragment = new SettingsDialogFragment();
         Bundle args = new Bundle();
@@ -88,30 +84,24 @@ public class SettingsDialogFragment extends DialogFragment {
         toolbar.setOnMenuItemClickListener(menuItem -> {
             Log.d("SettingsDialogFragment", "Save button selected");
             String newName = etPartyName.getText().toString();
-            boolean locationEnabled = switchLocation.isChecked();
-            mListener.onFragmentMessage(SAVE_TAG, newName, locationEnabled);
+            Boolean newLocationEnabled = switchLocation.isChecked();
+            if (newName.equals(partyName)) {
+                newName = null;
+            }
+            if (newLocationEnabled == locationEnabled) {
+                newLocationEnabled = null;
+            }
+            mListener.onFragmentMessage(SAVE_TAG, newName, newLocationEnabled);
             dismiss();
             return true;
         });
 
         // Fetch arguments from bundle
-        String partyName = getArguments().getString(PARTY_NAME_KEY);
-        boolean locationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
+        partyName = getArguments().getString(PARTY_NAME_KEY);
+        locationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
 
         etPartyName.setText(partyName);
         switchLocation.setChecked(locationEnabled);
 
     }
-
-   /* @Override
-    public void onResume() {
-        // Set dimensions to make the dialog fragment fullscreen
-        *//*WindowManager.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = WindowManager.LayoutParams.MATCH_PARENT;
-        getDialog().getWindow().setAttributes(params);*//*
-
-        super.onResume();
-    }*/
-
 }
