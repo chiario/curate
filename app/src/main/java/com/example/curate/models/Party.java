@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.parse.FunctionCallback;
+import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -583,16 +584,23 @@ public class Party extends ParseObject {
         return mCurrentParty;
     }
 
-    public static void getPartyUserCount(@Nullable final FunctionCallback<Integer> callback) {
+    public static int getPartyUserCount(/*@Nullable final FunctionCallback<Integer> callback*/) {
         HashMap<String, Object> params = new HashMap<>();
-        ParseCloud.callFunctionInBackground("getPartyUserCount", params, (Integer count, ParseException e) -> {
-            if(e != null){
-                Log.e("Party.java", "Could not get count", e);
-            }
-            if(callback != null) {
-                callback.done(count, e);
-            }
-        });
+//        ParseCloud.callFunctionInBackground("getPartyUserCount", params, (Integer count, ParseException e) -> {
+//            if(e != null){
+//                Log.e("Party.java", "Could not get count", e);
+//            }
+//            if(callback != null) {
+//                callback.done(count, e);
+//            }
+//        });
+        try {
+            return ParseCloud.callFunction("getPartyUserCount", params);
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
 }

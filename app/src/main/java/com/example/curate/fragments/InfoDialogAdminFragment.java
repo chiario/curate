@@ -104,25 +104,12 @@ public class InfoDialogAdminFragment extends DialogFragment {
             tvPartyName.setHint("Add a party name...");
         }
         tvJoinCode.setText(joinCode);
-
-        Party.getPartyUserCount(new FunctionCallback<Integer>() {
-            @Override
-            public void done(Integer object, ParseException e) {
-                if(e != null)
-                    Log.d("InfoDiaClientFrag", e.getMessage());
-                if(object == null) {
-                    tvUserCountText.setText(getResources().getString(R.string.user_count_normal));
-                    tvUserCount.setText("0");
-                    return;
-                }
-                if(object == 1)
-                    tvUserCountText.setText(getResources().getString(R.string.user_count_singular));
-                else
-                    tvUserCountText.setText(getResources().getString(R.string.user_count_normal));
-                tvUserCount.setText(String.valueOf(object));
-            }
-        });
-
+        int count = Party.getPartyUserCount();
+        tvUserCountText.setText(
+                count == 1
+                        ? getResources().getString(R.string.user_count_singular)
+                        : getResources().getString(R.string.user_count_normal));
+        tvUserCount.setText(String.valueOf(count));
     }
 
 
