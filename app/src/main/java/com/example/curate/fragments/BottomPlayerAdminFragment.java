@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -47,6 +48,8 @@ public class BottomPlayerAdminFragment extends Fragment {
     @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;
     @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
     @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
+    @BindView(R.id.ibShare) ImageButton ibShare;
+
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
 
@@ -154,6 +157,15 @@ public class BottomPlayerAdminFragment extends Fragment {
         mSpotifyPlayer.playNextSong();
     }
 
+    @OnClick(R.id.ibShare)
+    public void onClickShare() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentParty().getCurrentSong().getSpotifyId());
+        startActivity(Intent.createChooser(intent, "Share this song!"));
+    }
+
     private void setExpanded(boolean isExpanded) {
         ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
         this.isExpanded = isExpanded;
@@ -201,6 +213,7 @@ public class BottomPlayerAdminFragment extends Fragment {
     private void setVisibility(int visibility) {
         ivAlbum.setVisibility(visibility);
         mSeekBar.setVisibility(visibility);
+        ibShare.setVisibility(visibility);
     }
 
     private void setButtonVisibility(int visibility) {

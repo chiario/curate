@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -49,6 +50,7 @@ public class BottomPlayerClientFragment extends Fragment {
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
     @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
     @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
+    @BindView(R.id.ibShare) ImageButton ibShare;
 
     private SaveCallback mCurrentSongUpdatedCallback;
     private Party mParty;
@@ -79,6 +81,7 @@ public class BottomPlayerClientFragment extends Fragment {
         if(isExpanded) {
             mExpanded.applyTo(mPlayerBackground);
             ivAlbum.setVisibility(View.VISIBLE);
+            ibShare.setVisibility(View.VISIBLE);
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_expanded));
             ibExpandCollapse.setSelected(true);
             mPlayerBackground.setLayoutParams(params);
@@ -86,6 +89,7 @@ public class BottomPlayerClientFragment extends Fragment {
         else {
             mCollapsed.applyTo(mPlayerBackground);
             ivAlbum.setVisibility(View.GONE);
+            ibShare.setVisibility(View.GONE);
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_collapsed));
             ibExpandCollapse.setSelected(false);
             mPlayerBackground.setLayoutParams(params);
@@ -144,6 +148,15 @@ public class BottomPlayerClientFragment extends Fragment {
         mExpanded.clone(getContext(), R.layout.fragment_bottom_player_client);
         setExpanded(false);
         return view;
+    }
+
+    @OnClick(R.id.ibShare)
+    public void onClickShare() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentParty().getCurrentSong().getSpotifyId());
+        startActivity(Intent.createChooser(intent, "Share this song!"));
     }
 
     @Override
