@@ -583,4 +583,16 @@ public class Party extends ParseObject {
         return mCurrentParty;
     }
 
+    public static void getPartyUserCount(@Nullable final FunctionCallback<Integer> callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        ParseCloud.callFunctionInBackground("getPartyUserCount", params, (Integer count, ParseException e) -> {
+            if(e != null){
+                Log.e("Party.java", "Could not get count", e);
+            }
+            if(callback != null) {
+                callback.done(count, e);
+            }
+        });
+    }
+
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +20,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
+import com.example.curate.models.Party;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.parse.FunctionCallback;
+import com.parse.ParseException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +39,8 @@ public class InfoDialogClientFragment extends DialogFragment {
     @BindView(R.id.tvCode) TextView tvJoinCode;
     @BindView(R.id.btnLeave) Button btnLeave;
     @BindView(R.id.ivQR) ImageView ivQR;
+    @BindView(R.id.tvUserCount) TextView tvUserCount;
+    @BindView(R.id.tvUserCountText) TextView tvUserCountText;
 
     private OnFragmentInteractionListener mListener;
 
@@ -98,6 +104,18 @@ public class InfoDialogClientFragment extends DialogFragment {
             tvPartyName.setHint("Add a party name...");
         }
         tvJoinCode.setText(joinCode);
+        Party.getPartyUserCount(new FunctionCallback<Integer>() {
+            @Override
+            public void done(Integer object, ParseException e) {
+                if(e != null)
+                    Log.d("InfoDiaClientFrag", e.getMessage());
+                if(object == 1)
+                    tvUserCountText.setText(getResources().getString(R.string.user_count_singular));
+                else
+                    tvUserCountText.setText(getResources().getString(R.string.user_count_normal));
+                tvUserCount.setText(String.valueOf(object));
+            }
+        });
     }
 
 
