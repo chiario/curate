@@ -31,6 +31,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	// Instance variables
 	private Context context;
 	private List<Song> songs;
+	private boolean isUpdating;
 
 	/***
 	 * Creates the adapter for holding songs
@@ -40,6 +41,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	public SearchAdapter(Context context, List<Song> songs) {
 		this.context = context;
 		this.songs = songs;
+	}
+
+	public boolean isUpdating() {
+		return isUpdating;
 	}
 
 	@NonNull
@@ -112,6 +117,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		@OnClick(R.id.ibLike)
 		public void onClickLike(View v) {
 			// Add song to the queue
+			if(isUpdating) return;
+			isUpdating = true;
 			if(!v.isSelected()) {
 				Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), new SaveCallback() {
 					@Override
@@ -124,6 +131,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 							v.setSelected(false);
 							Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
 						}
+						isUpdating = false;
 					}
 				});
 			}
