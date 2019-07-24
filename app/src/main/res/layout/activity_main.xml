@@ -17,8 +17,9 @@
             android:id="@+id/ablMain"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:background="@color/transparent"
             android:elevation="0dp"
+            android:gravity="center"
             app:elevation="0dp"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
 
@@ -26,6 +27,7 @@
                 android:id="@+id/tbMain"
                 style="@style/AppTheme.Toolbar.Rounded"
                 android:layout_width="match_parent"
+                android:layout_marginBottom="0dp"
                 app:contentInsetStart="0dp"
                 app:layout_scrollFlags="scroll|enterAlways">
 
@@ -34,6 +36,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </androidx.appcompat.widget.Toolbar>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="-56dp">
+
+                <ImageView
+                    android:id="@+id/ivSearchBackground"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/searchbar_background"
+                    android:backgroundTint="@color/white_30"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
 

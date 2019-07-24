@@ -30,4 +30,5 @@
     <color name="mediumGray">#404040</color>
     <color name="menuBackground">#66ffffff</color>
     <color name="menuBackgroundTint">#66808080</color>
+    <color name="transparent">#00000000</color>
 </resources>

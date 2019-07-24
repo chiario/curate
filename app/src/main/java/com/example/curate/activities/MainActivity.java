@@ -1,23 +1,32 @@
 package com.example.curate.activities;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.content.res.Resources;
+import android.graphics.drawable.GradientDrawable;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -33,6 +42,7 @@ import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
 import com.example.curate.models.Party;
+import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -55,16 +65,16 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     @BindView(R.id.tbMain) Toolbar tbMain;
     @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
     @BindView(R.id.miSearch) SearchView mSearchView;
+    @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
 
-
-    //    private MenuItem miText;
     private FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment;
     private QueueFragment queueFragment;
     private SearchFragment searchFragment;
     private Fragment mBottomPlayerFragment;
     private Party party;
-
+    private ValueAnimator mSearchbarAnimator;
+    private boolean mIsSearchbarExpanded = false;
     private boolean isAdmin = false;
 
     private BottomSheetBehavior bottomSheetBehavior;
@@ -93,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        initSearchBarAnimations();
     }
 
     private void initializeFragments(Bundle savedInstanceState) {
@@ -131,37 +143,38 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
-            if (mSearchView != null) {
-                mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-                mSearchView.setIconifiedByDefault(false);
-                mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        search(mSearchView, query);
-//                        mSearchView.setQuery("", false);
-                        mSearchView.clearFocus();
-                        return true;
-                    }
 
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        return false;
-                    }
-                });
+        if (mSearchView != null) {
+            mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            mSearchView.setIconifiedByDefault(false);
+            mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    search(mSearchView, query);
+                    mSearchView.clearFocus();
+                    return true;
+                }
 
-                mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(View view, boolean hasFocus) {
-                        if(hasFocus) {
-                            display(searchFragment);
-                            searchFragment.newSearch();
-                            showKeyboard(view);
-                            //TODO show keyboard?
-                        }
-                    }
-                });
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
+            });
 
-            }
+            mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if(hasFocus) {
+                        display(searchFragment);
+                        searchFragment.newSearch();
+                        showKeyboard(view);
+                        animateSearchbar(true);
+                        //TODO show keyboard?
+                    }
+                }
+            });
+
+        }
 
         miInfo.setOnMenuItemClickListener(menuItem -> {
             // Retrieve the current party's name and join code
@@ -203,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         }
     }
 
-
     /***
      * Saves currently active fragment
      * @param outState
@@ -224,10 +236,10 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                 break;
             case KEY_SEARCH_FRAGMENT:
                 activeFragment = queueFragment;
-//                etSearch.clearFocus();
+                mSearchView.setQuery("", false);
+                animateSearchbar(false);
                 break;
         }
-//        etSearch.setText("");
     }
 
     /***
@@ -243,11 +255,56 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         if(fragment.equals(searchFragment))
             ft.addToBackStack(fragment.getTag());
         else if(fragment.equals(queueFragment)) {
-//            etSearch.clearFocus();
+
         }
         ft.commit();
 
         activeFragment = fragment;
+    }
+
+    private void initSearchBarAnimations() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        float maxHeight = dpToPx(56f);
+        float maxWidth = displayMetrics.widthPixels;
+        float maxDelta = dpToPx(16f);
+        float maxRadius = dpToPx(24f);
+
+        GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.searchbar_background);
+        searchbarBackground.setCornerRadius(maxRadius);
+        ViewGroup.LayoutParams params = ivSearchBackground.getLayoutParams();
+        params.height = (int) (maxHeight - maxDelta / 1.5f);
+        params.width = (int) (maxWidth - maxDelta);
+        ivSearchBackground.setLayoutParams(params);
+        ivSearchBackground.setBackground(searchbarBackground);
+
+        mSearchbarAnimator = ValueAnimator.ofFloat(1f, 0f);
+        mSearchbarAnimator.setDuration(200);
+        mSearchbarAnimator.addUpdateListener(anim -> {
+            float currentDelta = maxDelta * (Float) anim.getAnimatedValue();
+            float currentRadius = maxRadius * (Float) anim.getAnimatedValue();
+            ViewGroup.LayoutParams layout = ivSearchBackground.getLayoutParams();
+            layout.height = (int) (maxHeight - currentDelta / 1.5f);
+            layout.width = (int) (maxWidth - currentDelta);
+            ivSearchBackground.setLayoutParams(layout);
+            searchbarBackground.setCornerRadius(currentRadius);
+        });
+    }
+
+    private float dpToPx(float dip) {
+        Resources r = getResources();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, r.getDisplayMetrics());
+    }
+
+    private void animateSearchbar(boolean isExpanding) {
+        if(mIsSearchbarExpanded == isExpanding)
+            return;
+        mIsSearchbarExpanded = isExpanding;
+        mSearchbarAnimator.setInterpolator(isExpanding
+                ? new AccelerateDecelerateInterpolator()
+                : new ReverseInterpolator(new AccelerateDecelerateInterpolator()));
+        mSearchbarAnimator.start();
     }
 
    /* TODO Decide if we want this?

@@ -52,18 +52,15 @@
 
     <style name="AppTheme.Toolbar.Rounded" parent="Widget.AppCompat.Toolbar">
         <item name="android:actionMenuTextColor">@color/white</item>
-        <item name="android:actionBarItemBackground">@android:color/transparent</item>
+        <item name="android:actionBarItemBackground">@color/transparent</item>
         <item name="android:searchViewStyle">@style/AppTheme.SearchView</item>
         <item name="android:elevation">0dp</item>
-        <!--<item name="android:background">@drawable/searchbar_background</item>-->
-        <item name="android:background">@drawable/searchbar_background</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:minHeight">48dp</item>
+        <item name="android:minHeight">56dp</item>
         <item name="popupTheme">@style/AppTheme.ThemeOverlay.MyTheme</item>
-        <!--<item name=""-->
     </style>
     
     <style name="AppTheme.ThemeOverlay.MyTheme" parent="ThemeOverlay.AppCompat.Dark">
@@ -107,8 +104,7 @@
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Large</item>
     </style>
     <style name="AppTheme.SearchbarBackground">
-        <item name="android:background">@drawable/searchbar_background</item>
-        <item name="android:backgroundTint">@color/white_20</item>
+        <item name="android:background">@color/transparent</item>
         <item name="android:paddingBottom">2dp</item>
         <item name="android:paddingTop">2dp</item>
     </style>
@@ -126,7 +122,6 @@
         <item name="android:paddingBottom">12dp</item>
         <item name="android:minHeight">@null</item>
         <item name="android:textSize">20sp</item>
-
     </style>
 
     <style name="AppTheme.Button.Highlighted">
