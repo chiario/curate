@@ -2,12 +2,20 @@ package com.example.curate.activities;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -26,6 +34,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -45,6 +55,10 @@ import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -55,6 +69,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
     private static final int BARCODE_READER_REQUEST_CODE = 100;
+    private static final String LEAVE_TAG = "LeaveQueue";
+    private static final String DELETE_TAG = "DeleteQueue";
+    private static final String SAVE_TAG = "SaveInfo";
+    private static final String CHANNEL_ID = "CurateChannel";
+
+    // Timings subject to change
+    private static final int NOTIFICATION_THRESHOLD = 10 * 60 * 1000;
+    private static final int NOTIFICATION_CHECK_TIME = 60 * 1000;
 
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
@@ -73,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     private boolean mIsSearchbarExpanded = false;
     private boolean isAdmin = false;
 
-    private BottomSheetBehavior bottomSheetBehavior;
+    private long lastInteractionTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        lastInteractionTime = SystemClock.elapsedRealtime();
+        new Handler().post(addSongsNotification);
 
         initSearchBarAnimations();
     }
@@ -243,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
      * @param fragment Fragment to display
      */
     private void display(Fragment fragment) {
+        lastInteractionTime = SystemClock.elapsedRealtime();
         if(fragment == null || fragment.equals(activeFragment)) return;
         FragmentTransaction ft = fm.beginTransaction();
         if(activeFragment != null)
@@ -378,6 +404,62 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
                     }
                 });
             }
+        }
+    }
+
+    Runnable addSongsNotification = new Runnable() {
+        @Override
+        public void run() {
+            if(SystemClock.elapsedRealtime() - lastInteractionTime > NOTIFICATION_THRESHOLD) createNotification();
+
+            // Check interactions in NOTIFICATION_CHECK_TIME millis
+            new Handler().postDelayed(addSongsNotification, NOTIFICATION_CHECK_TIME);
+        }
+    };
+
+    private void createNotification() {
+        createNotificationChannel();
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setColor(getResources().getColor(R.color.colorAccent))
+                .setContentTitle("Add a song to your current party!")
+                .setContentText("It's been a while, don't miss out on the fun")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(createID(), builder.build());
+    }
+
+    public int createID(){
+        Date now = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        return id;
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+            // Return if notification channel is already created
+            if(notificationManager.getNotificationChannel(CHANNEL_ID) != null) return;
+
+            String name = "Curate Channel";
+            String description = "Notifies user to add song";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            notificationManager.createNotificationChannel(channel);
         }
     }
 }
