@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/tvName"
-        style="@style/AppTheme.TextView.Title"
+        style="@style/Curate.TextView.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -33,7 +33,7 @@
 
         <TextView
             android:id="@+id/tvJoinText"
-            style="@style/AppTheme.TextView.Secondary"
+            style="@style/Curate.TextView.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Join Code:"
@@ -43,7 +43,7 @@
 
         <TextView
             android:id="@+id/tvCode"
-            style="@style/AppTheme.TextView.Primary"
+            style="@style/Curate.TextView.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -67,7 +67,7 @@
 
         <TextView
             android:id="@+id/tvUserCountText"
-            style="@style/AppTheme.TextView.Secondary"
+            style="@style/Curate.TextView.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
@@ -77,7 +77,7 @@
 
         <TextView
             android:id="@+id/tvUserCount"
-            style="@style/AppTheme.TextView.Primary"
+            style="@style/Curate.TextView.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
@@ -103,7 +103,7 @@
 
     <Button
         android:id="@+id/btnDelete"
-        style="@style/AppTheme.Button.Highlighted.Small"
+        style="@style/Curate.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"

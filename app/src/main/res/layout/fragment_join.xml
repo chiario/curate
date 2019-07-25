@@ -9,34 +9,30 @@
 
     <EditText
         android:id="@+id/etJoinCode"
+        style="@style/Curate.EditText.Submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="@drawable/et_join_background"
-        android:backgroundTint="@color/white_20"
         android:ellipsize="start"
         android:gravity="center|start"
         android:hint="@string/enter_join_code_text"
         android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:maxLength="4"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="0dp"
-        android:paddingBottom="8dp"
         android:singleLine="true"
         android:textAllCaps="true"
         android:textColor="@color/white"
         android:textColorHint="@color/white_70"
         app:layout_constraintEnd_toStartOf="@+id/btnJoin"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnJoin"
-        style="@style/AppTheme.Button.Highlighted.Join"
+        style="@style/Curate.Button.Medium.Submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -47,7 +43,7 @@
 
     <Button
         android:id="@+id/btnScan"
-        style="@style/AppTheme.Button.Highlighted.Scan"
+        style="@style/Curate.Button.Medium"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Curate.TextView" parent="Widget.AppCompat.TextView">
+        <item name="android:background">@color/transparent</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:singleLine">false</item>
+    </style>
+
+    <style name="Curate.TextView.Primary">
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Curate.TextView.Secondary" parent="Curate.TextView.Primary">
+        <item name="android:textColor">@color/white_60</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Curate.TextView.Title" parent="Curate.TextView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Curate.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_edittext</item>
+        <item name="android:backgroundTint">@color/white_20</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textSize">18dp</item>
+    </style>
+
+    <style name="Curate.EditText.Submit" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_edittext_submit</item>
+    </style>
+
+    <!-- TODO: should delete this style -->
+    <style name="Curate.PartyNameEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/colorText</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColorHint">@color/colorTextHint</item>
+        <item name="android:background">@null</item>
+        <item name="android:colorAccent">@color/colorText</item>
+        <item name="android:textColorHighlight">@color/colorTextHint</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Large</item>
+    </style>
+</resources>

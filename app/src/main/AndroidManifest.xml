@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
+        android:theme="@style/Curate"
         android:hardwareAccelerated="true">
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
@@ -22,7 +22,7 @@
             tools:replace="screenOrientation" />
         <activity
             android:name=".activities.JoinActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/Curate">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

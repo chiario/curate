@@ -29,7 +29,7 @@
 
         <Button
             android:id="@+id/btnJoinParty"
-            style="@style/AppTheme.Button.Highlighted"
+            style="@style/Curate.Button.Gray"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -51,7 +51,7 @@
 
         <Button
             android:id="@+id/btnCreateParty"
-            style="@style/AppTheme.Button"
+            style="@style/Curate.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -80,7 +80,7 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="@style/AppTheme.ProgressBarStyle"
+        style="@style/Curate.ProgressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

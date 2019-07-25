@@ -1,183 +1,58 @@
 <resources>
-
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="Curate" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorBackground</item>
-        <item name="android:textViewStyle">@style/AppTheme.TextView</item>
+        <item name="android:textViewStyle">@style/Curate.TextView</item>
         <item name="android:colorControlHighlight">@color/colorAccent</item>
-        <item name="editTextStyle">@style/AppTheme.EditText</item>
-        <item name="searchViewStyle">@style/AppTheme.SearchView</item>
-        <item name="actionOverflowMenuStyle">@style/AppTheme.ThemeOverlay.MyTheme</item>
+        <item name="editTextStyle">@style/Curate.EditText</item>
+        <item name="searchViewStyle">@style/Curate.SearchView</item>
+        <item name="actionOverflowMenuStyle">@style/Curate.MenuPopup</item>
+        <item name="buttonStyle">@style/Curate.Button</item>
     </style>
 
-    <style name="AppTheme.SeekBar" parent="Widget.AppCompat.SeekBar">
-        <item name="android:progressBackgroundTint">@android:color/black</item>
-        <item name="android:progressTint">@android:color/white</item>
-        <item name="android:thumbTint">@android:color/white</item>
+    <style name="Curate.SeekBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressBackgroundTint">@color/black</item>
+        <item name="android:progressTint">@color/white</item>
+        <item name="android:thumbTint">@color/white</item>
     </style>
 
-    <style name="AppTheme.TextView">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:ellipsize">none</item>
-        <item name="android:singleLine">false</item>
-    </style>
-
-    <style name = "AppTheme.TextView.Singleline" parent = "android:Widget.TextView">
-        <item name="android:ellipsize">end</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="AppTheme.TextView.Primary" parent="AppTheme.TextView.Singleline">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="AppTheme.TextView.Title" parent="AppTheme.TextView">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">20sp</item>
-    </style>
-
-    <style name="AppTheme.TextView.Secondary" parent="AppTheme.TextView.Singleline">
-        <item name="android:textColor">@color/white_80</item>
-        <item name="android:textSize">12sp</item>
-    </style>
-
-    <style name = "AppTheme.ImageButton" parent = "android:Widget.ImageButton">
-        <item name="android:tint">@color/offwhite</item>
-    </style>
-
-    <style name="AppTheme.Toolbar.Rounded" parent="Widget.AppCompat.Toolbar">
+    <style name="Curate.Toolbar" parent="Widget.AppCompat.Toolbar">
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="android:actionBarItemBackground">@color/transparent</item>
-        <item name="android:searchViewStyle">@style/AppTheme.SearchView</item>
+        <item name="android:searchViewStyle">@style/Curate.SearchView</item>
         <item name="android:elevation">0dp</item>
         <item name="android:background">@color/transparent</item>
         <item name="android:layout_height">56dp</item>
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginEnd">8dp</item>
         <item name="android:minHeight">56dp</item>
-        <item name="popupTheme">@style/AppTheme.ThemeOverlay.MyTheme</item>
+        <item name="popupTheme">@style/Curate.MenuPopup</item>
     </style>
-    
-    <style name="AppTheme.ThemeOverlay.MyTheme" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="android:minHeight">32dip</item>
-        <item name="android:maxHeight">32dip</item>
+
+    <style name="Curate.MenuPopup" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:minHeight">32dp</item>
+        <item name="android:maxHeight">32dp</item>
         <item name="android:padding">0dip</item>
         <item name="android:dropDownVerticalOffset">0dp</item>
         <item name="android:background">@color/mediumGray</item>
     </style>
 
-    <style name="AppTheme.SearchView" parent="Widget.AppCompat.SearchView">
-        <item name="queryBackground">@android:color/transparent</item>
-        <item name="android:queryBackground">@android:color/transparent</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="background">@android:color/transparent</item>
-        <item name="android:queryHint">Search for a song!</item>
+    <style name="Curate.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="queryBackground">@color/transparent</item>
+        <item name="background">@color/transparent</item>
         <item name="queryHint">Search for a song!</item>
         <item name="layout">@layout/searchview</item>
-        <item name="android:layout">@layout/searchview</item>
     </style>
 
-    <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">
+    <style name="Curate.ProgressBarStyle" parent="Widget.AppCompat.ProgressBar">
         <item name="android:background">@null</item>
     </style>
 
-    <style name="AppTheme.SearchEditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/colorText</item>
-        <item name="android:textColorHint">@color/colorTextHint</item>
-        <item name="android:background">@null</item>
-        <item name="android:textCursorDrawable">@null</item>
-        <item name="android:colorAccent">@color/colorText</item>
-        <item name="android:textColorHighlight">@color/colorTextHint</item>
-    </style>
-    <style name="AppTheme.PartyNameEditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/colorText</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColorHint">@color/colorTextHint</item>
-        <item name="android:background">@null</item>
-        <item name="android:colorAccent">@color/colorText</item>
-        <item name="android:textColorHighlight">@color/colorTextHint</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Large</item>
-    </style>
-    <style name="AppTheme.SearchbarBackground">
-        <item name="android:background">@color/transparent</item>
-        <item name="android:paddingBottom">2dp</item>
-        <item name="android:paddingTop">2dp</item>
-    </style>
 
-    <style name="AppTheme.ProgressBarStyle" parent="Widget.AppCompat.ProgressBar">
-        <item name="android:background">@null</item>
-    </style>
-
-    <style name="AppTheme.Button" parent="Widget.AppCompat.Button">
-        <item name="android:background">@drawable/btn_join</item>
-        <item name="android:backgroundTint">@color/colorButton</item>
-        <item name="android:paddingLeft">20dp</item>
-        <item name="android:paddingRight">20dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-        <item name="android:minHeight">@null</item>
-        <item name="android:textSize">20sp</item>
-    </style>
-
-    <style name="AppTheme.Button.Highlighted">
-        <item name="android:backgroundTint">@color/colorAccent_80</item>
-    </style>
-
-    <style name="AppTheme.Button.Highlighted.Small">
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:minWidth">64dp</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:textSize">14dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="AppTheme.Button.Highlighted.Join">
-        <item name="android:background">@drawable/btn_join_background</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">24dp</item>
-        <item name="android:minWidth">@null</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:textSize">18dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name="AppTheme.Button.Highlighted.Scan">
-        <item name="android:background">@drawable/btn_join</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">24dp</item>
-        <item name="android:minWidth">@null</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:textSize">18dp</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <style name = "AppTheme.ImageButton.SongItem">
-        <item name="android:layout_width">36dp</item>
-        <item name="android:layout_height">36dp</item>
-    </style>
-
-    <style name = "AppTheme.SongItemContainer">
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-    </style>
-
-    <style name="AppTheme.AlbumImageItem">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">50dp</item>
-        <item name="android:adjustViewBounds">true</item>
-        <item name="android:scaleType">centerCrop</item>
-    </style>
-
+    <!-- TODO: Figure these out -->
     <style name="Dialog.Rounded" parent="Theme.AppCompat.Dialog">
         <item name="android:windowCloseOnTouchOutside">true</item>
         <item name="android:windowIsFloating">true</item>

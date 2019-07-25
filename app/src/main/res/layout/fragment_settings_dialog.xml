@@ -28,7 +28,7 @@
 
     <EditText
         android:id="@+id/etName"
-        style="@style/AppTheme.PartyNameEditText"
+        style="@style/Curate.PartyNameEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -70,7 +70,7 @@
 
         <TextView
             android:id="@+id/tvUserLimitNumber"
-            style="@style/AppTheme.TextView.Secondary"
+            style="@style/Curate.TextView.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
