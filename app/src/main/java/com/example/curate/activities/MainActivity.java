@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         float maxDelta = dpToPx(16f);
         float maxRadius = dpToPx(24f);
 
-        GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.searchbar_background);
+        GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.bg_searchbar);
         searchbarBackground.setCornerRadius(maxRadius);
         ViewGroup.LayoutParams params = ivSearchBackground.getLayoutParams();
         params.height = (int) (maxHeight - maxDelta / 1.5f);
