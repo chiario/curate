@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         });
         miSettings.setOnMenuItemClickListener(menuItem -> {
             // Retrieve the current party's name and location preferences
-            String name = Party.getName();
+            String name = Party.getCurrentParty().getName();
             boolean locationEnabled = Party.getLocationEnabled();
             SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance(name, locationEnabled);
             settingsDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
