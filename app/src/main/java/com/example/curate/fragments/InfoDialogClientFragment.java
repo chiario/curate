@@ -42,7 +42,10 @@ public class InfoDialogClientFragment extends DialogFragment {
     @BindView(R.id.tvUserCount) TextView tvUserCount;
     @BindView(R.id.tvUserCountText) TextView tvUserCountText;
 
-    private OnFragmentInteractionListener mListener;
+    private OnLeaveListener mListener;
+    public interface OnLeaveListener {
+        void onLeaveQueue();
+    }
 
     public InfoDialogClientFragment() {
         // Required empty public constructor
@@ -79,7 +82,7 @@ public class InfoDialogClientFragment extends DialogFragment {
         ButterKnife.bind(this, view);
 
         // Store the listener (activity)
-        mListener = (OnFragmentInteractionListener) getContext();
+        mListener = (OnLeaveListener) getContext();
         // Set on click listener for delete button
         btnLeave.setOnClickListener(view1 -> onLeaveQueue());
 
@@ -128,7 +131,8 @@ public class InfoDialogClientFragment extends DialogFragment {
         builder.setTitle("Leave this party?")
                 .setMessage(messageSpan)
                 .setPositiveButton("Leave", (dialogInterface, i) -> {
-                    mListener.onFragmentMessage(LEAVE_TAG, null, null);
+                    mListener.onLeaveQueue();
+//                    mListener.onFragmentMessage(LEAVE_TAG, null, null);
                     dismiss();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});

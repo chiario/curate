@@ -2,8 +2,6 @@ package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.service.autofill.SaveCallback;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +19,6 @@ import com.example.curate.models.Party;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.parse.FunctionCallback;
-import com.parse.ParseException;
-
-import org.w3c.dom.Text;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +36,10 @@ public class InfoDialogAdminFragment extends DialogFragment {
     @BindView(R.id.tvUserCount) TextView tvUserCount;
     @BindView(R.id.tvUserCountText) TextView tvUserCountText;
 
-    private OnFragmentInteractionListener mListener;
+    private OnDeleteListener mListener;
+    public interface OnDeleteListener {
+        void onDeleteQueue();
+    }
 
     public InfoDialogAdminFragment() {
         // Required empty public constructor
@@ -79,7 +76,7 @@ public class InfoDialogAdminFragment extends DialogFragment {
         ButterKnife.bind(this, view);
 
         // Store the listener (activity)
-        mListener = (OnFragmentInteractionListener) getContext();
+        mListener = (OnDeleteListener) getContext();
         // Set on click listener for delete button
         btnDelete.setOnClickListener(view1 -> onDeleteQueue());
 
@@ -118,7 +115,8 @@ public class InfoDialogAdminFragment extends DialogFragment {
         builder.setTitle("Delete this party?")
                 .setMessage("You won't be able to undo this action!")
                 .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    mListener.onFragmentMessage(DELETE_TAG, null, null);
+//                    mListener.onFragmentMessage(DELETE_TAG, null, null);
+                    mListener.onDeleteQueue();
                     dismiss();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});

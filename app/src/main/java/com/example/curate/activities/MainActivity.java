@@ -37,7 +37,6 @@ import com.example.curate.fragments.BottomPlayerAdminFragment;
 import com.example.curate.fragments.BottomPlayerClientFragment;
 import com.example.curate.fragments.InfoDialogAdminFragment;
 import com.example.curate.fragments.InfoDialogClientFragment;
-import com.example.curate.fragments.OnFragmentInteractionListener;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
@@ -49,7 +48,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogAdminFragment.OnDeleteListener, InfoDialogClientFragment.OnLeaveListener, SettingsDialogFragment.OnSaveInfoListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -336,7 +335,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     }
 
 
-    private void onLeaveQueue() {
+    @Override
+    public void onLeaveQueue() {
         Party.leaveParty(e -> {
             Intent intent = new Intent(MainActivity.this, JoinActivity.class);
             startActivity(intent);
@@ -345,7 +345,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
     }
 
-    private void onDeleteQueue() {
+    @Override
+    public void onDeleteQueue() {
         Party.deleteParty(e -> {
             Intent intent = new Intent(MainActivity.this, JoinActivity.class);
             startActivity(intent);
@@ -353,7 +354,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         });
     }
 
-    private void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled) {
+    @Override
+    public void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled) {
         Log.d(TAG, "Saving changes to party");
         if (newName != null) {
             Party.setPartyName(newName, e -> {
@@ -377,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         }
     }
 
-    @Override
+  /*  @Override
     public void onFragmentMessage(String TAG, String newName, Boolean locationEnabled) {
         Log.d(TAG, "Received fragment message with tag" + TAG);
         switch (TAG) {
@@ -398,4 +400,5 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                 break;
         }
     }
+}*/
 }

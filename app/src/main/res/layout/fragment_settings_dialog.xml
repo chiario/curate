@@ -28,18 +28,21 @@
 
     <EditText
         android:id="@+id/etName"
-        style="@style/Curate.PartyNameEditText"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_60"
+        android:textSize="22sp"
+        android:background="@null"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:hint="Add a party name..."
+        android:paddingBottom="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar" />
-
-
     <Switch
         android:id="@+id/switchLocation"
+        style="@style/Curate.TextView.Settings.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -66,11 +69,12 @@
             android:layout_marginStart="16dp"
             android:text="Set a user limit"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/Curate.TextView.Settings.Primary"/>
 
         <TextView
             android:id="@+id/tvUserLimitNumber"
-            style="@style/Curate.TextView.Secondary"
+            style="@style/Curate.TextView.Settings.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

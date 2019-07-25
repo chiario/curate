@@ -39,7 +39,13 @@ public class SettingsDialogFragment extends DialogFragment {
     private Boolean locationEnabled;
     private Toolbar toolbar;
 
-    private OnFragmentInteractionListener mListener;
+//    private OnFragmentInteractionListener mListener;
+
+    private OnSaveInfoListener mListener;
+
+    public interface OnSaveInfoListener {
+        void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled);
+    }
 
     public SettingsDialogFragment() {
         // Required empty public constructor
@@ -79,7 +85,7 @@ public class SettingsDialogFragment extends DialogFragment {
         ButterKnife.bind(this, view);
 
         // Store the listener (activity)
-        mListener = (OnFragmentInteractionListener) getContext();
+        mListener = (OnSaveInfoListener) getContext();
 
         // Set the toolbar and click listeners
         toolbar.setNavigationOnClickListener(v -> {
@@ -97,7 +103,9 @@ public class SettingsDialogFragment extends DialogFragment {
             if (newLocationEnabled == locationEnabled) {
                 newLocationEnabled = null;
             }
-            mListener.onFragmentMessage(SAVE_TAG, newName, newLocationEnabled);
+
+            mListener.onSaveInfo(newName, newLocationEnabled);
+//            mListener.onFragmentMessage(SAVE_TAG, newName, newLocationEnabled);
             dismiss();
             return true;
         });
@@ -108,7 +116,6 @@ public class SettingsDialogFragment extends DialogFragment {
 
         etPartyName.setText(partyName);
         switchLocation.setChecked(locationEnabled);
-
     }
 
     @OnClick(R.id.clUserLimit)
