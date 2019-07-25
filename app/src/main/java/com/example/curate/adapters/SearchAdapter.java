@@ -130,7 +130,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 			ButterKnife.bind(this, itemView);
 		}
 
-		@OnClick(R.id.clContainer)
+		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickLike(View v) {
 			if(isRemoving) return;
 
