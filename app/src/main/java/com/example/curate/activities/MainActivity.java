@@ -123,8 +123,10 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        lastInteractionTime = SystemClock.elapsedRealtime();
-        new Handler().post(addSongsNotification);
+        if(!isAdmin) {
+            lastInteractionTime = SystemClock.elapsedRealtime();
+            new Handler().post(addSongsNotification);
+        }
 
         initSearchBarAnimations();
     }
@@ -420,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
 
     private void createNotification() {
         createNotificationChannel();
+
         Intent intent = new Intent(MainActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
