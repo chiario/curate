@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +23,6 @@ import com.example.curate.models.Party;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.parse.FunctionCallback;
-import com.parse.ParseException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,7 +30,6 @@ import butterknife.ButterKnife;
 public class InfoDialogClientFragment extends DialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String JOIN_CODE_KEY = "joinCode";
-    private static final String LEAVE_TAG = "LeaveQueue";
 
     @BindView(R.id.tvName) TextView tvPartyName;
     @BindView(R.id.tvCode) TextView tvJoinCode;
@@ -43,6 +39,7 @@ public class InfoDialogClientFragment extends DialogFragment {
     @BindView(R.id.tvUserCountText) TextView tvUserCountText;
 
     private OnLeaveListener mListener;
+
     public interface OnLeaveListener {
         void onLeaveQueue();
     }
@@ -71,8 +68,7 @@ public class InfoDialogClientFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_info_dialog_client, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_info_dialog_client, container, false);
     }
 
     @Override
@@ -80,16 +76,16 @@ public class InfoDialogClientFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ButterKnife.bind(this, view);
-
-        // Store the listener (activity)
-        mListener = (OnLeaveListener) getContext();
-        // Set on click listener for delete button
-        btnLeave.setOnClickListener(view1 -> onLeaveQueue());
-
         // Fetch arguments from bundle
         String partyName = getArguments().getString(PARTY_NAME_KEY);
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
 
+        // Store the listener
+        mListener = (OnLeaveListener) getContext();
+        // Set on click listener for delete button
+        btnLeave.setOnClickListener(view1 -> onLeaveQueue());
+
+        // Get QR code
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             // TODO: Fix hardcoded size
@@ -100,7 +96,7 @@ public class InfoDialogClientFragment extends DialogFragment {
             e.printStackTrace();
         }
 
-        // Set party name and join code
+        // Populate views with party information
         if (partyName != null) {
             tvPartyName.setText(partyName);
         } else {
@@ -113,7 +109,6 @@ public class InfoDialogClientFragment extends DialogFragment {
                 ? getResources().getString(R.string.user_count_singular)
                 : getResources().getString(R.string.user_count_normal));
         tvUserCount.setText(String.valueOf(count));
-
     }
 
 
@@ -132,7 +127,6 @@ public class InfoDialogClientFragment extends DialogFragment {
                 .setMessage(messageSpan)
                 .setPositiveButton("Leave", (dialogInterface, i) -> {
                     mListener.onLeaveQueue();
-//                    mListener.onFragmentMessage(LEAVE_TAG, null, null);
                     dismiss();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});

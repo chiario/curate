@@ -48,16 +48,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogAdminFragment.OnDeleteListener, InfoDialogClientFragment.OnLeaveListener, SettingsDialogFragment.OnSaveInfoListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogAdminFragment.OnDeleteListener, InfoDialogClientFragment.OnLeaveListener, SettingsDialogFragment.OnSaveListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
     private static final int BARCODE_READER_REQUEST_CODE = 100;
-    private static final String LEAVE_TAG = "LeaveQueue";
-    private static final String DELETE_TAG = "DeleteQueue";
-    private static final String SAVE_TAG = "SaveInfo";
 
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
@@ -194,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         });
         miSettings.setOnMenuItemClickListener(menuItem -> {
             // Retrieve the current party's name and location preferences
-            String name = party.getName();
+            String name = Party.getName();
             boolean locationEnabled = Party.getLocationEnabled();
             SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance(name, locationEnabled);
             settingsDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
@@ -337,68 +334,50 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
 
     @Override
     public void onLeaveQueue() {
-        Party.leaveParty(e -> {
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
-        });
-
+        if (!isAdmin) {
+            Party.leaveParty(e -> {
+                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 
     @Override
     public void onDeleteQueue() {
-        Party.deleteParty(e -> {
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        if (isAdmin) {
+            Party.deleteParty(e -> {
+                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 
     @Override
     public void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled) {
-        Log.d(TAG, "Saving changes to party");
-        if (newName != null) {
-            Party.setPartyName(newName, e -> {
-                if (e != null) {
-                    Log.e(TAG, "Could not save party name!", e);
-                }
-            });
-        }
-        if (locationEnabled != null) {
-            Party.setLocationEnabled(locationEnabled, e -> {
-                if (e != null) {
-                    Log.e(TAG, "Could not save location preferences!", e);
-                } else {
-                    if (locationEnabled) {
-                        ((BottomPlayerAdminFragment) mBottomPlayerFragment).registerLocationUpdater();
-                    } else {
-                        ((BottomPlayerAdminFragment) mBottomPlayerFragment).deregisterLocationUpdater();
+        if (isAdmin) {
+            Log.d(TAG, "Saving changes to party");
+            if (newName != null) {
+                Party.setPartyName(newName, e -> {
+                    if (e != null) {
+                        Log.e(TAG, "Could not save party name!", e);
                     }
-                }
-            });
+                });
+            }
+            if (locationEnabled != null) {
+                Party.setLocationEnabled(locationEnabled, e -> {
+                    if (e != null) {
+                        Log.e(TAG, "Could not save location preferences!", e);
+                    } else {
+                        if (locationEnabled) {
+                            ((BottomPlayerAdminFragment) mBottomPlayerFragment).registerLocationUpdater();
+                        } else {
+                            ((BottomPlayerAdminFragment) mBottomPlayerFragment).deregisterLocationUpdater();
+                        }
+                    }
+                });
+            }
         }
     }
-
-  /*  @Override
-    public void onFragmentMessage(String TAG, String newName, Boolean locationEnabled) {
-        Log.d(TAG, "Received fragment message with tag" + TAG);
-        switch (TAG) {
-            case DELETE_TAG:
-                if (isAdmin) {
-                    onDeleteQueue();
-                }
-                break;
-            case LEAVE_TAG:
-                if (!isAdmin) {
-                    onLeaveQueue();
-                }
-                break;
-            case SAVE_TAG:
-                if (isAdmin) {
-                    onSaveInfo(newName, locationEnabled);
-                }
-                break;
-        }
-    }
-}*/
 }

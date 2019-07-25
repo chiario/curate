@@ -28,22 +28,18 @@ import butterknife.OnClick;
 public class SettingsDialogFragment extends DialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String LOCATION_PERMISSIONS_KEY = "locationEnabled";
-    private static final String SAVE_TAG = "SaveInfo";
 
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.clUserLimit) ConstraintLayout clUserLimit;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
 
-    private String partyName;
-    private Boolean locationEnabled;
-    private Toolbar toolbar;
+    private String mPartyName;
+    private Boolean isLocationEnabled;
+    private Toolbar mToolbar;
+    private OnSaveListener mListener;
 
-//    private OnFragmentInteractionListener mListener;
-
-    private OnSaveInfoListener mListener;
-
-    public interface OnSaveInfoListener {
+    public interface OnSaveListener {
         void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled);
     }
 
@@ -75,7 +71,7 @@ public class SettingsDialogFragment extends DialogFragment {
         // Inflate the layout
         View view = inflater.inflate(R.layout.fragment_settings_dialog, container, false);
         // Set the inflated layout's toolbar before returning
-        toolbar = view.findViewById(R.id.toolbar);
+        mToolbar = view.findViewById(R.id.toolbar);
         return view;
     }
 
@@ -83,39 +79,35 @@ public class SettingsDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        // Fetch arguments from bundle
+        mPartyName = getArguments().getString(PARTY_NAME_KEY);
+        isLocationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
+        etPartyName.setText(mPartyName);
+        switchLocation.setChecked(isLocationEnabled);
 
-        // Store the listener (activity)
-        mListener = (OnSaveInfoListener) getContext();
+        // Store the listener
+        mListener = (OnSaveListener) getContext();
 
         // Set the toolbar and click listeners
-        toolbar.setNavigationOnClickListener(v -> {
+        mToolbar.setNavigationOnClickListener(v -> {
             dismiss();
         });
-        toolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.white), PorterDuff.Mode.SRC_IN);
-        toolbar.inflateMenu(R.menu.menu_info);
-        toolbar.setOnMenuItemClickListener(menuItem -> {
+        mToolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.white), PorterDuff.Mode.SRC_IN);
+        mToolbar.inflateMenu(R.menu.menu_info);
+        mToolbar.setOnMenuItemClickListener(menuItem -> {
             Log.d("SettingsDialogFragment", "Save button selected");
             String newName = etPartyName.getText().toString();
             Boolean newLocationEnabled = switchLocation.isChecked();
-            if (newName.equals(partyName)) {
+            if (newName.equals(mPartyName)) {
                 newName = null;
             }
-            if (newLocationEnabled == locationEnabled) {
+            if (newLocationEnabled == isLocationEnabled) {
                 newLocationEnabled = null;
             }
-
             mListener.onSaveInfo(newName, newLocationEnabled);
-//            mListener.onFragmentMessage(SAVE_TAG, newName, newLocationEnabled);
             dismiss();
             return true;
         });
-
-        // Fetch arguments from bundle
-        partyName = getArguments().getString(PARTY_NAME_KEY);
-        locationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
-
-        etPartyName.setText(partyName);
-        switchLocation.setChecked(locationEnabled);
     }
 
     @OnClick(R.id.clUserLimit)

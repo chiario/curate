@@ -219,8 +219,8 @@ public class Party extends ParseObject {
      * Get's the party's name
      * @return the name as a string
      */
-    public String getName() {
-        return getString(NAME_KEY);
+    public static String getName() {
+        return mCurrentParty.getString(NAME_KEY);
     }
 
     /**

@@ -26,8 +26,6 @@ import butterknife.ButterKnife;
 public class InfoDialogAdminFragment extends DialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String JOIN_CODE_KEY = "joinCode";
-    private static final String DELETE_TAG = "DeleteQueue";
-
 
     @BindView(R.id.tvName) TextView tvPartyName;
     @BindView(R.id.tvCode) TextView tvJoinCode;
@@ -37,6 +35,7 @@ public class InfoDialogAdminFragment extends DialogFragment {
     @BindView(R.id.tvUserCountText) TextView tvUserCountText;
 
     private OnDeleteListener mListener;
+
     public interface OnDeleteListener {
         void onDeleteQueue();
     }
@@ -65,8 +64,7 @@ public class InfoDialogAdminFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_info_dialog_admin, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_info_dialog_admin, container, false);
     }
 
     @Override
@@ -74,16 +72,15 @@ public class InfoDialogAdminFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ButterKnife.bind(this, view);
-
-        // Store the listener (activity)
+        // Fetch arguments from bundle
+        String partyName = getArguments().getString(PARTY_NAME_KEY);
+        String joinCode = getArguments().getString(JOIN_CODE_KEY);
+        // Store the listener
         mListener = (OnDeleteListener) getContext();
         // Set on click listener for delete button
         btnDelete.setOnClickListener(view1 -> onDeleteQueue());
 
-        // Fetch arguments from bundle
-        String partyName = getArguments().getString(PARTY_NAME_KEY);
-        String joinCode = getArguments().getString(JOIN_CODE_KEY);
-
+        // Get QR code
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             // TODO: Fix hardcoded size
@@ -94,7 +91,7 @@ public class InfoDialogAdminFragment extends DialogFragment {
             e.printStackTrace();
         }
 
-        // Set party name and join code
+        // Populate views with party information
         if (partyName != null) {
             tvPartyName.setText(partyName);
         } else {
@@ -115,7 +112,6 @@ public class InfoDialogAdminFragment extends DialogFragment {
         builder.setTitle("Delete this party?")
                 .setMessage("You won't be able to undo this action!")
                 .setPositiveButton("Delete", (dialogInterface, i) -> {
-//                    mListener.onFragmentMessage(DELETE_TAG, null, null);
                     mListener.onDeleteQueue();
                     dismiss();
                 })
