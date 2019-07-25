@@ -2,13 +2,18 @@ package com.example.curate.fragments;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -19,6 +24,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
@@ -59,6 +65,7 @@ public class BottomPlayerAdminFragment extends Fragment {
     private String mTrackName = "--";
     private String mArtistName = "--";
     private boolean isExpanded;
+    private Drawable mThumbDrawable;
 
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
@@ -96,6 +103,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_admin_collapsed);
         mExpanded = new ConstraintSet();
         mExpanded.clone(getContext(), R.layout.fragment_bottom_player_admin);
+        mThumbDrawable = mSeekBar.getThumb();
         setExpanded(false);
 
         return view;
@@ -174,6 +182,7 @@ public class BottomPlayerAdminFragment extends Fragment {
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_expanded));
             mPlayerBackground.setLayoutParams(params);
             setVisibility(View.VISIBLE);
+            setSeekbar(true);
             setButtonVisibility(View.VISIBLE);
             ibExpandCollapse.setSelected(true);
         }
@@ -181,6 +190,7 @@ public class BottomPlayerAdminFragment extends Fragment {
             mCollapsed.applyTo(mPlayerBackground);
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_collapsed));
             setVisibility(View.GONE);
+            setSeekbar(false);
             setButtonVisibility(View.INVISIBLE);
             ibExpandCollapse.setSelected(false);
             mPlayerBackground.setLayoutParams(params);
@@ -210,10 +220,31 @@ public class BottomPlayerAdminFragment extends Fragment {
         }
     }
 
+    private float dpToPx(float dip) {
+        Resources r = getResources();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, r.getDisplayMetrics());
+    }
+
     private void setVisibility(int visibility) {
         ivAlbum.setVisibility(visibility);
-        mSeekBar.setVisibility(visibility);
         ibShare.setVisibility(visibility);
+    }
+
+    private void setSeekbar(final boolean isExpanded) {
+        // Disable touch
+        mSeekBar.setClickable(true);
+        mSeekBar.setOnTouchListener((view, motionEvent) -> !isExpanded);
+
+        if(isExpanded) {
+            // Show the thumb
+            mSeekBar.setThumb(mThumbDrawable);
+            int sidePadding = (int) dpToPx(16f);
+            mSeekBar.setPadding(sidePadding, 0, sidePadding, 0);
+        } else {
+            // Hide the thumb
+            mSeekBar.setThumb(new ColorDrawable(ContextCompat.getColor(getContext(), R.color.transparent)));
+            mSeekBar.setPadding(0, 0, 0, 0);
+        }
     }
 
     private void setButtonVisibility(int visibility) {
