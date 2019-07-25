@@ -1,7 +1,6 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,6 @@ import com.bumptech.glide.Glide;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -33,7 +30,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	private Context context;
 	private List<Song> songs;
 	private RecyclerView mRecyclerView;
-	private boolean isUpdating;
 
 	/***
 	 * Creates the adapter for holding songs
@@ -43,10 +39,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	public SearchAdapter(Context context, List<Song> songs) {
 		this.context = context;
 		this.songs = songs;
-	}
-
-	public boolean isUpdating() {
-		return isUpdating;
 	}
 
 	@NonNull
@@ -123,7 +115,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
-		private boolean isRemoving = false;
+		private boolean isAdding = false;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
@@ -132,14 +124,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickLike(View v) {
-			if(isRemoving) return;
+			if(isAdding) return;
 
-			isRemoving = true;
+			isAdding = true;
 			int index = getAdapterPosition();
 			pbLoading.setVisibility(View.VISIBLE);
 			ibLike.setVisibility(View.INVISIBLE);
 			Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), e -> {
-				isRemoving = false;
+				isAdding = false;
 				if(e == null) {
 					if(getAdapterPosition() < 0) {
 						songs.remove(index);

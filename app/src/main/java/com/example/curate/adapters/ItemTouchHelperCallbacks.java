@@ -40,7 +40,7 @@ public class ItemTouchHelperCallbacks {
 	public ItemTouchHelper.SimpleCallback deleteCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return !((QueueAdapter) mAdapter).isUpdating();
+			return true;
 		}
 
 		@Override
@@ -55,11 +55,7 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if(((QueueAdapter.ViewHolder) viewHolder).isDeleted) {
-				return;
-			}
-
-			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isUpdating()) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}
@@ -82,7 +78,7 @@ public class ItemTouchHelperCallbacks {
 	public ItemTouchHelper.SimpleCallback likeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return !((QueueAdapter) mAdapter).isUpdating();
+			return true;
 		}
 
 		@Override
@@ -98,7 +94,7 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isUpdating()) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}
@@ -125,7 +121,7 @@ public class ItemTouchHelperCallbacks {
 	public ItemTouchHelper.SimpleCallback addCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return !((SearchAdapter) mAdapter).isUpdating();
+			return true;
 		}
 
 		@Override
@@ -141,7 +137,7 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if (((SearchAdapter.ViewHolder) viewHolder).ibLike.isSelected() || viewHolder.getAdapterPosition() == NO_POSITION || ((SearchAdapter) mAdapter).isUpdating()) {
+			if (((SearchAdapter.ViewHolder) viewHolder).ibLike.isSelected() || viewHolder.getAdapterPosition() == NO_POSITION) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}

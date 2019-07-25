@@ -4,9 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +19,6 @@ import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
-import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -32,7 +31,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	// Instance variables
 	private Context context;
 	private List<PlaylistEntry> playlist;
-	private boolean isUpdating;
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -70,9 +68,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		holder.tvTitle.setText(song.getTitle());
 		holder.ibLike.setSelected(playlist.get(position).isLikedByUser());
 		holder.ibRemove.setSelected(false);
-
-		Glide
-				.with(context)
+		holder.pbLoading.setVisibility(View.GONE);
+		holder.ibRemove.setVisibility(View.VISIBLE);
+		Glide.with(context)
 				.load(song.getImageUrl())
 				.placeholder(R.drawable.ic_album_placeholder)
 				.into(holder.ivAlbum);
@@ -99,8 +97,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		vh.onClickLike(vh.ibLike);
 	}
 
-	public boolean isUpdating() {return isUpdating;}
-
 	/***
 	 * Internal ViewHolder model for each item.
 	 */
@@ -111,8 +107,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
+		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
-		public boolean isDeleted = false;
+		private boolean isDeleting;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
@@ -120,22 +117,17 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		}
 
 
-
 		@OnClick(R.id.ibDelete)
 		public void onClickRemove(View v) {
-			if(isUpdating) return;
-			isUpdating = true;
-			v.setSelected(true);
-			isDeleted = true;
+			if(isDeleting) return;
+			isDeleting = true;
+			pbLoading.setVisibility(View.VISIBLE);
+			ibRemove.setVisibility(View.INVISIBLE);
 			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), e -> {
 				if(e == null) {
-					// TODO change this: playlist might reorder
-					notifyItemRemoved(getAdapterPosition());
+					notifyDataSetChanged();
 				}
-				else {
-					isDeleted = false;
-				}
-				isUpdating = false;
+				isDeleting = false;
 			});
 		}
 
