@@ -25,11 +25,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
-
-	// Instance variables
-	private Context context;
-	private List<Song> songs;
-	private RecyclerView mRecyclerView;
+	private Context mContext;
+	private List<Song> mSongs;
+	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 
 	/***
 	 * Creates the adapter for holding songs
@@ -37,47 +35,31 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	 * @param songs The initial list of songs to display
 	 */
 	public SearchAdapter(Context context, List<Song> songs) {
-		this.context = context;
-		this.songs = songs;
+		this.mContext = context;
+		this.mSongs = songs;
 	}
 
 	@NonNull
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		Context context = parent.getContext();
-		LayoutInflater inflater = LayoutInflater.from(context);
-
 		// Inflate the custom layout
-		View contactView = inflater.inflate(R.layout.item_song_search, parent, false);
-		// Return a new holder instance
-		ViewHolder viewHolder = new ViewHolder(contactView);
-		return viewHolder;
-	}
+		LayoutInflater inflater = LayoutInflater.from(mContext);
+		View searchItemView = inflater.inflate(R.layout.item_song_search, parent, false);
 
-	@Override
-	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-		super.onAttachedToRecyclerView(recyclerView);
-		mRecyclerView = recyclerView;
+		// Return a new holder instance
+		return new ViewHolder(searchItemView);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		// Todo load selected state and image into ViewHolder
-		Song song = songs.get(position);
-		holder.tvArtist.setText(song.getArtist());
-		holder.tvTitle.setText(song.getTitle());
-		if(Party.getCurrentParty().contains(song))
-			holder.ibLike.setSelected(true);
-		else
-			holder.ibLike.setSelected(false);
-		holder.pbLoading.setVisibility(View.GONE);
-		holder.ibLike.setVisibility(View.VISIBLE);
-		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
+		Song song = mSongs.get(position);
+		holder.showSongData(song);
+		holder.showLoading(false);
 	}
 
 	@Override
 	public int getItemCount() {
-		return songs.size();
+		return mSongs.size();
 	}
 
 	/***
@@ -85,24 +67,29 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	 * @param list Songs to add to the adapter
 	 */
 	public void addAll(List<Song> list) {
-		if(songs == null || list == null) return;
+		if(mSongs == null || list == null) return;
 		for(Song s : list) {
 			if(Party.getCurrentParty().contains(s)) {
 				continue;
 			}
-			songs.add(s);
-			notifyItemInserted(songs.size() - 1);
+			mSongs.add(s);
+			notifyItemInserted(mSongs.size() - 1);
 		}
 	}
 
-	public void onItemAdd(int position) {
-		ViewHolder viewHolder = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
-		viewHolder.onClickLike(viewHolder.itemView);
+	public void clear() {
+		mSongs.clear();
+		notifyDataSetChanged();
 	}
 
-	public void clear() {
-		songs.clear();
-		notifyDataSetChanged();
+	public void onItemSwipedAdd(RecyclerView.ViewHolder viewHolder) {
+		mIsSwiping = true;
+		SearchAdapter.ViewHolder vh = (SearchAdapter.ViewHolder) viewHolder;
+		vh.onClickAdd(vh.ibLike);
+	}
+
+	public boolean isSwiping() {
+		return mIsSwiping;
 	}
 
 	/***
@@ -115,7 +102,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
-		private boolean isAdding = false;
+		private boolean mIsAdding = false; // Used to ensure the item can't be added multiple times
 
 		public ViewHolder(View itemView) {
 			super(itemView);
@@ -123,31 +110,48 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		}
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
-		public void onClickLike(View v) {
-			if(isAdding) return;
+		public void onClickAdd(View v) {
+			if(mIsAdding) return;
+			mIsAdding = true;
 
-			isAdding = true;
-			int index = getAdapterPosition();
-			pbLoading.setVisibility(View.VISIBLE);
-			ibLike.setVisibility(View.INVISIBLE);
-			Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), e -> {
-				isAdding = false;
+			showLoading(true);
+			Party.getCurrentParty().addSong(mSongs.get(getAdapterPosition()), e -> {
+				mIsAdding = false;
+				mIsSwiping = false;
+
 				if(e == null) {
-					if(getAdapterPosition() < 0) {
-						songs.remove(index);
-						notifyItemRemoved(index);
-					} else {
-						songs.remove(getAdapterPosition());
-						notifyItemRemoved(getAdapterPosition());
-					}
-					Toast.makeText(context, "Song Added", Toast.LENGTH_SHORT).show();
+					mSongs.remove(getAdapterPosition());
+					notifyItemRemoved(getAdapterPosition());
+					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				}
 				else {
-					pbLoading.setVisibility(View.GONE);
-					ibLike.setVisibility(View.VISIBLE);
-					Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
+					showLoading(false);
+					Toast.makeText(mContext, "Could not add song", Toast.LENGTH_SHORT).show();
 				}
 			});
+		}
+
+		/**
+		 * Displays a Song's information in the view
+		 * @param song the song whose information should be displayed
+		 */
+		private void showSongData(Song song) {
+			tvArtist.setText(song.getArtist());
+			tvTitle.setText(song.getTitle());
+			ibLike.setSelected(false);
+			Glide.with(mContext)
+					.load(song.getImageUrl())
+					.placeholder(R.drawable.ic_album_placeholder)
+					.into(ivAlbum);
+		}
+
+		/**
+		 * Shows/hides the loading animation for when a song is being added
+		 * @param isLoading if true, show the loading animation; if false, hide it
+		 */
+		public void showLoading(boolean isLoading) {
+			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+			ibLike.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
 		}
 	}
 }

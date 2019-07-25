@@ -19,7 +19,9 @@ import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.parse.SaveCallback;
 
+import java.text.ParseException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -27,10 +29,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
-
-	// Instance variables
-	private Context context;
-	private List<PlaylistEntry> playlist;
+	private Context mContext;
+	private List<PlaylistEntry> mPlaylist;
+	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -38,63 +39,59 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	 * @param playlist The initial playlist to display
 	 */
 	public QueueAdapter(Context context, List<PlaylistEntry> playlist) {
-		this.context = context;
-		this.playlist = playlist;
+		this.mContext = context;
+		this.mPlaylist = playlist;
+		mIsSwiping = false;
 	}
 
 	@NonNull
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		Context context = parent.getContext();
-		LayoutInflater inflater = LayoutInflater.from(context);
 		// Inflate the custom layout
+		LayoutInflater inflater = LayoutInflater.from(mContext);
 		View contactView = inflater.inflate(R.layout.item_song_queue, parent, false);
+
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
+
 		// Only show delete icon if current user is admin of current party
-		boolean isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
-		if (isAdmin) {
-			viewHolder.ibRemove.setVisibility(View.VISIBLE);
-		} else {
-			viewHolder.ibRemove.setVisibility(View.GONE);
-		}
+		viewHolder.ibRemove.setVisibility(Party.getCurrentParty().isCurrentUserAdmin()
+				? View.VISIBLE : View.GONE);
 		return viewHolder;
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		Song song = playlist.get(position).getSong();
-		holder.tvArtist.setText(song.getArtist());
-		holder.tvTitle.setText(song.getTitle());
-		holder.ibLike.setSelected(playlist.get(position).isLikedByUser());
-		holder.ibRemove.setSelected(false);
-		holder.pbLoading.setVisibility(View.GONE);
-		holder.ibRemove.setVisibility(View.VISIBLE);
-		Glide.with(context)
-				.load(song.getImageUrl())
-				.placeholder(R.drawable.ic_album_placeholder)
-				.into(holder.ivAlbum);
+		PlaylistEntry entry = mPlaylist.get(position);
+		holder.showEntryData(entry);
+		holder.showLoading(false);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		Song song = playlist.get(position).getSong();
+		Song song = mPlaylist.get(position).getSong();
 		return song.getSpotifyId().hashCode();
 	}
 
 	@Override
 	public int getItemCount() {
-		return playlist.size();
+		return mPlaylist.size();
 	}
 
-	public void onItemRemove(RecyclerView.ViewHolder viewHolder) {
+	public void onItemSwipedRemove(RecyclerView.ViewHolder viewHolder) {
+		mIsSwiping = true;
 		ViewHolder vh = (ViewHolder) viewHolder;
 		vh.onClickRemove(vh.ibRemove);
 	}
 
-	public void onItemLike(RecyclerView.ViewHolder viewHolder) {
+	public void onItemSwipedLike(RecyclerView.ViewHolder viewHolder) {
+		mIsSwiping = true;
 		ViewHolder vh = (ViewHolder) viewHolder;
 		vh.onClickLike(vh.ibLike);
+	}
+
+	public boolean isSwiping() {
+		return mIsSwiping;
 	}
 
 	/***
@@ -109,7 +106,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
-		private boolean isDeleting;
+		private boolean isUpdating;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
@@ -119,41 +116,74 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibDelete)
 		public void onClickRemove(View v) {
-			if(isDeleting) return;
-			isDeleting = true;
-			pbLoading.setVisibility(View.VISIBLE);
-			ibRemove.setVisibility(View.INVISIBLE);
-			Party.getCurrentParty().removeSong(playlist.get(getAdapterPosition()).getSong(), e -> {
+			if(isUpdating) return;
+			isUpdating = true;
+
+			showLoading(true);
+			Party.getCurrentParty().removeSong(mPlaylist.get(getAdapterPosition()).getSong(), e -> {
+				isUpdating = false;
+				mIsSwiping = false;
+
 				if(e == null) {
 					notifyDataSetChanged();
+				} else {
+					showLoading(false);
+					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
 				}
-				isDeleting = false;
 			});
 		}
 
 		@OnClick(R.id.ibLike)
 		public void onClickLike(final View v) {
-			final PlaylistEntry entry = playlist.get(getAdapterPosition());
-			v.setSelected(!entry.isLikedByUser());
-			if(entry.isLikedByUser()) {
-				Party.getCurrentParty().unlikeSong(entry.getSong().getSpotifyId(), e -> {
-					if(e == null) {
-						notifyDataSetChanged();
-					} else {
-						v.setSelected(entry.isLikedByUser());
-						Toast.makeText(context, "Could not unlike song!", Toast.LENGTH_SHORT).show();
-					}
-				});
+			if(isUpdating) return;
+			isUpdating = true;
+
+			final PlaylistEntry entry = mPlaylist.get(getAdapterPosition());
+			final boolean isLiked = entry.isLikedByUser();
+			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
+			final SaveCallback callback = e -> {
+				isUpdating = false;
+				mIsSwiping = false;
+
+				if (e == null) {
+					notifyDataSetChanged();
+				} else {
+					v.setSelected(isLiked);
+					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
+				}
+			};
+
+			v.setSelected(!isLiked);
+			if(isLiked) {
+				Party.getCurrentParty().unlikeSong(entry.getSong().getSpotifyId(), callback);
 			} else {
-				Party.getCurrentParty().likeSong(entry.getSong().getSpotifyId(), e -> {
-					if(e == null) {
-						notifyDataSetChanged();
-					} else {
-						v.setSelected(entry.isLikedByUser());
-						Toast.makeText(context, "Could not like song!", Toast.LENGTH_SHORT).show();
-					}
-				});
+				Party.getCurrentParty().likeSong(entry.getSong().getSpotifyId(), callback);
 			}
+		}
+
+		/**
+		 * Displays a PlaylistEntry's information in the view
+		 * @param entry the PlaylistEntry whose information should be displayed
+		 */
+		private void showEntryData(PlaylistEntry entry) {
+			Song song = entry.getSong();
+			tvArtist.setText(song.getArtist());
+			tvTitle.setText(song.getTitle());
+			ibLike.setSelected(entry.isLikedByUser());
+			ibRemove.setSelected(false);
+			Glide.with(mContext)
+					.load(song.getImageUrl())
+					.placeholder(R.drawable.ic_album_placeholder)
+					.into(ivAlbum);
+		}
+
+		/**
+		 * Shows/hides the loading animation for when a entry is being removed
+		 * @param isLoading if true, show the loading animation; if false, hide it
+		 */
+		public void showLoading(boolean isLoading) {
+			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+			ibRemove.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
 		}
 	}
 }

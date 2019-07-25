@@ -1,18 +1,9 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ScaleDrawable;
-import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -20,7 +11,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
-import com.example.curate.utils.Animations;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
@@ -40,7 +30,7 @@ public class ItemTouchHelperCallbacks {
 	public ItemTouchHelper.SimpleCallback deleteCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return true;
+			return !((QueueAdapter) mAdapter).isSwiping();
 		}
 
 		@Override
@@ -50,12 +40,12 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-			((QueueAdapter) mAdapter).onItemRemove(viewHolder);
+			((QueueAdapter) mAdapter).onItemSwipedRemove(viewHolder);
 		}
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if (viewHolder.getAdapterPosition() == NO_POSITION) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}
@@ -78,7 +68,7 @@ public class ItemTouchHelperCallbacks {
 	public ItemTouchHelper.SimpleCallback likeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return true;
+			return !((QueueAdapter) mAdapter).isSwiping();
 		}
 
 		@Override
@@ -88,13 +78,13 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-			((QueueAdapter) mAdapter).onItemLike(viewHolder);
-			((QueueAdapter) mAdapter).notifyItemChanged(viewHolder.getAdapterPosition());
+			((QueueAdapter) mAdapter).onItemSwipedLike(viewHolder);
+			mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
 		}
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if (viewHolder.getAdapterPosition() == NO_POSITION) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}
@@ -121,7 +111,7 @@ public class ItemTouchHelperCallbacks {
 	public ItemTouchHelper.SimpleCallback addCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return true;
+			return !((SearchAdapter) mAdapter).isSwiping();
 		}
 
 		@Override
@@ -131,13 +121,12 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-			SearchAdapter.ViewHolder searchViewHolder = (SearchAdapter.ViewHolder) viewHolder;
-			((SearchAdapter) mAdapter).onItemAdd(viewHolder.getAdapterPosition());
+			((SearchAdapter) mAdapter).onItemSwipedAdd(viewHolder);
 		}
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-			if (((SearchAdapter.ViewHolder) viewHolder).ibLike.isSelected() || viewHolder.getAdapterPosition() == NO_POSITION) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION || ((SearchAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}
