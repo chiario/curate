@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,6 +71,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 			holder.ibLike.setSelected(true);
 		else
 			holder.ibLike.setSelected(false);
+		holder.pbLoading.setVisibility(View.GONE);
+		holder.ibLike.setVisibility(View.VISIBLE);
 		Glide.with(context).load(song.getImageUrl()).placeholder(R.drawable.ic_album_placeholder).into(holder.ivAlbum);
 	}
 
@@ -85,6 +88,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	public void addAll(List<Song> list) {
 		if(songs == null || list == null) return;
 		for(Song s : list) {
+			if(Party.getCurrentParty().contains(s)) {
+				continue;
+			}
 			songs.add(s);
 			notifyItemInserted(songs.size() - 1);
 		}
@@ -108,6 +114,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
+		@BindView(R.id.pbLoading) ProgressBar pbLoading;
+
+		private boolean isRemoving = false;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
@@ -116,22 +125,30 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 		@OnClick(R.id.ibLike)
 		public void onClickLike(View v) {
+			if(isRemoving) return;
+
+			isRemoving = true;
 			// Add song to the queue
-			if(isUpdating) return;
 			if(!v.isSelected()) {
-				isUpdating = true;
-				Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), new SaveCallback() {
-					@Override
-					public void done(ParseException e) {
-						if(e == null) {
-							notifyDataSetChanged();
-							Toast.makeText(context, "Song Added", Toast.LENGTH_SHORT).show();
+				int index = getAdapterPosition();
+				pbLoading.setVisibility(View.VISIBLE);
+				ibLike.setVisibility(View.GONE);
+				Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), e -> {
+					isRemoving = false;
+					if(e == null) {
+						if(getAdapterPosition() < 0) {
+							songs.remove(index);
+							notifyItemRemoved(index);
+						} else {
+							songs.remove(getAdapterPosition());
+							notifyItemRemoved(getAdapterPosition());
 						}
-						else {
-							v.setSelected(false);
-							Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
-						}
-						isUpdating = false;
+						Toast.makeText(context, "Song Added", Toast.LENGTH_SHORT).show();
+					}
+					else {
+						pbLoading.setVisibility(View.GONE);
+						ibLike.setVisibility(View.VISIBLE);
+						Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
 					}
 				});
 			}

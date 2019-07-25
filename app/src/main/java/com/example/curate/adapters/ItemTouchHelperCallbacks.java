@@ -136,7 +136,7 @@ public class ItemTouchHelperCallbacks {
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 			SearchAdapter.ViewHolder searchViewHolder = (SearchAdapter.ViewHolder) viewHolder;
-			((SearchAdapter) mAdapter).onItemAdd(viewHolder);
+			((SearchAdapter) mAdapter).onItemAdd(searchViewHolder);
 			mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
 		}
 
