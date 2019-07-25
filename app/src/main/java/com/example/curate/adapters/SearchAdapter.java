@@ -32,6 +32,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	// Instance variables
 	private Context context;
 	private List<Song> songs;
+	private RecyclerView mRecyclerView;
 	private boolean isUpdating;
 
 	/***
@@ -59,6 +60,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
 		return viewHolder;
+	}
+
+	@Override
+	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+		super.onAttachedToRecyclerView(recyclerView);
+		mRecyclerView = recyclerView;
 	}
 
 	@Override
@@ -96,9 +103,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		}
 	}
 
-	public void onItemAdd(RecyclerView.ViewHolder viewHolder) {
-		ViewHolder searchViewHolder = (ViewHolder) viewHolder;
-		searchViewHolder.onClickLike(searchViewHolder.ibLike);
+	public void onItemAdd(int position) {
+		ViewHolder viewHolder = (ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
+		viewHolder.onClickLike(viewHolder.itemView);
 	}
 
 	public void clear() {
@@ -123,35 +130,32 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 			ButterKnife.bind(this, itemView);
 		}
 
-		@OnClick(R.id.ibLike)
+		@OnClick(R.id.clContainer)
 		public void onClickLike(View v) {
 			if(isRemoving) return;
 
 			isRemoving = true;
-			// Add song to the queue
-			if(!v.isSelected()) {
-				int index = getAdapterPosition();
-				pbLoading.setVisibility(View.VISIBLE);
-				ibLike.setVisibility(View.GONE);
-				Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), e -> {
-					isRemoving = false;
-					if(e == null) {
-						if(getAdapterPosition() < 0) {
-							songs.remove(index);
-							notifyItemRemoved(index);
-						} else {
-							songs.remove(getAdapterPosition());
-							notifyItemRemoved(getAdapterPosition());
-						}
-						Toast.makeText(context, "Song Added", Toast.LENGTH_SHORT).show();
+			int index = getAdapterPosition();
+			pbLoading.setVisibility(View.VISIBLE);
+			ibLike.setVisibility(View.INVISIBLE);
+			Party.getCurrentParty().addSong(songs.get(getAdapterPosition()), e -> {
+				isRemoving = false;
+				if(e == null) {
+					if(getAdapterPosition() < 0) {
+						songs.remove(index);
+						notifyItemRemoved(index);
+					} else {
+						songs.remove(getAdapterPosition());
+						notifyItemRemoved(getAdapterPosition());
 					}
-					else {
-						pbLoading.setVisibility(View.GONE);
-						ibLike.setVisibility(View.VISIBLE);
-						Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
-					}
-				});
-			}
+					Toast.makeText(context, "Song Added", Toast.LENGTH_SHORT).show();
+				}
+				else {
+					pbLoading.setVisibility(View.GONE);
+					ibLike.setVisibility(View.VISIBLE);
+					Toast.makeText(context, "Could not add song", Toast.LENGTH_SHORT).show();
+				}
+			});
 		}
 	}
 }

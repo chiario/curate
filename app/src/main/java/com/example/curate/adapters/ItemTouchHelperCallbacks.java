@@ -136,8 +136,7 @@ public class ItemTouchHelperCallbacks {
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 			SearchAdapter.ViewHolder searchViewHolder = (SearchAdapter.ViewHolder) viewHolder;
-			((SearchAdapter) mAdapter).onItemAdd(searchViewHolder);
-			mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+			((SearchAdapter) mAdapter).onItemAdd(viewHolder.getAdapterPosition());
 		}
 
 		@Override
@@ -154,7 +153,7 @@ public class ItemTouchHelperCallbacks {
 				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
 				background.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight() + (int) dX, itemView.getBottom());
 				background.draw(c);
-				Drawable d = mContext.getDrawable(R.drawable.ic_circle_add_outline);
+				Drawable d = mContext.getDrawable(R.drawable.ic_add);
 				d.setTint(mContext.getResources().getColor(R.color.white));
 				d.setBounds(itemView.getRight() - 2*width , itemView.getTop() + width, itemView.getRight() - width,itemView.getBottom() - width);
 				d.draw(c);
