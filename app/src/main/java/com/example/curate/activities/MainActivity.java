@@ -441,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
                 .setAutoCancel(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
+        updateInteractionTime();
     }
 
     private void createNotificationChannel() {
