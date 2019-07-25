@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     // Timings subject to change
     private static final int NOTIFICATION_THRESHOLD = 10 * 60 * 1000;
     private static final int NOTIFICATION_CHECK_TIME = 60 * 1000;
+    private final int NOTIFICATION_ID = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(new Date()));
 
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
@@ -433,13 +434,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(createID(), builder.build());
-    }
-
-    public int createID(){
-        Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
-        return id;
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     private void createNotificationChannel() {
