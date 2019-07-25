@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.curate.R;
+import com.example.curate.activities.MainActivity;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.models.Song;
@@ -120,7 +121,7 @@ public class SearchFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		// Create the mAdapter, along with onClick listener for the "add" button
-		mAdapter = new SearchAdapter(getContext(), new ArrayList<Song>());
+		mAdapter = new SearchAdapter(getContext(), new ArrayList<Song>(), (MainActivity) getActivity());
 
 		// Attach Swipe listeners
 		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());

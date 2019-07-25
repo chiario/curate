@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.curate.R;
+import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
@@ -31,6 +32,7 @@ import butterknife.OnClick;
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
 	private List<PlaylistEntry> mPlaylist;
+	private MainActivity mMainActivity;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 
 	/***
@@ -38,9 +40,10 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	 * @param context The context the adapter is being created from
 	 * @param playlist The initial playlist to display
 	 */
-	public QueueAdapter(Context context, List<PlaylistEntry> playlist) {
-		this.mContext = context;
-		this.mPlaylist = playlist;
+	public QueueAdapter(Context context, List<PlaylistEntry> playlist, MainActivity mainActivity) {
+		mContext = context;
+		mPlaylist = playlist;
+		mMainActivity = mainActivity;
 		mIsSwiping = false;
 	}
 
@@ -118,7 +121,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		public void onClickRemove(View v) {
 			if(isUpdating) return;
 			isUpdating = true;
-
 			showLoading(true);
 			Party.getCurrentParty().removeSong(mPlaylist.get(getAdapterPosition()).getSong(), e -> {
 				isUpdating = false;
@@ -135,6 +137,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibLike)
 		public void onClickLike(final View v) {
+			mMainActivity.updateInteractionTime();
 			if(isUpdating) return;
 			isUpdating = true;
 

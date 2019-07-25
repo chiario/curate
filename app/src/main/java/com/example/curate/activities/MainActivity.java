@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     private boolean isAdmin = false;
 
     private long lastInteractionTime;
+    private Handler notificationHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
 
         if(!isAdmin) {
             lastInteractionTime = SystemClock.elapsedRealtime();
-            new Handler().post(addSongsNotification);
+            notificationHandler = new Handler();
+            notificationHandler.post(addSongsNotification);
         }
 
         initSearchBarAnimations();
@@ -365,6 +367,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     public void onLeaveQueue() {
         if (!isAdmin) {
             Party.leaveParty(e -> {
+                removeNotifications();
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(intent);
                 finish();
@@ -459,5 +462,19 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
             // or other notification behaviors after this
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private void removeNotifications() {
+        if(!isAdmin) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                notificationManager.deleteNotificationChannel(CHANNEL_ID);
+            }
+            notificationHandler.removeCallbacks(addSongsNotification);
+        }
+    }
+
+    public void updateInteractionTime() {
+        lastInteractionTime = SystemClock.elapsedRealtime();
     }
 }

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
+import com.example.curate.activities.MainActivity;
 import com.example.curate.adapters.AnimatedLinearLayoutManager;
 import com.example.curate.adapters.DividerItemDecoration;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
@@ -74,7 +75,7 @@ public class QueueFragment extends Fragment {
 			if(e == null) {
 				textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 
-				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist());
+				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist(), (MainActivity) getActivity());
 				mAdapter.setHasStableIds(true);
 
 				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());

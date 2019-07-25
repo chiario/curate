@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.curate.R;
+import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 
@@ -27,6 +28,7 @@ import butterknife.OnClick;
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 	private Context mContext;
 	private List<Song> mSongs;
+	private MainActivity mMainActivity;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 
 	/***
@@ -34,9 +36,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	 * @param context The context the adapter is being created from
 	 * @param songs The initial list of songs to display
 	 */
-	public SearchAdapter(Context context, List<Song> songs) {
-		this.mContext = context;
-		this.mSongs = songs;
+	public SearchAdapter(Context context, List<Song> songs, MainActivity mainActivity) {
+		mContext = context;
+		mSongs = songs;
+		mMainActivity = mainActivity;
 	}
 
 	@NonNull
@@ -111,6 +114,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickAdd(View v) {
+			mMainActivity.updateInteractionTime();
 			if(mIsAdding) return;
 			mIsAdding = true;
 
