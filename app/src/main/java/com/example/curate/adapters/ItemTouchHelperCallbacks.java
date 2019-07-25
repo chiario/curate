@@ -67,7 +67,7 @@ public class ItemTouchHelperCallbacks {
 			if(dX > 0) {
 				int height = itemView.getBottom() - itemView.getTop();
 				int width = height / 3;
-				background.setColor(mContext.getResources().getColor(R.color.colorSecondary));
+				background.setColor(mContext.getResources().getColor(R.color.darkBlue));
 				background.setBounds(0, itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
 				background.draw(c);
 				Drawable d = mContext.getDrawable(R.drawable.ic_circle_cancel);
@@ -104,7 +104,7 @@ public class ItemTouchHelperCallbacks {
 			}
 			View itemView = viewHolder.itemView;
 			if(!isCurrentlyActive || viewHolder.getAdapterPosition() == NO_POSITION) {
-				c.drawColor(mContext.getResources().getColor(R.color.colorBackground));
+				c.drawColor(mContext.getResources().getColor(R.color.darkGray));
 				if(viewHolder.getAdapterPosition() == NO_POSITION) return;
 			}
 			int height = itemView.getBottom() - itemView.getTop();

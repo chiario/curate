@@ -1,10 +1,10 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Curate" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/mediumGray</item>
+        <item name="colorPrimaryDark">@color/darkGray</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/darkGray</item>
         <item name="android:textViewStyle">@style/Curate.TextView</item>
         <item name="android:colorControlHighlight">@color/colorAccent</item>
         <item name="editTextStyle">@style/Curate.EditText</item>
@@ -62,7 +62,7 @@
     </style>
     <style name="Dialog.Fullscreen" parent="Theme.AppCompat.Dialog">
         <item name="android:windowIsFloating">false</item>
-        <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="android:background">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/mediumGray</item>
+        <item name="android:background">@color/darkGray</item>
     </style>
 </resources>
