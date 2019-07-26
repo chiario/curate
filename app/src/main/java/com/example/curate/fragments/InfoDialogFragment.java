@@ -114,18 +114,22 @@ public class InfoDialogFragment extends DialogFragment {
 
     private void onDeleteQueue() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Delete this party?")
-                .setMessage("You won't be able to undo this action!")
-                .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    if (mIsAdmin) {
-                        mListener.onDeleteQueue();
-                    } else {
-                        mListener.onLeaveQueue();
-                    }
-                    dismiss();
-                })
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
-
+        builder
+            .setTitle(mIsAdmin
+                ? "Delete this party?"
+                : "Leave this party?")
+            .setMessage(mIsAdmin
+                    ? "You won't be able to undo this action!"
+                    : "You can rejoin with the code " + tvJoinCode.getText().toString())
+            .setPositiveButton(mIsAdmin ? "Delete" : "Leave", (dialogInterface, i) -> {
+                if (mIsAdmin) {
+                    mListener.onDeleteQueue();
+                } else {
+                    mListener.onLeaveQueue();
+                }
+                dismiss();
+            })
+            .setNegativeButton("Cancel", (dialogInterface, i) -> {});
         builder.show();
     }
 }
