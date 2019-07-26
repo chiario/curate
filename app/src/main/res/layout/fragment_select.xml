@@ -17,8 +17,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias=".35"
-        tools:layout_editor_absoluteX="0dp">
+        app:layout_constraintVertical_bias="0.349"
+        tools:layout_editor_absoluteX="33dp">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
@@ -40,7 +40,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@id/tvAppName" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
@@ -64,17 +64,30 @@
             app:layout_constraintTop_toBottomOf="@id/btnJoinParty" />
 
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="0dp"
+            android:id="@+id/ivLogo"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:adjustViewBounds="true"
-            app:layout_constraintBottom_toTopOf="@+id/btnJoinParty"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/curatelogo" />
+            app:srcCompat="@drawable/ic_curate_letter" />
+
+        <TextView
+            android:id="@+id/tvAppName"
+            style="@style/Curate.TextView.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Curate™"
+            android:textSize="36sp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -88,5 +101,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias=".4" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/llSpotify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/tvSpotify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Powered by "
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_conversion_absoluteHeight="19dp"
+            tools:layout_conversion_absoluteWidth="78dp" />
+
+        <ImageView
+            android:id="@+id/ivSpotifyLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:adjustViewBounds="true"
+            app:layout_constraintBottom_toBottomOf="@+id/tvSpotify"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvSpotify"
+            app:layout_constraintTop_toTopOf="@+id/tvSpotify"
+            app:srcCompat="@drawable/ic_spotify"
+            tools:layout_conversion_absoluteHeight="100dp"
+            tools:layout_conversion_absoluteWidth="334dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
