@@ -26,7 +26,6 @@
         android:textColor="@color/white"
         android:textColorHint="@color/white_70"
         app:layout_constraintEnd_toStartOf="@+id/btnJoin"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,23 +33,25 @@
         android:id="@+id/btnJoin"
         style="@style/Curate.Button.Medium.Submit"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/btn_join_text"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/etJoinCode"
+        app:layout_constraintEnd_toStartOf="@+id/ibScan"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btnScan"
+    <ImageButton
+        android:id="@+id/ibScan"
         style="@style/Curate.Button.Medium"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/btn_scan_text"
-        app:layout_constraintEnd_toEndOf="@+id/btnJoin"
-        app:layout_constraintStart_toStartOf="@+id/etJoinCode"
-        app:layout_constraintTop_toBottomOf="@+id/btnJoin" />
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:src="@android:drawable/ic_menu_camera"
+        app:layout_constraintBottom_toBottomOf="@+id/etJoinCode"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNearby"
@@ -68,5 +69,5 @@
         android:text="@string/find_nearby_parties"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnScan" />
+        app:layout_constraintTop_toBottomOf="@+id/ibScan" />
 </androidx.constraintlayout.widget.ConstraintLayout>

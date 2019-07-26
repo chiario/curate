@@ -126,7 +126,7 @@ public class JoinFragment extends Fragment {
 
     }
 
-    @OnClick(R.id.btnScan)
+    @OnClick(R.id.ibScan)
     public void onScan() {
        IntentIntegrator.forSupportFragment(this)
                .setOrientationLocked(false)
