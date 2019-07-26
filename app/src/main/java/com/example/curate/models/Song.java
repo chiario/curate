@@ -57,10 +57,12 @@ public class Song extends ParseObject {
 		private List<Song> mResults;
 		private String mQuery;
 		private int mNumResults;
+		private boolean mIsLiveSearch;
 
 		public SearchQuery() {
 			mNumResults = DEFAULT_NUM_RESULTS;
 			mQuery = "";
+			mIsLiveSearch = false;
 			mResults = new ArrayList<>();
 		}
 
@@ -83,6 +85,16 @@ public class Song extends ParseObject {
 		}
 
 		/**
+		 * Sets if the search is a live search or not.  If the search is live, it will use the cache
+		 * on the server to speed up results.
+		 * @param isLiveSearch the query to executeSearch for
+		 */
+		public SearchQuery setIsLive(boolean isLiveSearch) {
+			mIsLiveSearch = isLiveSearch;
+			return this;
+		}
+
+		/**
 		 * Gets the executeSearch results.  Should only be called in the callback of the find function
 		 * otherwise will not be populated
 		 * @return a list of songs that matches the executeSearch query
@@ -99,6 +111,7 @@ public class Song extends ParseObject {
 			HashMap<String, Object> params = new HashMap<>();
 			params.put("query", mQuery);
 			params.put("limit", mNumResults);
+			params.put("useCache", mIsLiveSearch);
 
 			ParseCloud.callFunctionInBackground("search", params, (List<Song> results, ParseException e) -> {
 				if (e == null) {
@@ -115,5 +128,6 @@ public class Song extends ParseObject {
 				}
 			});
 		}
+
 	}
 }
