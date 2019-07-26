@@ -49,7 +49,7 @@
         android:text="Test Song Name"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
+        app:layout_constraintEnd_toStartOf="@+id/ivPlayPause"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/ibExpandCollapse"
         app:layout_constraintTop_toBottomOf="@+id/seek_to" />
@@ -86,18 +86,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/skip_prev_button"
+        android:id="@+id/ivPrev"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?attr/actionBarItemBackground"
         android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/play_pause_button"
-        app:layout_constraintStart_toStartOf="@+id/play_pause_button"
-        app:layout_constraintTop_toTopOf="@+id/play_pause_button"
-        app:srcCompat="@drawable/btn_prev" />
+        app:layout_constraintEnd_toEndOf="@+id/ivPlayPause"
+        app:layout_constraintStart_toStartOf="@+id/ivPlayPause"
+        app:layout_constraintTop_toTopOf="@+id/ivPlayPause"
+        app:srcCompat="@drawable/ic_prev" />
 
     <ImageView
-        android:id="@+id/play_pause_button"
+        android:id="@+id/ivPlayPause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -107,16 +107,16 @@
         app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvTitle"
-        app:srcCompat="@drawable/btn_play" />
+        app:srcCompat="@drawable/ic_play" />
 
     <ImageView
-        android:id="@+id/skip_next_button"
+        android:id="@+id/ivNext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?attr/actionBarItemBackground"
         android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/play_pause_button"
-        app:layout_constraintStart_toStartOf="@+id/play_pause_button"
+        app:layout_constraintEnd_toEndOf="@+id/ivPlayPause"
+        app:layout_constraintStart_toStartOf="@+id/ivPlayPause"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/btn_next" />
+        app:srcCompat="@drawable/ic_next" />
 </androidx.constraintlayout.widget.ConstraintLayout>

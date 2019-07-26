@@ -80,20 +80,22 @@
         app:layout_constraintTop_toBottomOf="@id/tvArtist" />
 
     <ImageView
-        android:id="@+id/skip_prev_button"
+        android:id="@+id/ivPrev"
+        style="@style/Curate.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:background="?attr/actionBarItemBackground"
         android:padding="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
+        app:layout_constraintEnd_toStartOf="@+id/ivPlayPause"
         app:layout_constraintStart_toEndOf="@+id/ivAlbum"
-        app:layout_constraintTop_toTopOf="@+id/play_pause_button"
-        app:srcCompat="@drawable/btn_prev" />
+        app:layout_constraintTop_toTopOf="@+id/ivPlayPause"
+        app:srcCompat="@drawable/ic_prev" />
 
     <ImageView
-        android:id="@+id/play_pause_button"
+        android:id="@+id/ivPlayPause"
+        style="@style/Curate.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackgroundBorderless"
@@ -104,10 +106,11 @@
         app:layout_constraintStart_toEndOf="@+id/ivAlbum"
         app:layout_constraintTop_toBottomOf="@id/seek_to"
         app:layout_constraintVertical_bias=".35"
-        app:srcCompat="@drawable/btn_play" />
+        app:srcCompat="@drawable/ic_play" />
 
     <ImageView
-        android:id="@+id/skip_next_button"
+        android:id="@+id/ivNext"
+        style="@style/Curate.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -115,9 +118,9 @@
         android:background="?attr/actionBarItemBackground"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/play_pause_button"
-        app:layout_constraintTop_toTopOf="@+id/play_pause_button"
-        app:srcCompat="@drawable/btn_next" />
+        app:layout_constraintStart_toEndOf="@+id/ivPlayPause"
+        app:layout_constraintTop_toTopOf="@+id/ivPlayPause"
+        app:srcCompat="@drawable/ic_next" />
 
     <ImageButton
         android:id="@+id/ibShare"

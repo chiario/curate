@@ -63,10 +63,10 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
     @BindView(R.id.seek_to) SeekBar mSeekBar;
-    @BindView(R.id.play_pause_button) ImageView mPlayPauseButton;
+    @BindView(R.id.ivPlayPause) ImageView mPlayPauseButton;
     @BindView(R.id.clCurrPlaying) ConstraintLayout mPlayerBackground;
-    @BindView(R.id.skip_prev_button) ImageView mSkipPrevButton;
-    @BindView(R.id.skip_next_button) ImageView mSkipNextButton;
+    @BindView(R.id.ivPrev) ImageView mSkipPrevButton;
+    @BindView(R.id.ivNext) ImageView mSkipNextButton;
     @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
     @BindView(R.id.ibShare) ImageButton ibShare;
 
@@ -154,10 +154,10 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
      */
     private void setPaused(boolean isPaused) {
         if (isPaused) {
-            mPlayPauseButton.setImageResource(R.drawable.btn_play);
+            mPlayPauseButton.setImageResource(R.drawable.ic_play);
             mTrackProgressBar.pause();
         } else {
-            mPlayPauseButton.setImageResource(R.drawable.btn_pause);
+            mPlayPauseButton.setImageResource(R.drawable.ic_pause);
             mTrackProgressBar.unpause();
         }
     }
@@ -174,19 +174,19 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
     }
 
 
-    @OnClick(R.id.skip_prev_button)
+    @OnClick(R.id.ivPrev)
     public void onRestartSong() {
         Bundle bundle = new Bundle();
         bundle.putLong(PLAYBACK_POS_KEY, 0);
         PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_UPDATE, bundle);
     }
 
-    @OnClick(R.id.play_pause_button)
+    @OnClick(R.id.ivPlayPause)
     public void onPlayPause() {
         PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_PLAY_PAUSE, null);
     }
 
-    @OnClick(R.id.skip_next_button)
+    @OnClick(R.id.ivNext)
     public void onSkipNext() {
         PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_SKIP, null);
     }
