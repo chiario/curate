@@ -250,7 +250,7 @@ public class PlayerService extends JobIntentService {
     private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
         if (playerState.track != null) {
             // Only update the party's currently playing song if it has changed
-            if (!playerState.track.uri.equals(mCurrSongId)) {
+            if (!playerState.track.uri.equals(mCurrSongId) && playerState.track.name != null) {
                 Log.d(TAG, "Event with new song " + playerState.track.name + " at plackback position " + playerState.playbackPosition / 1000 + " seconds");
                 mCurrSongId = playerState.track.uri;
                 Bundle bundle = new Bundle();
