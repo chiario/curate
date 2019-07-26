@@ -2,12 +2,15 @@ package com.example.curate.fragments;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.fonts.Font;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -31,15 +34,13 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.curate.PlayerResultReceiver;
+import com.example.curate.PlayerService;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
-import com.example.curate.utils.SpotifyPlayer;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerContext;
-import com.spotify.protocol.types.PlayerState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,8 +48,21 @@ import butterknife.OnClick;
 
 import static android.graphics.Typeface.BOLD;
 import static android.graphics.Typeface.NORMAL;
+import static com.example.curate.PlayerService.ACTION_INIT;
+import static com.example.curate.PlayerService.ACTION_UPDATE;
+import static com.example.curate.PlayerService.ARTIST_KEY;
+import static com.example.curate.PlayerService.DURATION_KEY;
+import static com.example.curate.PlayerService.IMAGE_KEY;
+import static com.example.curate.PlayerService.PAUSED_KEY;
+import static com.example.curate.PlayerService.PLAYBACK_POS_KEY;
+import static com.example.curate.PlayerService.RESULT_ALBUM_ART;
+import static com.example.curate.PlayerService.RESULT_NEW_SONG;
+import static com.example.curate.PlayerService.RESULT_PLAY_PAUSE;
+import static com.example.curate.PlayerService.RESULT_SEEK;
+import static com.example.curate.PlayerService.TITLE_KEY;
 
-public class BottomPlayerAdminFragment extends Fragment {
+public class BottomPlayerAdminFragment extends Fragment implements PlayerResultReceiver.Receiver {
+    private static final String TAG = "BottomPlayerAdmin";
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
@@ -63,8 +77,8 @@ public class BottomPlayerAdminFragment extends Fragment {
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
 
-    private SpotifyPlayer mSpotifyPlayer;
     private LocationManager mLocationManager;
+    private TrackProgressBar mTrackProgressBar;
 
     private String mTrackName = "--";
     private String mArtistName = "--";
@@ -74,6 +88,8 @@ public class BottomPlayerAdminFragment extends Fragment {
     private Typeface mNormalFont;
 
     private LocationCallback mLocationCallback = null;
+
+    public PlayerResultReceiver mPlayerResultReceiver;
 
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
@@ -87,6 +103,17 @@ public class BottomPlayerAdminFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setUpService();
+    }
+
+    /**
+     * This function sets this fragment as a new Receiver for the PlayerService
+     * TODO - prompt Spotify connection here?
+     */
+    private void setUpService() {
+        mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
+        mPlayerResultReceiver.setReceiver(this);
+        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, ACTION_INIT, null);
     }
 
     @Override
@@ -95,11 +122,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_bottom_player_admin, container, false);
         ButterKnife.bind(this, view);
 
-        mSpotifyPlayer = new SpotifyPlayer(getContext(),
-                mPlayerStateEventCallback,
-                mPlayerContextEventCallback,
-                getContext().getString(R.string.clientId),
-                mSeekBar);
+        mTrackProgressBar = new TrackProgressBar(mSeekBar);
 
         mLocationManager = new LocationManager(getContext());
         if(mLocationManager.hasNecessaryPermissions() && Party.getLocationEnabled()) {
@@ -107,6 +130,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         } else {
             mLocationManager.requestPermissions();
         }
+
 
         initFonts();
 
@@ -120,62 +144,46 @@ public class BottomPlayerAdminFragment extends Fragment {
         return view;
     }
 
-    @Override
+    /*@Override
     public void onResume() {
         super.onResume();
         mSpotifyPlayer.checkSpotifyInstalled();
+    }*/
+
+
+    //TODO
+    private void setPaused(boolean isPaused) {
+        if (isPaused) {
+            mPlayPauseButton.setImageResource(R.drawable.btn_play);
+            mTrackProgressBar.pause();
+        } else {
+            mPlayPauseButton.setImageResource(R.drawable.btn_pause);
+            mTrackProgressBar.unpause();
+        }
+    }
+    //TODO
+    private void setTrackDetails(String trackName, String artistName) {
+        mTrackName = trackName;
+        mArtistName = artistName;
+        updateText();
     }
 
-    //Methods for SpotifyPlayer remote player communication
-    /**
-     * Admin's SpotifyPlayer Player Context event callback
-     * Unlocks track progress bar when new track begins
-     */
-    private final Subscription.EventCallback<PlayerContext> mPlayerContextEventCallback = playerContext -> {
-        Log.d("SpotifyPlayer.java", playerContext.toString());
-    };
-
-    /**
-     * Admin's SpotifyPlayer Player State event callback
-     * Updates current song views whenever player state changes, e.g. on pause, play, new track
-     */
-    private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
-        if (playerState.track == null) {
-            mPlayPauseButton.setImageResource(R.drawable.btn_play);
-            mArtistName = "--";
-            mTrackName = "--";
-            updateText();
-        }
-        else {
-            // Set play / pause button
-            if (playerState.isPaused) {
-                mPlayPauseButton.setImageResource(R.drawable.btn_play);
-            }
-            else {
-                mPlayPauseButton.setImageResource(R.drawable.btn_pause);
-            }
-
-            mTrackName = playerState.track.name;
-            mArtistName = playerState.track.artist.name;
-            updateText();
-            // Get image from track
-            mSpotifyPlayer.setAlbumArt(playerState, ivAlbum);
-        }
-    };
 
     @OnClick(R.id.skip_prev_button)
     public void onRestartSong() {
-        mSpotifyPlayer.restartSong();
+        Bundle bundle = new Bundle();
+        bundle.putLong(PLAYBACK_POS_KEY, 0);
+        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_UPDATE, bundle);
     }
 
     @OnClick(R.id.play_pause_button)
     public void onPlayPause() {
-        mSpotifyPlayer.playPause();
+        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_PLAY_PAUSE, null);
     }
 
     @OnClick(R.id.skip_next_button)
     public void onSkipNext() {
-        mSpotifyPlayer.playNextSong();
+        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_SKIP, null);
     }
 
     @OnClick(R.id.ibShare)
@@ -284,6 +292,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         setExpanded(!ibExpandCollapse.isSelected());
     }
 
+    // TODO - Should this be in here??
     public void registerLocationUpdater() {
         mLocationCallback = new LocationCallback() {
             @Override
@@ -342,4 +351,121 @@ public class BottomPlayerAdminFragment extends Fragment {
             }
         }
     }
+
+
+    // Results from the PlayerService
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        Log.d(TAG, "Received result code " + resultCode + " with data " + resultData);
+        if (resultCode == RESULT_PLAY_PAUSE) {
+            if (resultData != null) {
+                boolean isPaused = resultData.getBoolean(PAUSED_KEY);
+                setPaused(isPaused);
+
+            }
+        } else if (resultCode == RESULT_NEW_SONG) {
+            if (resultData != null) {
+                //String newSongId = resultData.getString(SONG_ID_KEY);
+                long newDuration = resultData.getLong(DURATION_KEY);
+                String newTitle = resultData.getString(TITLE_KEY);
+                String newArtist = resultData.getString(ARTIST_KEY);
+                long playbackPos = resultData.getLong(PLAYBACK_POS_KEY);
+                boolean isPaused = resultData.getBoolean(PAUSED_KEY);
+                //TODO - update song information
+                mTrackProgressBar.setDuration(newDuration);
+                mTrackProgressBar.update(playbackPos);
+                setTrackDetails(newTitle, newArtist);
+                setPaused(isPaused);
+            }
+        } else if (resultCode == RESULT_ALBUM_ART) {
+            if (resultData != null) {
+                // Decode byte array into bitmap
+                byte[] byteArray = resultData.getByteArray(IMAGE_KEY);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                ivAlbum.setImageBitmap(bitmap);
+            }
+        } else if (resultCode == RESULT_SEEK) {
+            if (resultData != null) {
+                long seekTo = resultData.getLong(PLAYBACK_POS_KEY);
+                mTrackProgressBar.update(seekTo);
+            }
+        }
+    }
+
+    public class TrackProgressBar {
+        private static final int NEXT_SONG_DELAY = 1000;
+        private static final int LOOP_DURATION = 500;
+        private SeekBar mSeekBar;
+        private Handler mHandler;
+        private boolean mIsBeingTouched;
+
+        public TrackProgressBar(SeekBar seekBar) {
+            mSeekBar = seekBar;
+            mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+            mHandler = new Handler();
+            mIsBeingTouched = false;
+        }
+
+        private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener
+                = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                /*int timeRemaining = mSeekBar.getMax() - progress;
+                if (timeRemaining < NEXT_SONG_DELAY && !mIsBeingTouched) {
+                    mHandler.removeCallbacks(mSeekRunnable);
+                    playNextSong();
+                }*/
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                mIsBeingTouched = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                long timeRemaining = mSeekBar.getMax() - seekBar.getProgress();
+                long progress = timeRemaining > NEXT_SONG_DELAY ? seekBar.getProgress() : mSeekBar.getMax() - NEXT_SONG_DELAY;
+
+                // Alert service to update playback position
+                Bundle bundle = new Bundle();
+                bundle.putLong(PLAYBACK_POS_KEY, progress);
+                PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, ACTION_UPDATE, bundle);
+                mIsBeingTouched = false; // TODO
+            }
+        };
+
+        private final Runnable mSeekRunnable = new Runnable() {
+            @Override
+            public void run() {
+                int progress = mSeekBar.getProgress();
+                mSeekBar.setProgress(progress + LOOP_DURATION);
+                mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
+            }
+        };
+
+        public void setDuration(long duration) {
+            mSeekBar.setMax((int) duration);
+        }
+
+        public void update(long progress) {
+            mSeekBar.setProgress((int) progress);
+            mHandler.removeCallbacks(mSeekRunnable);
+            mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
+        }
+
+        public void pause() {
+            mHandler.removeCallbacks(mSeekRunnable);
+        }
+
+        public void unpause() {
+            mHandler.removeCallbacks(mSeekRunnable);
+            mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
+        }
+
+        public void setEnabled(boolean isEnabled) {
+            mSeekBar.setEnabled(isEnabled);
+        }
+    }
+
 }

@@ -31,7 +31,6 @@ import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.LocationManager;
-import com.example.curate.utils.SpotifyPlayer;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.parse.ParseException;

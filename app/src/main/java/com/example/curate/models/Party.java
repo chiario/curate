@@ -576,7 +576,7 @@ public class Party extends ParseObject {
             }
         });
     }
-
+//TODO - update ParseCloud "setCurrentlyPlaying"
     /**
      * Gets the party's current song.
      * @return the current song

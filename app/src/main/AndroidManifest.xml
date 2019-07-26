@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />  <!--TODO - not sure if needed? one source says this is needed for pre-Oreo devices and "BIND_JOB_SERVICE" is for Oreo-->
 
     <application
         android:name=".ParseApp"
@@ -32,6 +33,11 @@
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait" />
+        <service
+            android:name=".PlayerService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false" />
+            <!-- exported attribute set to false so service cannot be executed by other applications -->
 
         <meta-data
             android:name="preloaded_fonts"
