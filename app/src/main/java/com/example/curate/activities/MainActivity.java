@@ -2,12 +2,15 @@ package com.example.curate.activities;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.res.Resources;
@@ -47,8 +50,11 @@ import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
 import com.example.curate.models.Party;
+import com.example.curate.models.User;
 import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.parse.ParseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -118,6 +124,22 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         createNotification();
         initSearchBarAnimations();
+
+        ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(() -> {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Party Deleted")
+                            .setMessage("This party has been deleted by the admin.")
+                            .setPositiveButton("Return to menu", (dialogInterface, i) -> {
+                                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                                startActivity(intent);
+                            });
+                    builder.show();
+                }
+            });
+        });
     }
 
     private void initializeFragments(Bundle savedInstanceState) {

@@ -33,6 +33,7 @@ public class Party extends ParseObject {
     private static Party mCurrentParty;
     private List<PlaylistEntry> mPlaylist;
     private List<SaveCallback> mPlaylistUpdateCallbacks;
+    private User mUser;
 
     public Party() {}
 
@@ -50,6 +51,9 @@ public class Party extends ParseObject {
         parseQuery.include(CURRENTLY_PLAYING_KEY);
         parseQuery.whereEqualTo("objectId", getObjectId());
         SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
+
+        mUser = (User) ParseUser.getCurrentUser();
+        mUser.registerPartyDeletedListener(() -> mCurrentParty = null);
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
@@ -606,6 +610,12 @@ public class Party extends ParseObject {
         return false;
     }
 
+    /***
+     * Saves all settings for the current party
+     * @param locationEnabled whether location is enabled
+     * @param partyName name for the party
+     * @param callback callback to be called after server response
+     */
     public static void saveSettings(boolean locationEnabled, String partyName, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(LOCATION_PERMISSION_KEY, locationEnabled);
