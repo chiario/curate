@@ -42,7 +42,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.curate.R;
 import com.example.curate.fragments.BottomPlayerAdminFragment;
 import com.example.curate.fragments.BottomPlayerClientFragment;
-import com.example.curate.fragments.InfoDialogAdminFragment;
+import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
@@ -53,7 +53,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogAdminFragment.OnDeleteListener, SettingsDialogFragment.OnSaveListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogFragment.OnDeleteListener, SettingsDialogFragment.OnSaveListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -182,9 +182,9 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
             String name = mParty.getName();
             String joinCode = mParty.getJoinCode();
 
-            InfoDialogAdminFragment infoDialogAdminFragment = InfoDialogAdminFragment.newInstance(name, joinCode, mIsAdmin);
-            infoDialogAdminFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
-            infoDialogAdminFragment.show(mFragmentManager, "fragment_party_info");
+            InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
+            infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
+            infoDialogFragment.show(mFragmentManager, "fragment_party_info");
             return true;
         });
         miSettings.setOnMenuItemClickListener(menuItem -> {

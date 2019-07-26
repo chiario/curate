@@ -23,7 +23,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class InfoDialogAdminFragment extends DialogFragment {
+public class InfoDialogFragment extends DialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String JOIN_CODE_KEY = "joinCode";
 
@@ -42,18 +42,18 @@ public class InfoDialogAdminFragment extends DialogFragment {
         void onLeaveQueue();
     }
 
-    public InfoDialogAdminFragment() {
+    public InfoDialogFragment() {
         // Required empty public constructor
     }
 
-    public static InfoDialogAdminFragment newInstance(String partyName, String joinCode, Boolean isAdmin) {
+    public static InfoDialogFragment newInstance(String partyName, String joinCode, Boolean isAdmin) {
         mIsAdmin = isAdmin;
-        InfoDialogAdminFragment infoDialogAdminFragment = new InfoDialogAdminFragment();
+        InfoDialogFragment infoDialogFragment = new InfoDialogFragment();
         Bundle args = new Bundle();
         args.putString(PARTY_NAME_KEY, partyName);
         args.putString(JOIN_CODE_KEY, joinCode);
-        infoDialogAdminFragment.setArguments(args);
-        return infoDialogAdminFragment;
+        infoDialogFragment.setArguments(args);
+        return infoDialogFragment;
     }
 
 
