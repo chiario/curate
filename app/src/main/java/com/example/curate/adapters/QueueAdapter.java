@@ -173,7 +173,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			tvArtist.setText(song.getArtist());
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(entry.isLikedByUser());
-			ibRemove.setSelected(false);
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
@@ -185,6 +184,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		 * @param isLoading if true, show the loading animation; if false, hide it
 		 */
 		public void showLoading(boolean isLoading) {
+			if(!Party.getCurrentParty().isCurrentUserAdmin()) return;
 			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
 			ibRemove.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
 		}
