@@ -125,21 +125,17 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         createNotification();
         initSearchBarAnimations();
 
-        ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(() -> {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("Party Deleted")
-                            .setMessage("This party has been deleted by the admin.")
-                            .setPositiveButton("Return to menu", (dialogInterface, i) -> {
-                                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                                startActivity(intent);
-                            });
-                    builder.show();
-                }
-            });
-        });
+        ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mainActivity -> runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+            builder.setTitle("Party Deleted")
+                    .setMessage("This party has been deleted by the admin.")
+                    .setPositiveButton("Return to menu", (dialogInterface, i) -> {
+                        Intent intent = new Intent(mainActivity, JoinActivity.class);
+                        startActivity(intent);
+                        Party.partyDeleted();
+                    });
+            builder.show();
+        }), this);
     }
 
     private void initializeFragments(Bundle savedInstanceState) {

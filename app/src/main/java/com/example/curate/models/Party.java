@@ -52,9 +52,6 @@ public class Party extends ParseObject {
         parseQuery.whereEqualTo("objectId", getObjectId());
         SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
 
-        mUser = (User) ParseUser.getCurrentUser();
-        mUser.registerPartyDeletedListener(() -> mCurrentParty = null);
-
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
             Song currentlyPlaying = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
@@ -67,7 +64,6 @@ public class Party extends ParseObject {
                 }
             });
         });
-
     }
 
 
@@ -125,6 +121,10 @@ public class Party extends ParseObject {
                 callback.done(e);
             }
         });
+    }
+
+    public static void partyDeleted() {
+        mCurrentParty = null;
     }
 
     /***

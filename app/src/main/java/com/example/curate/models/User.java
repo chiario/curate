@@ -1,5 +1,6 @@
 package com.example.curate.models;
 
+import com.example.curate.activities.MainActivity;
 import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseQuery;
@@ -13,13 +14,16 @@ import java.util.List;
 @ParseClassName("_User")
 public class User extends ParseUser {
 
+	private static MainActivity mParentActivity;
+
 	public interface PartyDeletedListener {
-		void onPartyDeleted();
+		void onPartyDeleted(MainActivity mainActivity);
 	}
 
 	private List<PartyDeletedListener> partyDeletedListeners;
 
-	public void initialize() {
+	public void initialize(MainActivity mainActivity) {
+		mParentActivity = mainActivity;
 		ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
 		ParseQuery<ParseUser> parseQuery = ParseQuery.getQuery(ParseUser.class);
 		parseQuery.include("currParty");
@@ -27,16 +31,18 @@ public class User extends ParseUser {
 		SubscriptionHandling<ParseUser> userHandler = parseLiveQueryClient.subscribe(parseQuery);
 		partyDeletedListeners = new ArrayList<>();
 		userHandler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, object) -> {
-			if(object.get("currParty") == null) {
+			if(object.get("currParty") == null && partyDeletedListeners != null) {
 				for(PartyDeletedListener listener : partyDeletedListeners) {
-					listener.onPartyDeleted();
+					listener.onPartyDeleted(mParentActivity);
 				}
+				partyDeletedListeners = null;
 			}
 		});
 	}
 
-	public void registerPartyDeletedListener(PartyDeletedListener partyDeletedListener) {
-		if(partyDeletedListeners == null) initialize();
+	public void registerPartyDeletedListener(PartyDeletedListener partyDeletedListener,
+	                                         MainActivity mainActivity) {
+		if(partyDeletedListeners == null) initialize(mainActivity);
 		partyDeletedListeners.add(partyDeletedListener);
 	}
 
