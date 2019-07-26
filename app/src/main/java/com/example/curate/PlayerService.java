@@ -14,6 +14,7 @@ import androidx.core.app.JobIntentService;
 
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
+import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.PlayerApi;
@@ -69,6 +70,9 @@ public class PlayerService extends JobIntentService {
     private long mTimeRemaining;
     private String mCurrSongId;
 
+    private SaveCallback mPlaylistUpdatedCallback;
+    private List<PlaylistEntry> mPlaylist;
+
 
 
     // Default constructor
@@ -82,6 +86,9 @@ public class PlayerService extends JobIntentService {
         mContext = getApplicationContext();
         CLIENT_ID = getString(R.string.clientId);
         connectSpotifyRemote(); //TODO check installation first
+        mPlaylist = Party.getCurrentParty().getPlaylist();
+        Log.d(TAG, "Got playlist " + mPlaylist);
+        initializePlaylistUpdateCallback();
     }
 
 
@@ -266,6 +273,7 @@ public class PlayerService extends JobIntentService {
                 Log.d(TAG, "Event with playback position " + playerState.playbackPosition / 1000 + " seconds");
                 Bundle bundle = new Bundle();
                 bundle.putLong(PLAYBACK_POS_KEY, playerState.playbackPosition);
+                bundle.putBoolean(PAUSED_KEY, playerState.isPaused);
                 mResultReceiver.send(RESULT_SEEK, bundle);
             }
 
@@ -279,6 +287,19 @@ public class PlayerService extends JobIntentService {
             }
         }
     };
+
+
+
+// call this on create
+    private void initializePlaylistUpdateCallback() {
+        mPlaylistUpdatedCallback = e -> {
+            // do something
+            mPlaylist = Party.getCurrentParty().getPlaylist();
+            Log.d(TAG, "Playlist updated to " + mPlaylist);
+        };
+        Party.getCurrentParty().registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+    }
+
 
 
     /**
@@ -323,9 +344,16 @@ public class PlayerService extends JobIntentService {
         if (mPlayerApi != null) {
             mPlayerApi.play("spotify:track:" + spotifyId)
                     .setResultCallback(empty -> {
-                mPlayerApi.getPlayerState()
-                        .setResultCallback(playerState -> Log.d(TAG, "Play success"))
-                        .setErrorCallback(throwable -> Log.e(TAG, "Play error", throwable));
+                        Party.getCurrentParty().setCurrentlyPlaying(spotifyId, e -> {
+                            if (e == null) {
+                                Log.d(TAG, "Set currently playing success!");
+                            } else {
+                                Log.e(TAG, "Error setting curerntly playing song", e);
+                            }
+                        });
+                        mPlayerApi.getPlayerState()
+                                .setResultCallback(playerState -> Log.d(TAG, "Play success"))
+                                .setErrorCallback(throwable -> Log.e(TAG, "Play error", throwable));
             });
         }
     }
@@ -340,14 +368,13 @@ public class PlayerService extends JobIntentService {
      * @return the spotify ID of the song to be played
      */
     private String retrieveNextSong() {
-        List<PlaylistEntry> playlist = Party.getCurrentParty().getPlaylist();
-        if(playlist.isEmpty()) {
+        if(mPlaylist.isEmpty()) {
             Log.e(TAG, "Playlist is empty!");
             //TODO - Toast
             return null;
         }
-        String spotifyId = playlist.get(0).getSong().getSpotifyId();
-        playlist.remove(0); //TODO ???
+        String spotifyId = mPlaylist.get(0).getSong().getSpotifyId();
+        mPlaylist.remove(0); //TODO ???
         return spotifyId;
     }
 

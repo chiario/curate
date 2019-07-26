@@ -108,11 +108,11 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
 
     /**
      * This function sets this fragment as a new Receiver for the PlayerService
-     * TODO - prompt Spotify connection here?
      */
     private void setUpService() {
         mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
         mPlayerResultReceiver.setReceiver(this);
+        // This INIT call effectively creates the service by spawning a new worker thread
         PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, ACTION_INIT, null);
     }
 
@@ -151,7 +151,11 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
     }*/
 
 
-    //TODO
+    /**
+     * Updates the play/pause button to the correct drawable and sets the play/pause state for
+     * the TrackProgressBar based on the input
+     * @param isPaused
+     */
     private void setPaused(boolean isPaused) {
         if (isPaused) {
             mPlayPauseButton.setImageResource(R.drawable.btn_play);
@@ -161,7 +165,12 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
             mTrackProgressBar.unpause();
         }
     }
-    //TODO
+
+    /**
+     * Updates the track and artist name in the view
+     * @param trackName name of currently playing track
+     * @param artistName name of current track's artist
+     */
     private void setTrackDetails(String trackName, String artistName) {
         mTrackName = trackName;
         mArtistName = artistName;
@@ -353,7 +362,12 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
     }
 
 
-    // Results from the PlayerService
+    /**
+     * Method overwritten from the PlayerResultReceiver.
+     * Receives results from the PlayerService.
+     * @param resultCode determines type of result passed from PlayerService
+     * @param resultData data bundle passed from PlayerService
+     */
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         Log.d(TAG, "Received result code " + resultCode + " with data " + resultData);
@@ -387,7 +401,9 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
         } else if (resultCode == RESULT_SEEK) {
             if (resultData != null) {
                 long seekTo = resultData.getLong(PLAYBACK_POS_KEY);
+                boolean isPaused = resultData.getBoolean(PAUSED_KEY);
                 mTrackProgressBar.update(seekTo);
+                setPaused(isPaused);
             }
         }
     }
