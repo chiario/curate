@@ -26,6 +26,7 @@ import com.example.curate.activities.MainActivity;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.models.Song;
+import com.example.curate.utils.LiveSearchManager;
 
 import java.util.ArrayList;
 
@@ -46,6 +47,7 @@ public class SearchFragment extends Fragment {
 	@BindView(R.id.tvDescription) TextView tvDescription;
 
 	SearchAdapter mAdapter;
+	LiveSearchManager mLiveSearchManager;
 
 	public SearchFragment() {
 		// Required empty public constructor
@@ -65,16 +67,24 @@ public class SearchFragment extends Fragment {
 
 	/***
 	 * Execute a search for the given string
-	 * @param searchText the string to search for
+	 * @param query the string to search for
 	 */
-	public void executeSearch(String searchText) {
-		progressBar.setVisibility(View.VISIBLE);
-		mAdapter.clear();
-		hideText();
-		loadData(searchText);
+	public void executeSearch(String query) {
+		if(!mLiveSearchManager.isSearchComplete()) {
+			mLiveSearchManager.cancelPendingSearches();
+			progressBar.setVisibility(View.VISIBLE);
+			mAdapter.clear();
+			hideText();
+			loadData(query);
+		}
 	}
 
-	public void newSearch() {
+	public void updateLiveSearch(String query) {
+		hideText();
+		mLiveSearchManager.updateQuery(query);
+	}
+
+	public void clearSearch() {
 		progressBar.setVisibility(View.INVISIBLE);
 		mAdapter.clear();
 		showSearchDesciption(null);
@@ -84,7 +94,7 @@ public class SearchFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		newSearch();
+		clearSearch();
 	}
 
 	@Override
@@ -128,10 +138,18 @@ public class SearchFragment extends Fragment {
 		// Set mAdapter, layout manger, and item decorations
 		rvSearch.setAdapter(mAdapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
-//		rvSearch.addItemDecoration(new DividerItemDecoration(rvSearch.getContext(),
-//				DividerItemDecoration.VERTICAL));
-	}
 
+		mLiveSearchManager = new LiveSearchManager((query, results) -> {
+			mAdapter.clear();
+			if(query.isEmpty() || results.isEmpty()) {
+				showSearchDesciption(null);
+				showText(getString(R.string.new_search));
+			} else {
+				showSearchDesciption(query);
+				mAdapter.addAll(results);
+			}
+		});
+	}
 
 	/***
 	 * Load the search results

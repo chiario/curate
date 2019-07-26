@@ -8,9 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.res.Resources;
@@ -18,7 +16,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,7 +27,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -53,7 +49,6 @@ import com.example.curate.models.Party;
 import com.example.curate.models.User;
 import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.parse.ParseUser;
 
 import butterknife.BindView;
@@ -176,21 +171,21 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             miSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    search(miSearchView, query);
-                    miSearchView.clearFocus();
+                    search(query, miSearchView);
                     return true;
                 }
 
                 @Override
-                public boolean onQueryTextChange(String newText) {
-                    return false;
+                public boolean onQueryTextChange(String query) {
+                    liveSearch(query);
+                    return true;
                 }
             });
 
             miSearchView.setOnQueryTextFocusChangeListener((view, hasFocus) -> {
                 if(hasFocus) {
                     display(mSearchFragment);
-                    mSearchFragment.newSearch();
+//                    mSearchFragment.clearSearch();
                     showKeyboard(view);
                     animateSearchbar(true);
                 }
@@ -248,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             case KEY_QUEUE_FRAGMENT:
                 break;
             case KEY_SEARCH_FRAGMENT:
-                mActiveFragment = mQueueFragment;
+                display(mQueueFragment);
                 miSearchView.setQuery("", false);
                 animateSearchbar(false);
                 break;
@@ -338,10 +333,16 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         }
     }
 
-    private void search(SearchView v, String query) {
+    private void search(String query, SearchView v) {
         display(mSearchFragment);
         mSearchFragment.executeSearch(query);
         hideKeyboard(v);
+        miSearchView.clearFocus();
+    }
+
+    private void liveSearch(String query) {
+        display(mSearchFragment);
+        mSearchFragment.updateLiveSearch(query);
     }
 
 
