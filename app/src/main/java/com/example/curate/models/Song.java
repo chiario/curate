@@ -76,12 +76,19 @@ public class Song extends ParseObject {
 		}
 
 		/**
-		 * Sets the executeSearch query.  Does not have to be URL encoded.
+		 * Sets the search query.  Does not have to be URL encoded.
 		 * @param query the query to executeSearch for
 		 */
 		public SearchQuery setQuery(String query) {
 			mQuery = query;
 			return this;
+		}
+
+		/**
+		 * @return the search query
+		 */
+		public String getQuery() {
+			return mQuery;
 		}
 
 		/**
@@ -112,6 +119,15 @@ public class Song extends ParseObject {
 			params.put("query", mQuery);
 			params.put("limit", mNumResults);
 			params.put("useCache", mIsLiveSearch);
+
+			// Default to an empty result list if the query is empty
+			if(mQuery.isEmpty()) {
+				// Run the callback if it exists
+				if(callback != null) {
+					callback.done(null);
+				}
+				return;
+			}
 
 			ParseCloud.callFunctionInBackground("search", params, (List<Song> results, ParseException e) -> {
 				if (e == null) {
