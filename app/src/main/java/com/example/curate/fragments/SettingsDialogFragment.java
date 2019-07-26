@@ -95,6 +95,11 @@ public class SettingsDialogFragment extends DialogFragment {
             Boolean newLocationEnabled = switchLocation.isChecked();
             Party.saveSettings(newLocationEnabled, newName, e -> {
                 if(e == null) {
+                    if(newLocationEnabled) {
+                        ((MainActivity) getActivity()).getBottomPlayerFragment().registerLocationUpdater();
+                    } else {
+                        ((MainActivity) getActivity()).getBottomPlayerFragment().deregisterLocationUpdater();
+                    }
                     dismiss();
                 } else {
                     Toast.makeText(getContext(), "Could not save settings", Toast.LENGTH_SHORT).show();
