@@ -84,7 +84,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public void onItemSwipedRemove(RecyclerView.ViewHolder viewHolder) {
 		mIsSwiping = true;
 		ViewHolder vh = (ViewHolder) viewHolder;
-		vh.onClickRemove(vh.ibRemove);
+		vh.onClickRemove();
 	}
 
 	public void onItemSwipedLike(RecyclerView.ViewHolder viewHolder) {
@@ -118,7 +118,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 
 		@OnClick(R.id.ibDelete)
-		public void onClickRemove(View v) {
+		public void onClickRemove() {
 			if(isUpdating) return;
 			isUpdating = true;
 			showLoading(true);

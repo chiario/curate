@@ -88,7 +88,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	public void onItemSwipedAdd(RecyclerView.ViewHolder viewHolder) {
 		mIsSwiping = true;
 		SearchAdapter.ViewHolder vh = (SearchAdapter.ViewHolder) viewHolder;
-		vh.onClickAdd(vh.ibLike);
+		vh.onClickAdd();
 	}
 
 	public boolean isSwiping() {
@@ -113,7 +113,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		}
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
-		public void onClickAdd(View v) {
+		public void onClickAdd() {
 			mMainActivity.updateInteractionTime();
 			if(mIsAdding) return;
 			mIsAdding = true;

@@ -273,12 +273,12 @@ public class BottomPlayerAdminFragment extends Fragment {
     }
 
     @OnClick(R.id.clCurrPlaying)
-    public void onClickClCurrPlaying(View v) {
+    public void onClickClCurrPlaying() {
         setExpanded(!ibExpandCollapse.isSelected());
     }
 
     @OnClick(R.id.ibExpandCollapse)
-    public void onClickExpandCollapse(View v) {
+    public void onClickExpandCollapse() {
         setExpanded(!ibExpandCollapse.isSelected());
     }
 

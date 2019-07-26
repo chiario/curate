@@ -80,7 +80,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 		}
 
 		@OnClick(R.id.btnJoin)
-		public void onClickJoin(View v) {
+		public void onClickJoin() {
 			Party party = mParties.get(getAdapterPosition());
 			Party.joinParty(party.getJoinCode(), e -> {
 				if(e == null) {

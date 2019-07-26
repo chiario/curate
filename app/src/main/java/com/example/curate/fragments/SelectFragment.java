@@ -101,7 +101,7 @@ public class SelectFragment extends Fragment {
     }
 
     @OnClick(R.id.btnCreateParty)
-    public void onCreateParty(View view) {
+    public void onCreateParty() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         EditText etName = new EditText(getContext());
         builder.setTitle("Give your party a name...")
@@ -124,7 +124,7 @@ public class SelectFragment extends Fragment {
     }
 
     @OnClick(R.id.btnJoinParty)
-    public void onJoinParty(View view) {
+    public void onJoinParty() {
         mListener.onJoinPartySelected();
     }
 
