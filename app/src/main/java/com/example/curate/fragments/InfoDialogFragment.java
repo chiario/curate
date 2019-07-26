@@ -67,7 +67,7 @@ public class InfoDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_info_dialog_admin, container, false);
+        return inflater.inflate(R.layout.fragment_info_dialog, container, false);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class InfoDialogFragment extends DialogFragment {
         // Get QR code
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            // TODO: Fix hardcoded size
+            // TODO: Fix hardcoded size?
             Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 300, 300);
             ivQR.setImageBitmap(bitmap);
         }
@@ -99,8 +99,6 @@ public class InfoDialogFragment extends DialogFragment {
         // Populate views with party information
         if (partyName != null) {
             tvPartyName.setText(partyName);
-        } else {
-            tvPartyName.setHint("Add a party name...");
         }
         tvJoinCode.setText(joinCode);
         int count = Party.getPartyUserCount();
