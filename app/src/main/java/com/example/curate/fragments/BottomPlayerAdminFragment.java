@@ -73,6 +73,8 @@ public class BottomPlayerAdminFragment extends Fragment {
     private Typeface mBoldFont;
     private Typeface mNormalFont;
 
+    private LocationCallback mLocationCallback = null;
+
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
     }
@@ -283,8 +285,7 @@ public class BottomPlayerAdminFragment extends Fragment {
     }
 
     public void registerLocationUpdater() {
-        // Update location when user moves
-        mLocationManager.registerLocationUpdateCallback(new LocationCallback() {
+        mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(locationResult.getLastLocation()), e -> {
@@ -296,7 +297,10 @@ public class BottomPlayerAdminFragment extends Fragment {
                     }
                 });
             }
-        });
+        };
+
+        // Update location when user moves
+        mLocationManager.registerLocationUpdateCallback(mLocationCallback);
 
         // Force update location at least once
         mLocationManager.getCurrentLocation(location -> {
@@ -314,22 +318,13 @@ public class BottomPlayerAdminFragment extends Fragment {
     }
 
     public void deregisterLocationUpdater() {
-        mLocationManager.deregisterLocationUpdateCallback(new LocationCallback() {
-            /*// TODO - Override methods?
-
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-            }
-
-            @Override
-            public void onLocationAvailability(LocationAvailability locationAvailability) {
-                super.onLocationAvailability(locationAvailability);
-                Log.d("MainActivity", "Location availability: " + locationAvailability.isLocationAvailable());
-            }*/
-        });
+        if(mLocationCallback == null) return;
+        mLocationManager.deregisterLocationUpdateCallback(mLocationCallback);
         Party.clearLocation(e -> {
-            if (e != null) {
+            if(e == null) {
+                mLocationCallback = null;
+            } else {
+                registerLocationUpdater();
                 Log.e("MainActivity", "Couldn't clear location!", e);
             }
         }); // TODO - fix this synchronization error (The methods in LocationCallback are never called so we can't clear this in the callback?)
