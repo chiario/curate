@@ -8,8 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LiveSearchManager {
+    // The minimum time between key presses before a new search request is performed
     private static final int DEBOUNCE_TIME = 50; // milliseconds
 
+    /**
+     * Interface used for passing search result data to callback functions
+     */
+    public interface SearchCallback {
+        void onSearchCompleted(String query, List<Song> results);
+    }
+
+    /**
+     * This class represents a live search request made to the server
+     */
     private class SearchRequest implements Runnable {
         Song.SearchQuery query;
         long createdTime;
@@ -46,10 +57,6 @@ public class LiveSearchManager {
         }
     }
 
-    public interface SearchCallback {
-        void onSearchCompleted(String query, List<Song> results);
-    }
-
     private String desiredQuery;
     private SearchRequest mostRecentlyCompleted;
     private Handler mHandlerThread;
@@ -62,6 +69,9 @@ public class LiveSearchManager {
         mPendingSearches = new ArrayList<>();
     }
 
+    /**
+     * Cancels all pending searches
+     */
     public void cancelPendingSearches() {
         for(SearchRequest request : mPendingSearches) {
             request.isCancelled = true;
@@ -69,6 +79,10 @@ public class LiveSearchManager {
         mPendingSearches.clear();
     }
 
+    /**
+     * Updates the desired query that the live query is getting results for
+     * @param newQuery the new desired query
+     */
     public void updateQuery(String newQuery) {
         desiredQuery = newQuery;
         SearchRequest request = new SearchRequest(newQuery, System.currentTimeMillis());
@@ -76,11 +90,19 @@ public class LiveSearchManager {
         mHandlerThread.postDelayed(request, DEBOUNCE_TIME);
     }
 
+    /**
+     * @return true if the live query results are up to date with the desired query
+     */
     public boolean isSearchComplete() {
-        if(!desiredQuery.equals(mostRecentlyCompleted.query.getQuery())) return false;
-        if(desiredQuery.isEmpty()) return true;
-        if(mostRecentlyCompleted.query.getResults().isEmpty()) return false;
-        return true;
+        Song.SearchQuery completed = mostRecentlyCompleted.query;
+
+        // Ensure the most recently completed search matches the desired query
+        if(!desiredQuery.equals(completed.getQuery())) {
+            return false;
+        }
+
+        // The results page should not be empty unless we have an empty query
+        return desiredQuery.isEmpty() || !completed.getResults().isEmpty();
     }
 
 }
