@@ -20,7 +20,7 @@ public class ItemTouchHelperCallbacks {
 
 	private Context mContext;
 
-	private ColorDrawable background = new ColorDrawable(); // Cached for performance
+	private final ColorDrawable background = new ColorDrawable(); // Cached for performance
 
 	public ItemTouchHelperCallbacks(RecyclerView.Adapter adapter, Context context) {
 		mAdapter = adapter;
@@ -34,7 +34,9 @@ public class ItemTouchHelperCallbacks {
 		}
 
 		@Override
-		public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+		public boolean onMove(@NonNull RecyclerView recyclerView,
+		                      @NonNull RecyclerView.ViewHolder viewHolder,
+		                      @NonNull RecyclerView.ViewHolder target) {
 			return false;
 		}
 
@@ -44,21 +46,33 @@ public class ItemTouchHelperCallbacks {
 		}
 
 		@Override
-		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
+		                        float dY, int actionState, boolean isCurrentlyActive) {
+
 			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
 			}
+
 			View itemView = viewHolder.itemView;
+
+			// Check for positive displacement
 			if(dX > 0) {
 				int height = itemView.getBottom() - itemView.getTop();
 				int width = height / 3;
+
+				// Draw background
 				background.setColor(mContext.getResources().getColor(R.color.darkBlue));
-				background.setBounds(0, itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
+				background.setBounds(0, itemView.getTop(),
+						itemView.getLeft() + (int) dX, itemView.getBottom());
 				background.draw(c);
+
+				// Draw icon
 				Drawable d = mContext.getDrawable(R.drawable.ic_circle_cancel);
 				d.setTint(mContext.getResources().getColor(R.color.white));
-				d.setBounds(itemView.getLeft() + width, itemView.getTop() + width, itemView.getLeft()+ 2*width, itemView.getBottom() - width);
+				d.setBounds(itemView.getLeft() + width, itemView.getTop() + width,
+						itemView.getLeft() + 2 * width, itemView.getBottom() - width);
 				d.draw(c);
 			}
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -83,7 +97,9 @@ public class ItemTouchHelperCallbacks {
 		}
 
 		@Override
-		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
+		                        float dY, int actionState, boolean isCurrentlyActive) {
 			if (viewHolder.getAdapterPosition() == NO_POSITION || ((QueueAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
@@ -96,12 +112,15 @@ public class ItemTouchHelperCallbacks {
 			int height = itemView.getBottom() - itemView.getTop();
 			int width = height / 3;
 			if(dX < 0) {
+				// Draw background
 				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
 				background.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight() + (int) dX, itemView.getBottom());
 				background.draw(c);
+
+				// Draw icon
 				Drawable d = mContext.getDrawable(R.drawable.ic_favorite);
 				d.setTint(mContext.getResources().getColor(R.color.white));
-				d.setBounds(itemView.getRight() - 2*width , itemView.getTop() + width, itemView.getRight() - width,itemView.getBottom() - width);
+				d.setBounds(itemView.getRight() - 2 * width , itemView.getTop() + width, itemView.getRight() - width,itemView.getBottom() - width);
 				d.draw(c);
 			}
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -125,7 +144,9 @@ public class ItemTouchHelperCallbacks {
 		}
 
 		@Override
-		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
+		                        float dY, int actionState, boolean isCurrentlyActive) {
 			if (viewHolder.getAdapterPosition() == NO_POSITION || ((SearchAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder, 0, dY, actionState, isCurrentlyActive);
 				return;
@@ -135,12 +156,17 @@ public class ItemTouchHelperCallbacks {
 			int height = itemView.getBottom() - itemView.getTop();
 			int width = height / 3;
 			if(dX < 0) {
+				// Draw background
 				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
-				background.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight() + (int) dX, itemView.getBottom());
+				background.setBounds(itemView.getRight(), itemView.getTop(),
+						itemView.getRight() + (int) dX, itemView.getBottom());
 				background.draw(c);
+
+				// Draw icon
 				Drawable d = mContext.getDrawable(R.drawable.ic_add);
 				d.setTint(mContext.getResources().getColor(R.color.white));
-				d.setBounds(itemView.getRight() - 2*width , itemView.getTop() + width, itemView.getRight() - width,itemView.getBottom() - width);
+				d.setBounds(itemView.getRight() - 2 * width , itemView.getTop() + width,
+						itemView.getRight() - width,itemView.getBottom() - width);
 				d.draw(c);
 			}
 

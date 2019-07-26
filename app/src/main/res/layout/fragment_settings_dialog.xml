@@ -28,21 +28,22 @@
 
     <EditText
         android:id="@+id/etName"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white_60"
-        android:textSize="22sp"
-        android:background="@null"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:background="@null"
         android:hint="Add a party name..."
         android:paddingBottom="8dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_60"
+        android:textSize="28sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar" />
+
     <Switch
         android:id="@+id/switchLocation"
-        style="@style/Curate.TextView.Settings.Primary"
+        style="@style/Curate.TextView.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -52,35 +53,27 @@
         app:layout_constraintTop_toBottomOf="@+id/etName" />
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clUserLimit"
-        android:layout_width="0dp"
+
+
+    <TextView
+        android:id="@+id/tvUserLimitText"
+        style="@style/Curate.TextView.Title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Set a user limit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switchLocation">
+        app:layout_constraintTop_toBottomOf="@+id/switchLocation"/>
 
-        <TextView
-            android:id="@+id/tvUserLimitText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Set a user limit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            style="@style/Curate.TextView.Settings.Primary"/>
-
-        <TextView
-            android:id="@+id/tvUserLimitNumber"
-            style="@style/Curate.TextView.Settings.Secondary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="None"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvUserLimitText" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/tvUserLimitNumber"
+        style="@style/Curate.TextView.Subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="None"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvUserLimitText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,8 +8,6 @@ import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.res.Resources;
@@ -29,7 +27,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -46,55 +43,45 @@ import com.example.curate.R;
 import com.example.curate.fragments.BottomPlayerAdminFragment;
 import com.example.curate.fragments.BottomPlayerClientFragment;
 import com.example.curate.fragments.InfoDialogAdminFragment;
-import com.example.curate.fragments.InfoDialogClientFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
 import com.example.curate.models.Party;
 import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogAdminFragment.OnDeleteListener, InfoDialogClientFragment.OnLeaveListener, SettingsDialogFragment.OnSaveListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogAdminFragment.OnDeleteListener, SettingsDialogFragment.OnSaveListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
-    private static final int BARCODE_READER_REQUEST_CODE = 100;
-    private static final String LEAVE_TAG = "LeaveQueue";
-    private static final String DELETE_TAG = "DeleteQueue";
-    private static final String SAVE_TAG = "SaveInfo";
     private static final String CHANNEL_ID = "CurateChannel";
 
     // Timings subject to change
-    private static final int NOTIFICATION_THRESHOLD = 10 * 60 * 1000;
-    private static final int NOTIFICATION_CHECK_TIME = 60 * 1000;
-    private final int NOTIFICATION_ID = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(new Date()));
+    private static final int NOTIFICATION_THRESHOLD = 10 * 60 * 1000; // 10 minutes in millis
+    private static final int NOTIFICATION_CHECK_TIME = 60 * 1000; // 1 minute in millis
+    private static final int NOTIFICATION_ID = 70; // Only ever show 1 notification
 
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
     @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
-    @BindView(R.id.miSearch) SearchView mSearchView;
+    @BindView(R.id.miSearch) SearchView miSearchView;
     @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
 
-    private FragmentManager fm = getSupportFragmentManager();
-    private Fragment activeFragment;
-    private QueueFragment queueFragment;
-    private SearchFragment searchFragment;
+    private FragmentManager mFragmentManager = getSupportFragmentManager();
+    private Fragment mActiveFragment;
+    private QueueFragment mQueueFragment;
+    private SearchFragment mSearchFragment;
     private Fragment mBottomPlayerFragment;
-    private Party party;
+    private Party mParty;
     private ValueAnimator mSearchbarAnimator;
     private boolean mIsSearchbarExpanded = false;
-    private boolean isAdmin = false;
+    private boolean mIsAdmin = false;
 
     private long lastInteractionTime;
     private Handler notificationHandler;
@@ -105,60 +92,52 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        party = Party.getCurrentParty();
+        mParty = Party.getCurrentParty();
+        mIsAdmin = mParty.isCurrentUserAdmin();
 
         initializeFragments(savedInstanceState);
 
-        // Checks if user owns the current party and adjusts view
-        isAdmin = Party.getCurrentParty().isCurrentUserAdmin();
-        Log.d(TAG, "Current user is admin: " + isAdmin);
-
-        if (isAdmin) {
+        if (mIsAdmin) {
             mBottomPlayerFragment = BottomPlayerAdminFragment.newInstance();
-
         } else {
             mBottomPlayerFragment = BottomPlayerClientFragment.newInstance();
         }
-        fm.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
+        mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        if(!isAdmin) {
+        if(!mIsAdmin) {
             lastInteractionTime = SystemClock.elapsedRealtime();
             notificationHandler = new Handler();
             notificationHandler.post(addSongsNotification);
         }
 
+        createNotification();
         initSearchBarAnimations();
     }
 
     private void initializeFragments(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
-            queueFragment = (QueueFragment) fm.findFragmentByTag(KEY_QUEUE_FRAGMENT);
-            searchFragment = (SearchFragment) fm.findFragmentByTag(KEY_SEARCH_FRAGMENT);
-            activeFragment = fm.findFragmentByTag(savedInstanceState.getString(KEY_ACTIVE));
+            mQueueFragment = (QueueFragment) mFragmentManager.findFragmentByTag(KEY_QUEUE_FRAGMENT);
+            mSearchFragment = (SearchFragment) mFragmentManager.findFragmentByTag(KEY_SEARCH_FRAGMENT);
+            mActiveFragment = mFragmentManager.findFragmentByTag(savedInstanceState.getString(KEY_ACTIVE));
         }
 
-        if(queueFragment == null) {
-            queueFragment = QueueFragment.newInstance();
-            fm.beginTransaction().add(R.id.flPlaceholder, queueFragment, KEY_QUEUE_FRAGMENT).hide(queueFragment).commit();
+        if(mQueueFragment == null) {
+            mQueueFragment = QueueFragment.newInstance();
+            mFragmentManager.beginTransaction().add(R.id.flPlaceholder, mQueueFragment, KEY_QUEUE_FRAGMENT).hide(mQueueFragment).commit();
         }
-        if(searchFragment == null) {
-            searchFragment = SearchFragment.newInstance();
-            fm.beginTransaction().add(R.id.flPlaceholder, searchFragment, KEY_SEARCH_FRAGMENT).hide(searchFragment).commit();
+        if(mSearchFragment == null) {
+            mSearchFragment = SearchFragment.newInstance();
+            mFragmentManager.beginTransaction().add(R.id.flPlaceholder, mSearchFragment, KEY_SEARCH_FRAGMENT).hide(mSearchFragment).commit();
         }
 
-        if(activeFragment != null) {
-            display(activeFragment);
+        if(mActiveFragment != null) {
+            display(mActiveFragment);
         } else {
-            display(queueFragment);
+            display(mQueueFragment);
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        mBottomPlayerFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -170,14 +149,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
 
-        if (mSearchView != null) {
-            mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            mSearchView.setIconifiedByDefault(false);
-            mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        if (miSearchView != null) {
+            miSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            miSearchView.setIconifiedByDefault(false);
+            miSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    search(mSearchView, query);
-                    mSearchView.clearFocus();
+                    search(miSearchView, query);
+                    miSearchView.clearFocus();
                     return true;
                 }
 
@@ -187,57 +166,46 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
                 }
             });
 
-            mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View view, boolean hasFocus) {
-                    if(hasFocus) {
-                        display(searchFragment);
-                        searchFragment.newSearch();
-                        showKeyboard(view);
-                        animateSearchbar(true);
-                        //TODO show keyboard?
-                    }
+            miSearchView.setOnQueryTextFocusChangeListener((view, hasFocus) -> {
+                if(hasFocus) {
+                    display(mSearchFragment);
+                    mSearchFragment.newSearch();
+                    showKeyboard(view);
+                    animateSearchbar(true);
                 }
             });
 
         }
 
         miInfo.setOnMenuItemClickListener(menuItem -> {
-            // Retrieve the current party's name and join code
-            String name = party.getName();
-            String joinCode = party.getJoinCode();
-            if (isAdmin) {
-                // Open a new instance of the InfoDialogAdminFragment, passing in the current party's name and code
-                InfoDialogAdminFragment infoDialogAdminFragment = InfoDialogAdminFragment.newInstance(name, joinCode);
-                infoDialogAdminFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
-                infoDialogAdminFragment.show(fm, "fragment_party_info");
-            } else {
-                // Open a new instance of the InfoDialogClientFragment, passing in the current party's name and code
-                InfoDialogClientFragment infoDialogClientFragment = InfoDialogClientFragment.newInstance(name, joinCode);
-                infoDialogClientFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
-                infoDialogClientFragment.show(fm, "fragment_party_info");
-            }
+            // Retrieve the current mParty's name and join code
+            String name = mParty.getName();
+            String joinCode = mParty.getJoinCode();
+
+            InfoDialogAdminFragment infoDialogAdminFragment = InfoDialogAdminFragment.newInstance(name, joinCode, mIsAdmin);
+            infoDialogAdminFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
+            infoDialogAdminFragment.show(mFragmentManager, "fragment_party_info");
             return true;
         });
         miSettings.setOnMenuItemClickListener(menuItem -> {
-            // Retrieve the current party's name and location preferences
+            // Retrieve the current mParty's name and location preferences
             String name = Party.getCurrentParty().getName();
             boolean locationEnabled = Party.getLocationEnabled();
             SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance(name, locationEnabled);
             settingsDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
-            settingsDialogFragment.show(fm, "fragment_admin_settings");
+            settingsDialogFragment.show(mFragmentManager, "fragment_admin_settings");
             return true;
         });
 
-        miSettings.setVisible(isAdmin);
-        miSettings.setEnabled(isAdmin);
+        miSettings.setVisible(mIsAdmin);
+        miSettings.setEnabled(mIsAdmin);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (isAdmin) {
+        if (mIsAdmin) {
 //            mAdminManager.checkSpotifyInstalled();
         }
     }
@@ -249,20 +217,20 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_ACTIVE, activeFragment.getTag());
+        outState.putString(KEY_ACTIVE, mActiveFragment.getTag());
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        switch(activeFragment.getTag()) {
+        switch(mActiveFragment.getTag()) {
             case KEY_QUEUE_FRAGMENT:
                 // TODO decide what to do here: could dismiss the fragments and go back to login
-                //  Maybe exit the party?
+                //  Maybe exit the mParty?
                 break;
             case KEY_SEARCH_FRAGMENT:
-                activeFragment = queueFragment;
-                mSearchView.setQuery("", false);
+                mActiveFragment = mQueueFragment;
+                miSearchView.setQuery("", false);
                 animateSearchbar(false);
                 break;
         }
@@ -274,19 +242,19 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
      */
     private void display(Fragment fragment) {
         lastInteractionTime = SystemClock.elapsedRealtime();
-        if(fragment == null || fragment.equals(activeFragment)) return;
-        FragmentTransaction ft = fm.beginTransaction();
-        if(activeFragment != null)
-            ft.hide(activeFragment);
+        if(fragment == null || fragment.equals(mActiveFragment)) return;
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        if(mActiveFragment != null)
+            ft.hide(mActiveFragment);
         ft.show(fragment);
-        if(fragment.equals(searchFragment))
+        if(fragment.equals(mSearchFragment))
             ft.addToBackStack(fragment.getTag());
-        else if(fragment.equals(queueFragment)) {
+        else if(fragment.equals(mQueueFragment)) {
 
         }
         ft.commit();
 
-        activeFragment = fragment;
+        mActiveFragment = fragment;
     }
 
     private void initSearchBarAnimations() {
@@ -298,7 +266,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         float maxDelta = dpToPx(16f);
         float maxRadius = dpToPx(24f);
 
-        GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.bg_searchbar);
+        GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(
+                this, R.drawable.bg_searchbar);
         searchbarBackground.setCornerRadius(maxRadius);
         ViewGroup.LayoutParams params = ivSearchBackground.getLayoutParams();
         params.height = (int) (maxHeight - maxDelta / 1.5f);
@@ -337,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
    /* TODO Decide if we want this?
     @OnTextChanged(R.id.etSearch)
     public void onSearchTextChange() {
-        searchFragment.setSearchText(etSearch.getText().toString());
+        mSearchFragment.setSearchText(etSearch.getText().toString());
     }*/
 
     private void hideKeyboard(View view) {
@@ -357,15 +326,15 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     }
 
     private void search(SearchView v, String query) {
-        display(searchFragment);
-        searchFragment.executeSearch(query);
+        display(mSearchFragment);
+        mSearchFragment.executeSearch(query);
         hideKeyboard(v);
     }
 
 
     @Override
     public void onLeaveQueue() {
-        if (!isAdmin) {
+        if (!mIsAdmin) {
             Party.leaveParty(e -> {
                 removeNotifications();
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
@@ -377,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
 
     @Override
     public void onDeleteQueue() {
-        if (isAdmin) {
+        if (mIsAdmin) {
             Party.deleteParty(e -> {
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(intent);
@@ -386,14 +355,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         }
     }
 
+    // TODO - move to Settings DialogFragment
     @Override
     public void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled) {
-        if (isAdmin) {
-            Log.d(TAG, "Saving changes to party");
+        if (mIsAdmin) {
             if (newName != null) {
                 Party.setPartyName(newName, e -> {
                     if (e != null) {
-                        Log.e(TAG, "Could not save party name!", e);
+                        Log.e(TAG, "Could not save mParty name!", e);
                     }
                 });
             }
@@ -433,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setColor(getResources().getColor(R.color.colorAccent))
-                .setContentTitle("Add a song to your current party!")
+                .setContentTitle("Add a song to your current mParty!")
                 .setContentText("It's been a while, don't miss out on the fun")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 // Set the intent that will fire when the user taps the notification
@@ -466,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogAdminFr
     }
 
     private void removeNotifications() {
-        if(!isAdmin) {
+        if(!mIsAdmin) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationManager notificationManager = getSystemService(NotificationManager.class);
                 notificationManager.deleteNotificationChannel(CHANNEL_ID);

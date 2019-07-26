@@ -31,11 +31,10 @@ public class SettingsDialogFragment extends DialogFragment {
 
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
-    @BindView(R.id.clUserLimit) ConstraintLayout clUserLimit;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
 
     private String mPartyName;
-    private Boolean isLocationEnabled;
+    private Boolean mIsLocationEnabled;
     private Toolbar mToolbar;
     private OnSaveListener mListener;
 
@@ -81,9 +80,9 @@ public class SettingsDialogFragment extends DialogFragment {
         ButterKnife.bind(this, view);
         // Fetch arguments from bundle
         mPartyName = getArguments().getString(PARTY_NAME_KEY);
-        isLocationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
+        mIsLocationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
         etPartyName.setText(mPartyName);
-        switchLocation.setChecked(isLocationEnabled);
+        switchLocation.setChecked(mIsLocationEnabled);
 
         // Store the listener
         mListener = (OnSaveListener) getContext();
@@ -92,16 +91,15 @@ public class SettingsDialogFragment extends DialogFragment {
         mToolbar.setNavigationOnClickListener(v -> {
             dismiss();
         });
-        mToolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(getContext(), R.color.white), PorterDuff.Mode.SRC_IN);
+        mToolbar.getNavigationIcon().setTint(ContextCompat.getColor(getContext(), R.color.white));
         mToolbar.inflateMenu(R.menu.menu_info);
         mToolbar.setOnMenuItemClickListener(menuItem -> {
-            Log.d("SettingsDialogFragment", "Save button selected");
             String newName = etPartyName.getText().toString();
             Boolean newLocationEnabled = switchLocation.isChecked();
             if (newName.equals(mPartyName)) {
                 newName = null;
             }
-            if (newLocationEnabled == isLocationEnabled) {
+            if (newLocationEnabled == mIsLocationEnabled) {
                 newLocationEnabled = null;
             }
             mListener.onSaveInfo(newName, newLocationEnabled);
@@ -110,7 +108,7 @@ public class SettingsDialogFragment extends DialogFragment {
         });
     }
 
-    @OnClick(R.id.clUserLimit)
+    @OnClick({R.id.tvUserLimitText, R.id.tvUserLimitNumber})
     public void setUserLimit() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         EditText etUserLimitNumber = new EditText(getContext());
@@ -120,7 +118,7 @@ public class SettingsDialogFragment extends DialogFragment {
                     String limit = etUserLimitNumber.getText().toString();
                     tvUserLimitNumber.setText(limit);
                 })
-                .setNegativeButton("CANCEL", (dialogInterface, i) -> dismiss())
+                .setNegativeButton("CANCEL", (dialogInterface, i) -> {})
                 .show();
 
     }

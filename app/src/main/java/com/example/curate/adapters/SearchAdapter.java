@@ -107,7 +107,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 		private boolean mIsAdding = false; // Used to ensure the item can't be added multiple times
 
-		public ViewHolder(View itemView) {
+		private ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
@@ -153,7 +153,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		 * Shows/hides the loading animation for when a song is being added
 		 * @param isLoading if true, show the loading animation; if false, hide it
 		 */
-		public void showLoading(boolean isLoading) {
+		private void showLoading(boolean isLoading) {
 			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
 			ibLike.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
 		}

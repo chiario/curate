@@ -196,9 +196,6 @@ public class Party extends ParseObject {
 
     }
 
-
-    // Curren
-
     /**
      * @return the true if the logged in user is the admin of their party
      */
@@ -222,8 +219,6 @@ public class Party extends ParseObject {
     public String getName() {
         return getString(NAME_KEY);
     }
-
-
 
     /**
      * Sets the current party name

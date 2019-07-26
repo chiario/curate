@@ -33,6 +33,8 @@ import butterknife.OnClick;
 
 
 public class JoinFragment extends Fragment {
+    private static final int BARCODE_READER_REQUEST_CODE = 100;
+
     @BindView(R.id.rvNearby) RecyclerView rvNearby;
     @BindView(R.id.etJoinCode) EditText etJoinCode;
 
@@ -125,9 +127,10 @@ public class JoinFragment extends Fragment {
     }
 
     @OnClick(R.id.btnScan)
-    public void onScan(View view) {
+    public void onScan() {
        IntentIntegrator.forSupportFragment(this)
                .setOrientationLocked(false)
+               .setRequestCode(BARCODE_READER_REQUEST_CODE)
                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                .setPrompt("Scan a party barcode from the Admin's info page")
                .setBeepEnabled(false)
@@ -136,9 +139,9 @@ public class JoinFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
-            if(result.getContents() == null) {
+        if(requestCode == BARCODE_READER_REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (result == null || result.getContents() == null) {
                 Toast.makeText(getContext(), "No QR Scanned", Toast.LENGTH_LONG).show();
             } else {
                 joinParty(result.getContents());
@@ -149,7 +152,7 @@ public class JoinFragment extends Fragment {
     }
 
     @OnClick(R.id.btnJoin)
-    public void onJoinParty(View view) {
+    public void onJoinParty() {
         String joinCode = etJoinCode.getText().toString();
         joinParty(joinCode);
     }

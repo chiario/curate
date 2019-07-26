@@ -8,12 +8,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -65,7 +63,7 @@ public class BottomPlayerAdminFragment extends Fragment {
     private String mTrackName = "--";
     private String mArtistName = "--";
     private boolean isExpanded;
-    private Drawable mThumbDrawable;
+    private Drawable mSeekbarThumbDrawable;
 
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
@@ -103,7 +101,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_admin_collapsed);
         mExpanded = new ConstraintSet();
         mExpanded.clone(getContext(), R.layout.fragment_bottom_player_admin);
-        mThumbDrawable = mSeekBar.getThumb();
+        mSeekbarThumbDrawable = mSeekBar.getThumb();
         setExpanded(false);
 
         return view;
@@ -134,11 +132,13 @@ public class BottomPlayerAdminFragment extends Fragment {
             mArtistName = "--";
             mTrackName = "--";
             updateText();
-        } else {
+        }
+        else {
             // Set play / pause button
             if (playerState.isPaused) {
                 mPlayPauseButton.setImageResource(R.drawable.btn_play);
-            } else {
+            }
+            else {
                 mPlayPauseButton.setImageResource(R.drawable.btn_pause);
             }
 
@@ -170,6 +170,7 @@ public class BottomPlayerAdminFragment extends Fragment {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
+        // TODO Cache the Song in bottom player fragment.
         intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentParty().getCurrentSong().getSpotifyId());
         startActivity(Intent.createChooser(intent, "Share this song!"));
     }
@@ -207,6 +208,7 @@ public class BottomPlayerAdminFragment extends Fragment {
             tvArtist.setVisibility(View.VISIBLE);
         }
         else {
+            // TODO: Change font here
             tvTitle.setSelected(true);
             tvTitle.setTypeface(null, NORMAL);
             SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
@@ -237,10 +239,11 @@ public class BottomPlayerAdminFragment extends Fragment {
 
         if(isExpanded) {
             // Show the thumb
-            mSeekBar.setThumb(mThumbDrawable);
+            mSeekBar.setThumb(mSeekbarThumbDrawable);
             int sidePadding = (int) dpToPx(16f);
             mSeekBar.setPadding(sidePadding, 0, sidePadding, 0);
-        } else {
+        }
+        else {
             // Hide the thumb
             mSeekBar.setThumb(new ColorDrawable(ContextCompat.getColor(getContext(), R.color.transparent)));
             mSeekBar.setPadding(0, 0, 0, 0);
@@ -270,7 +273,8 @@ public class BottomPlayerAdminFragment extends Fragment {
                 Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(locationResult.getLastLocation()), e -> {
                     if (e == null) {
                         Log.d("MainActivity", "Party location updated!");
-                    } else {
+                    }
+                    else {
                         Log.e("MainActivity", "yike couldnt update party location!", e);
                     }
                 });
@@ -283,7 +287,8 @@ public class BottomPlayerAdminFragment extends Fragment {
                 Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(location), e -> {
                     if (e == null) {
                         Log.d("MainActivity", "Party location updated!");
-                    } else {
+                    }
+                    else {
                         Log.e("MainActivity", "yike couldnt update party location!", e);
                     }
                 });
@@ -319,7 +324,8 @@ public class BottomPlayerAdminFragment extends Fragment {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && Party.getLocationEnabled()) {
                 // Location permission has been granted, register location updater
                 registerLocationUpdater();
-            } else {
+            }
+            else {
                 Log.i("AdminManager", "Location permission was not granted.");
             }
         }

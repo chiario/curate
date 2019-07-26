@@ -35,16 +35,19 @@ public class InfoDialogAdminFragment extends DialogFragment {
     @BindView(R.id.tvUserCountText) TextView tvUserCountText;
 
     private OnDeleteListener mListener;
+    private static boolean mIsAdmin;
 
     public interface OnDeleteListener {
         void onDeleteQueue();
+        void onLeaveQueue();
     }
 
     public InfoDialogAdminFragment() {
         // Required empty public constructor
     }
 
-    public static InfoDialogAdminFragment newInstance(String partyName, String joinCode) {
+    public static InfoDialogAdminFragment newInstance(String partyName, String joinCode, Boolean isAdmin) {
+        mIsAdmin = isAdmin;
         InfoDialogAdminFragment infoDialogAdminFragment = new InfoDialogAdminFragment();
         Bundle args = new Bundle();
         args.putString(PARTY_NAME_KEY, partyName);
@@ -77,6 +80,8 @@ public class InfoDialogAdminFragment extends DialogFragment {
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
         // Store the listener
         mListener = (OnDeleteListener) getContext();
+
+        btnDelete.setText(mIsAdmin?"Delete":"Leave");
         // Set on click listener for delete button
         btnDelete.setOnClickListener(view1 -> onDeleteQueue());
 
@@ -84,7 +89,7 @@ public class InfoDialogAdminFragment extends DialogFragment {
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             // TODO: Fix hardcoded size
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 200, 200);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 300, 300);
             ivQR.setImageBitmap(bitmap);
         }
         catch (WriterException e) {
@@ -112,7 +117,11 @@ public class InfoDialogAdminFragment extends DialogFragment {
         builder.setTitle("Delete this party?")
                 .setMessage("You won't be able to undo this action!")
                 .setPositiveButton("Delete", (dialogInterface, i) -> {
-                    mListener.onDeleteQueue();
+                    if (mIsAdmin) {
+                        mListener.onDeleteQueue();
+                    } else {
+                        mListener.onLeaveQueue();
+                    }
                     dismiss();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});
