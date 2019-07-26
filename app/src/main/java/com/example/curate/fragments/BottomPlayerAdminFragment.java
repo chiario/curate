@@ -3,12 +3,17 @@ package com.example.curate.fragments;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.fonts.Font;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -23,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
@@ -64,6 +70,8 @@ public class BottomPlayerAdminFragment extends Fragment {
     private String mArtistName = "--";
     private boolean isExpanded;
     private Drawable mSeekbarThumbDrawable;
+    private Typeface mBoldFont;
+    private Typeface mNormalFont;
 
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
@@ -97,6 +105,9 @@ public class BottomPlayerAdminFragment extends Fragment {
         } else {
             mLocationManager.requestPermissions();
         }
+
+        initFonts();
+
         mCollapsed = new ConstraintSet();
         mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_admin_collapsed);
         mExpanded = new ConstraintSet();
@@ -199,21 +210,27 @@ public class BottomPlayerAdminFragment extends Fragment {
         updateText();
     }
 
+    private void initFonts() {
+        mBoldFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), BOLD);
+        mNormalFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), NORMAL);
+    }
+
     private void updateText() {
         int flag = SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE;
         if(isExpanded) {
-            tvTitle.setText(mTrackName);
-            tvTitle.setTypeface(null, BOLD);
+            SpannableStringBuilder builder = new SpannableStringBuilder(mTrackName);
+            builder.setSpan(new TypefaceSpan(mBoldFont), 0, builder.length(), flag);
+            tvTitle.setText(builder);
             tvArtist.setText(mArtistName);
             tvArtist.setVisibility(View.VISIBLE);
         }
         else {
             // TODO: Change font here
             tvTitle.setSelected(true);
-            tvTitle.setTypeface(null, NORMAL);
             SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
             SpannableString artist = new SpannableString(mArtistName);
-            title.setSpan(new StyleSpan(BOLD), 0, title.length(), flag);
+            title.setSpan(new TypefaceSpan(mBoldFont), 0, title.length(), flag);
+            artist.setSpan(new TypefaceSpan(mNormalFont), 0, artist.length(), flag);
             SpannableStringBuilder builder = new SpannableStringBuilder();
             builder.append(title);
             builder.append(artist);

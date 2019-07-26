@@ -2,11 +2,13 @@ package com.example.curate.fragments;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -61,6 +64,8 @@ public class BottomPlayerClientFragment extends Fragment {
     private String mTrackName = "--";
     private String mArtistName = "--";
     private boolean isExpanded;
+    private Typeface mBoldFont;
+    private Typeface mNormalFont;
 
     public BottomPlayerClientFragment() {
         // Required empty public constructor
@@ -97,20 +102,26 @@ public class BottomPlayerClientFragment extends Fragment {
         updateText();
     }
 
+    private void initFonts() {
+        mBoldFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), BOLD);
+        mNormalFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), NORMAL);
+    }
+
     private void updateText() {
         int flag = SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE;
         if(isExpanded) {
-            tvTitle.setText(mTrackName);
-            tvTitle.setTypeface(null, BOLD);
+            SpannableStringBuilder builder = new SpannableStringBuilder(mTrackName);
+            builder.setSpan(new TypefaceSpan(mBoldFont), 0, builder.length(), flag);
+            tvTitle.setText(builder);
             tvArtist.setText(mArtistName);
             tvArtist.setVisibility(View.VISIBLE);
         }
         else {
             tvTitle.setSelected(true);
-            tvTitle.setTypeface(null, NORMAL);
             SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
             SpannableString artist = new SpannableString(mArtistName);
-            title.setSpan(new StyleSpan(BOLD), 0, title.length(), flag);
+            title.setSpan(new TypefaceSpan(mBoldFont), 0, title.length(), flag);
+            artist.setSpan(new TypefaceSpan(mNormalFont), 0, artist.length(), flag);
             SpannableStringBuilder builder = new SpannableStringBuilder();
             builder.append(title);
             builder.append(artist);
@@ -141,6 +152,7 @@ public class BottomPlayerClientFragment extends Fragment {
         ButterKnife.bind(this, view);
         mParty = Party.getCurrentParty();
 
+        initFonts();
         initializeSongUpdateCallback();
         mCollapsed = new ConstraintSet();
         mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_client_collapsed);
