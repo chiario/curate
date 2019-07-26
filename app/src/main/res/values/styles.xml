@@ -20,6 +20,7 @@
     </style>
 
     <style name="Curate.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:fontFamily">@font/nunito</item>
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="android:actionBarItemBackground">@color/transparent</item>
         <item name="android:searchViewStyle">@style/Curate.SearchView</item>
@@ -41,6 +42,7 @@
     </style>
 
     <style name="Curate.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:fontFamily">@font/nunito</item>
         <item name="queryBackground">@color/transparent</item>
         <item name="background">@color/transparent</item>
         <item name="queryHint">Search for a song!</item>
