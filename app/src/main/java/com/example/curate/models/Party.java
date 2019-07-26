@@ -583,14 +583,6 @@ public class Party extends ParseObject {
 
     public static int getPartyUserCount(/*@Nullable final FunctionCallback<Integer> callback*/) {
         HashMap<String, Object> params = new HashMap<>();
-//        ParseCloud.callFunctionInBackground("getPartyUserCount", params, (Integer count, ParseException e) -> {
-//            if(e != null){
-//                Log.e("Party.java", "Could not get count", e);
-//            }
-//            if(callback != null) {
-//                callback.done(count, e);
-//            }
-//        });
         try {
             return ParseCloud.callFunction("getPartyUserCount", params);
         }
@@ -612,6 +604,25 @@ public class Party extends ParseObject {
                 return true;
         }
         return false;
+    }
+
+    public static void saveSettings(boolean locationEnabled, String partyName, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(LOCATION_PERMISSION_KEY, locationEnabled);
+        params.put(NAME_KEY, partyName);
+
+        ParseCloud.callFunctionInBackground("savePartySettings", params, (Party party, ParseException e) -> {
+            if (e == null) {
+                mCurrentParty = party;
+            } else {
+                Log.e("Party.java", "Could not set location permissions!", e);
+            }
+
+            // Run the callback if it exists
+            if (callback != null) {
+                callback.done(e);
+            }
+        });
     }
 
 }

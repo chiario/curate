@@ -53,7 +53,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogFragment.OnDeleteListener, SettingsDialogFragment.OnSaveListener {
+public class MainActivity extends AppCompatActivity implements InfoDialogFragment.OnDeleteListener {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private QueueFragment mQueueFragment;
     private SearchFragment mSearchFragment;
     private Fragment mBottomPlayerFragment;
-    private Party mParty;
     private ValueAnimator mSearchbarAnimator;
     private boolean mIsSearchbarExpanded = false;
     private boolean mIsAdmin = false;
@@ -86,14 +85,18 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private long lastInteractionTime;
     private Handler notificationHandler;
 
+    public BottomPlayerAdminFragment getBottomPlayerFragment() {
+        if(!mIsAdmin) return null;
+        return (BottomPlayerAdminFragment) mBottomPlayerFragment;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mParty = Party.getCurrentParty();
-        mIsAdmin = mParty.isCurrentUserAdmin();
+        mIsAdmin = Party.getCurrentParty().isCurrentUserAdmin();
 
         initializeFragments(savedInstanceState);
 
@@ -179,8 +182,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         miInfo.setOnMenuItemClickListener(menuItem -> {
             // Retrieve the current mParty's name and join code
-            String name = mParty.getName();
-            String joinCode = mParty.getJoinCode();
+            String name = Party.getCurrentParty().getName();
+            String joinCode = Party.getCurrentParty().getJoinCode();
 
             InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
             infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
@@ -355,33 +358,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         }
     }
 
-    // TODO - move to Settings DialogFragment
-    @Override
-    public void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled) {
-        if (mIsAdmin) {
-            if (newName != null) {
-                Party.setPartyName(newName, e -> {
-                    if (e != null) {
-                        Log.e(TAG, "Could not save mParty name!", e);
-                    }
-                });
-            }
-            if (locationEnabled != null) {
-                Party.setLocationEnabled(locationEnabled, e -> {
-                    if (e != null) {
-                        Log.e(TAG, "Could not save location preferences!", e);
-                    } else {
-                        if (locationEnabled) {
-                            ((BottomPlayerAdminFragment) mBottomPlayerFragment).registerLocationUpdater();
-                        } else {
-                            ((BottomPlayerAdminFragment) mBottomPlayerFragment).deregisterLocationUpdater();
-                        }
-                    }
-                });
-            }
-        }
-    }
-
     Runnable addSongsNotification = new Runnable() {
         @Override
         public void run() {
@@ -402,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setColor(getResources().getColor(R.color.colorAccent))
-                .setContentTitle("Add a song to your current mParty!")
+                .setContentTitle("Add a song to party!")
                 .setContentText("It's been a while, don't miss out on the fun")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 // Set the intent that will fire when the user taps the notification

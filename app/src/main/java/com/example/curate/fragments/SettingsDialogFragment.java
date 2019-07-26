@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +20,10 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
+import com.example.curate.activities.MainActivity;
+import com.example.curate.models.Party;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,11 +41,6 @@ public class SettingsDialogFragment extends DialogFragment {
     private String mPartyName;
     private Boolean mIsLocationEnabled;
     private Toolbar mToolbar;
-    private OnSaveListener mListener;
-
-    public interface OnSaveListener {
-        void onSaveInfo(@Nullable String newName, @Nullable Boolean locationEnabled);
-    }
 
     public SettingsDialogFragment() {
         // Required empty public constructor
@@ -84,9 +84,6 @@ public class SettingsDialogFragment extends DialogFragment {
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
 
-        // Store the listener
-        mListener = (OnSaveListener) getContext();
-
         // Set the toolbar and click listeners
         mToolbar.setNavigationOnClickListener(v -> {
             dismiss();
@@ -96,14 +93,13 @@ public class SettingsDialogFragment extends DialogFragment {
         mToolbar.setOnMenuItemClickListener(menuItem -> {
             String newName = etPartyName.getText().toString();
             Boolean newLocationEnabled = switchLocation.isChecked();
-            if (newName.equals(mPartyName)) {
-                newName = null;
-            }
-            if (newLocationEnabled == mIsLocationEnabled) {
-                newLocationEnabled = null;
-            }
-            mListener.onSaveInfo(newName, newLocationEnabled);
-            dismiss();
+            Party.saveSettings(newLocationEnabled, newName, e -> {
+                if(e == null) {
+                    dismiss();
+                } else {
+                    Toast.makeText(getContext(), "Could not save settings", Toast.LENGTH_SHORT).show();
+                }
+            });
             return true;
         });
     }
