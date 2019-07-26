@@ -18,6 +18,9 @@ import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
+import com.example.curate.models.SearchItem;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -25,7 +28,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
+public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 	private Context mContext;
 	private List<Song> mSongs;
 	private MainActivity mMainActivity;
@@ -44,20 +47,29 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 	@NonNull
 	@Override
-	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+	public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		// Inflate the custom layout
 		LayoutInflater inflater = LayoutInflater.from(mContext);
-		View searchItemView = inflater.inflate(R.layout.item_song_search, parent, false);
-
-		// Return a new holder instance
-		return new ViewHolder(searchItemView);
+		
+		View searchItemView = null;
+		if(viewType == SearchItem.TYPE_SONG) {
+			return new SongViewHolder(inflater.inflate(R.layout.item_song_search, parent, false));
+		} else if(viewType == SearchItem.TYPE_SECTION) {
+			return new SectionViewHolder(inflater.inflate(R.layout.item_song_section, parent, false));
+		}
+		return null;
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		Song song = mSongs.get(position);
-		holder.showSongData(song);
-		holder.showLoading(false);
+	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+		if(holder instanceof SongViewHolder) {
+			SongViewHolder songViewHolder = (SongViewHolder) holder;
+			Song song = mSongs.get(position);
+			songViewHolder.showSongData(song);
+			songViewHolder.showLoading(false);
+		} else if(holder instanceof SectionViewHolder) {
+			SectionViewHolder sectionViewHolder = (SectionViewHolder) holder;
+		}
 	}
 
 	@Override
@@ -87,7 +99,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 	public void onItemSwipedAdd(RecyclerView.ViewHolder viewHolder) {
 		mIsSwiping = true;
-		SearchAdapter.ViewHolder vh = (SearchAdapter.ViewHolder) viewHolder;
+		SongViewHolder vh = (SongViewHolder) viewHolder;
 		vh.onClickAdd();
 	}
 
@@ -96,9 +108,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 	}
 
 	/***
-	 * Internal ViewHolder model for each item.
+	 * Internal SongViewHolder model for each item.
 	 */
-	public class ViewHolder extends RecyclerView.ViewHolder {
+	public class SongViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.ivAlbum) ImageView ivAlbum;
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvArtist) TextView tvArtist;
@@ -107,7 +119,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
 		private boolean mIsAdding = false; // Used to ensure the item can't be added multiple times
 
-		private ViewHolder(View itemView) {
+		private SongViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
@@ -156,6 +168,15 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 		private void showLoading(boolean isLoading) {
 			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
 			ibLike.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
+		}
+	}
+
+	public class SectionViewHolder extends RecyclerView.ViewHolder {
+		@BindView(R.id.tvSection) TextView tvSection;
+
+		private SectionViewHolder(View itemView) {
+			super(itemView);
+			ButterKnife.bind(itemView);
 		}
 	}
 }
