@@ -126,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mainActivity -> runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
-            builder.setTitle("Party Deleted")
+            builder
+                    .setTitle("Party Deleted")
                     .setMessage("This party has been deleted by the admin.")
                     .setPositiveButton("Return to menu", (dialogInterface, i) -> {
                         Intent intent = new Intent(mainActivity, JoinActivity.class);
@@ -245,8 +246,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         super.onBackPressed();
         switch(mActiveFragment.getTag()) {
             case KEY_QUEUE_FRAGMENT:
-                // TODO decide what to do here: could dismiss the fragments and go back to login
-                //  Maybe exit the mParty?
                 break;
             case KEY_SEARCH_FRAGMENT:
                 mActiveFragment = mQueueFragment;
@@ -322,12 +321,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                 : new ReverseInterpolator(new AccelerateDecelerateInterpolator()));
         mSearchbarAnimator.start();
     }
-
-   /* TODO Decide if we want this?
-    @OnTextChanged(R.id.etSearch)
-    public void onSearchTextChange() {
-        mSearchFragment.setSearchText(etSearch.getText().toString());
-    }*/
 
     private void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);

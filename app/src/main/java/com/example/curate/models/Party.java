@@ -33,7 +33,6 @@ public class Party extends ParseObject {
     private static Party mCurrentParty;
     private List<PlaylistEntry> mPlaylist;
     private List<SaveCallback> mPlaylistUpdateCallbacks;
-    private User mUser;
 
     public Party() {}
 

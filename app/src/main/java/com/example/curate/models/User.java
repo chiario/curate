@@ -1,7 +1,6 @@
 package com.example.curate.models;
 
 import com.example.curate.activities.MainActivity;
-import com.parse.FunctionCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -29,7 +28,9 @@ public class User extends ParseUser {
 		parseQuery.include("currParty");
 		parseQuery.whereEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
 		SubscriptionHandling<ParseUser> userHandler = parseLiveQueryClient.subscribe(parseQuery);
+
 		partyDeletedListeners = new ArrayList<>();
+
 		userHandler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, object) -> {
 			if(object.get("currParty") == null && partyDeletedListeners != null) {
 				for(PartyDeletedListener listener : partyDeletedListeners) {
@@ -46,7 +47,7 @@ public class User extends ParseUser {
 		partyDeletedListeners.add(partyDeletedListener);
 	}
 
-	public void deregisterPartyDeletedCallback(PartyDeletedListener partyDeletedListener) {
+	public void deregisterPartyDeletedListener(PartyDeletedListener partyDeletedListener) {
 		if(partyDeletedListeners == null) return;
 		partyDeletedListeners.remove(partyDeletedListener);
 	}

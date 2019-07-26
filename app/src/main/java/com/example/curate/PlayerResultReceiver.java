@@ -31,7 +31,6 @@ public class PlayerResultReceiver extends ResultReceiver {
         void onReceiveResult(int resultCode, Bundle resultData);
     }
 
-
     // This method passes result to the receiver if receiver has been assigned
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {

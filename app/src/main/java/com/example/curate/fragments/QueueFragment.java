@@ -97,7 +97,6 @@ public class QueueFragment extends Fragment {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-
 		// Deregister the callback when this fragment is destroyed
 		mParty.deregisterPlaylistUpdateCallback(mPlaylistUpdatedCallback);
 	}

@@ -102,10 +102,9 @@ public class InfoDialogFragment extends DialogFragment {
         }
         tvJoinCode.setText(joinCode);
         int count = Party.getPartyUserCount();
-        tvUserCountText.setText(
-                count == 1
-                        ? getResources().getString(R.string.user_count_singular)
-                        : getResources().getString(R.string.user_count_normal));
+        tvUserCountText.setText(count == 1
+                ? getResources().getString(R.string.user_count_singular)
+                : getResources().getString(R.string.user_count_normal));
         tvUserCount.setText(String.valueOf(count));
     }
 
@@ -113,9 +112,7 @@ public class InfoDialogFragment extends DialogFragment {
     private void onDeleteQueue() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder
-            .setTitle(mIsAdmin
-                ? "Delete this party?"
-                : "Leave this party?")
+            .setTitle(mIsAdmin ? "Delete this party?" : "Leave this party?")
             .setMessage(mIsAdmin
                     ? "You won't be able to undo this action!"
                     : "You can rejoin with the code " + tvJoinCode.getText().toString())

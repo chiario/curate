@@ -17,11 +17,11 @@ import java.util.List;
 @ParseClassName("Song")
 public class Song extends ParseObject {
 
-	protected static final String SPOTIFY_ID_KEY = "spotifyId";
-	protected static final String TITLE_KEY = "title";
-	protected static final String ARTIST_KEY = "artist";
-	protected static final String ALBUM_KEY = "album";
-	protected static final String IMAGE_URL_KEY = "artUrl";
+	public static final String SPOTIFY_ID_KEY = "spotifyId";
+	public static final String TITLE_KEY = "title";
+	public static final String ARTIST_KEY = "artist";
+	public static final String ALBUM_KEY = "album";
+	public static final String IMAGE_URL_KEY = "artUrl";
 
 	public Song() {
 		// Required empty constructor

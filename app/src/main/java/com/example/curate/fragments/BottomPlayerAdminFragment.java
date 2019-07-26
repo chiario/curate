@@ -341,7 +341,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
                 registerLocationUpdater();
                 Log.e("MainActivity", "Couldn't clear location!", e);
             }
-        }); // TODO - fix this synchronization error (The methods in LocationCallback are never called so we can't clear this in the callback?)
+        });
     }
 
     @Override

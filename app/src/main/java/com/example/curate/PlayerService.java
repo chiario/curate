@@ -32,6 +32,7 @@ import java.util.List;
 public class PlayerService extends JobIntentService {
     private static final String TAG = "PlayerService";
     private static final String REDIRECT_URI = "http://com.example.curate/callback";
+
     // Unique job ID for this service
     private static final int PLAYER_JOB_ID = 1000;
     private static final int NEXT_SONG_DELAY = 2000;
@@ -61,7 +62,6 @@ public class PlayerService extends JobIntentService {
     private Context mContext;
     private static ResultReceiver mResultReceiver;
 
-
     private boolean mIsSpotifyInstalled;
     private static boolean mIsSpotifyConnected;
 
@@ -72,8 +72,6 @@ public class PlayerService extends JobIntentService {
 
     private SaveCallback mPlaylistUpdatedCallback;
     private List<PlaylistEntry> mPlaylist;
-
-
 
     // Default constructor
     public PlayerService() {
@@ -90,7 +88,6 @@ public class PlayerService extends JobIntentService {
         Log.d(TAG, "Got playlist " + mPlaylist);
         initializePlaylistUpdateCallback();
     }
-
 
     /**
      *  This method is called whenever the service is triggered or work is enqueued
@@ -148,7 +145,6 @@ public class PlayerService extends JobIntentService {
         enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
     }
 
-
     // Auto-play methods
 
     final Handler runnableHandler = new Handler();
@@ -175,7 +171,6 @@ public class PlayerService extends JobIntentService {
             runnableHandler.postDelayed(songRunnable, mTimeRemaining - NEXT_SONG_DELAY);
         }
     }
-
 
     /**
      * Connects context to spotify remote player
@@ -288,8 +283,6 @@ public class PlayerService extends JobIntentService {
         }
     };
 
-
-
 // call this on create
     private void initializePlaylistUpdateCallback() {
         mPlaylistUpdatedCallback = e -> {
@@ -299,8 +292,6 @@ public class PlayerService extends JobIntentService {
         };
         Party.getCurrentParty().registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
     }
-
-
 
     /**
      * Pauses or resumes remote player based on current pause state.
@@ -358,8 +349,6 @@ public class PlayerService extends JobIntentService {
         }
     }
 
-
-
     /**
      * This function retrieves the top song in the locally cached playlist for the current party
      * and deletes it.
@@ -396,7 +385,6 @@ public class PlayerService extends JobIntentService {
         }
     }
 
-
     /**
      * Retrieves the bitmap for the album art of the curently playing song.
      * Converts the bitmap to a byte array and sends to receiver for loading into views.
@@ -418,10 +406,6 @@ public class PlayerService extends JobIntentService {
                     });
         });
     }
-
-
-
-
 
     //TODO - implement this
     /**

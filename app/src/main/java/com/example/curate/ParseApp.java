@@ -30,6 +30,7 @@ public class ParseApp extends Application {
 		httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 		builder.networkInterceptors().add(httpLoggingInterceptor);
 
+		// Registers Parse Subclasses
 		ParseObject.registerSubclass(Song.class);
 		ParseObject.registerSubclass(Party.class);
 		ParseObject.registerSubclass(PlaylistEntry.class);

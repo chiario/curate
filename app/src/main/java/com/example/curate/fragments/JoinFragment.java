@@ -140,8 +140,8 @@ public class JoinFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == BARCODE_READER_REQUEST_CODE) {
-            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if (result == null || result.getContents() == null) {
+            IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
+            if (result.getContents() == null) {
                 Toast.makeText(getContext(), "No QR Scanned", Toast.LENGTH_LONG).show();
             } else {
                 joinParty(result.getContents());

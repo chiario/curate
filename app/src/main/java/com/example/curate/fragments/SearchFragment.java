@@ -1,6 +1,5 @@
 package com.example.curate.fragments;
 
-
 import android.graphics.Typeface;
 import android.os.Bundle;
 
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
 
 /**
  * A simple {@link Fragment} subclass.
