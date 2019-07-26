@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             notificationHandler.post(addSongsNotification);
         }
 
-        createNotification();
         initSearchBarAnimations();
 
         ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mainActivity -> runOnUiThread(() -> {
