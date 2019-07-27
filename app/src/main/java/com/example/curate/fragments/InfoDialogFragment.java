@@ -28,11 +28,10 @@ public class InfoDialogFragment extends DialogFragment {
     private static final String JOIN_CODE_KEY = "joinCode";
 
     @BindView(R.id.tvName) TextView tvPartyName;
-    @BindView(R.id.tvCode) TextView tvJoinCode;
+    @BindView(R.id.tvJoinCode) TextView tvJoinCode;
     @BindView(R.id.btnDelete) Button btnDelete;
     @BindView(R.id.ivQR) ImageView ivQR;
-    @BindView(R.id.tvUserCount) TextView tvUserCount;
-    @BindView(R.id.tvUserCountText) TextView tvUserCountText;
+    @BindView(R.id.tvUserCountText) TextView tvUserCount;
 
     private OnDeleteListener mListener;
     private static boolean mIsAdmin;
@@ -100,12 +99,11 @@ public class InfoDialogFragment extends DialogFragment {
         if (partyName != null) {
             tvPartyName.setText(partyName);
         }
-        tvJoinCode.setText(joinCode);
+        tvJoinCode.setText("Join code: " + joinCode);
         int count = Party.getPartyUserCount();
-        tvUserCountText.setText(count == 1
-                ? getResources().getString(R.string.user_count_singular)
-                : getResources().getString(R.string.user_count_normal));
-        tvUserCount.setText(String.valueOf(count));
+        tvUserCount.setText(count == 1
+                ? count + " person partying :("
+                : count + " people partying");
     }
 
 

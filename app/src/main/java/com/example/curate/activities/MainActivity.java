@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             String joinCode = Party.getCurrentParty().getJoinCode();
 
             InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
-            infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
+//            infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
             infoDialogFragment.show(mFragmentManager, "fragment_party_info");
             return true;
         });
