@@ -87,7 +87,7 @@ public class SearchFragment extends Fragment {
 	public void clearSearch() {
 		progressBar.setVisibility(View.INVISIBLE);
 		mAdapter.clear();
-		showSearchDesciption(null);
+		showSearchDescription(null);
 		showText(getString(R.string.new_search));
 	}
 
@@ -101,7 +101,7 @@ public class SearchFragment extends Fragment {
 	public void onStop() {
 		super.onStop();
 		mAdapter.clear();
-		showSearchDesciption(null);
+		showSearchDescription(null);
 	}
 
 	/***
@@ -142,13 +142,14 @@ public class SearchFragment extends Fragment {
 		mLiveSearchManager = new LiveSearchManager((query, results) -> {
 			mAdapter.clear();
 			if(query.isEmpty()) {
-				showSearchDesciption(null);
+				showSearchDescription(null);
 				showText(getString(R.string.new_search));
 			} else if(results.isEmpty()) {
-				showSearchDesciption(null);
+				showSearchDescription(null);
 				showText(getString(R.string.no_search_result));
 			} else {
-				showSearchDesciption(query);
+				showSearchDescription(query);
+				hideText();
 				mAdapter.addAll(results);
 			}
 		});
@@ -166,10 +167,11 @@ public class SearchFragment extends Fragment {
 			if(e == null) {
 				mAdapter.clear();
 				if(search.getResults().isEmpty()) {
-					showSearchDesciption(null);
+					showSearchDescription(null);
 					showText(getString(R.string.no_search_result));
 				} else {
-					showSearchDesciption(searchText);
+					showSearchDescription(searchText);
+					hideText();
 					mAdapter.addAll(search.getResults());
 				}
 			} else {
@@ -186,7 +188,7 @@ public class SearchFragment extends Fragment {
 		tvError.setText(text);
 	}
 
-	private void showSearchDesciption(@Nullable String query) {
+	private void showSearchDescription(@Nullable String query) {
 		if(query == null) {
 			tvDescription.setVisibility(View.GONE);
 		} else {
