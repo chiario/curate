@@ -183,6 +183,7 @@ public class BottomPlayerFragment extends Fragment {
             }
         };
         mParty.registerPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
+        mCurrentSongUpdatedCallback.done(null);
     }
 
     private void removeSongUpdateCallback() {
