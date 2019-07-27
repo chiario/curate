@@ -4,7 +4,6 @@
     android:id="@+id/clItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/darkGray"
     android:clickable="true"
     android:focusable="true">
 
@@ -12,12 +11,12 @@
         style="@style/Curate.ViewHolderContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:background="?android:attr/selectableItemBackground"
-        android:clickable="false">
+        android:clickable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <ImageView

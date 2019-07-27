@@ -7,6 +7,11 @@
     <color name="colorAccent_70">#B3FF00A5</color>
     <color name="colorAccent_text">#FF73CD</color>
 
+    <!-- GRADIENT COLORS -->
+    <color name="colorAccent_60">#99FF00A5</color>
+    <color name="orange_60">#99FE621D</color>
+    <color name="blue_60">#99067BC2</color>
+
     <!-- TODO: Remove this? -->
     <color name="darkBlue">#404080</color>
 
@@ -30,4 +35,9 @@
     <color name="darkGray">#181818</color>
     <color name="black">#ff000000</color>
     <color name="ic_launcher_background">@color/darkGray</color>
+
+
+    <color name="colorGradientStart">#D9FF43</color>
+    <color name="colorGradientCenter">#F67831</color>
+    <color name="colorGradientEnd">#FF1493</color>
 </resources>

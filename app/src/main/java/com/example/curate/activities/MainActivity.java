@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.res.Resources;
@@ -131,6 +132,11 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                     });
             builder.show();
         }), this);
+
+        AnimationDrawable backgroundAnimation = (AnimationDrawable) findViewById(R.id.rootView).getBackground();
+        backgroundAnimation.setEnterFadeDuration(10);
+        backgroundAnimation.setExitFadeDuration(getResources().getInteger(R.integer.anim_gradient_transition_time));
+        backgroundAnimation.start();
     }
 
     private void initializeFragments(Bundle savedInstanceState) {
