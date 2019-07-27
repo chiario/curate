@@ -141,9 +141,12 @@ public class SearchFragment extends Fragment {
 
 		mLiveSearchManager = new LiveSearchManager((query, results) -> {
 			mAdapter.clear();
-			if(query.isEmpty() || results.isEmpty()) {
+			if(query.isEmpty()) {
 				showSearchDesciption(null);
 				showText(getString(R.string.new_search));
+			} else if(results.isEmpty()) {
+				showSearchDesciption(null);
+				showText(getString(R.string.no_search_result));
 			} else {
 				showSearchDesciption(query);
 				mAdapter.addAll(results);

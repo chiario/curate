@@ -96,13 +96,7 @@ public class LiveSearchManager {
     public boolean isSearchComplete() {
         Song.SearchQuery completed = mostRecentlyCompleted.query;
 
-        // Ensure the most recently completed search matches the desired query
-        if(!desiredQuery.equals(completed.getQuery())) {
-            return false;
-        }
-
-        // The results page should not be empty unless we have an empty query
-        return desiredQuery.isEmpty() || !completed.getResults().isEmpty();
+        // Return true if the most recently completed search matches the desired query
+        return desiredQuery.equals(completed.getQuery());
     }
-
 }
