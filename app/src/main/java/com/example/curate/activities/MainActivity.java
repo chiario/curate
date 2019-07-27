@@ -243,9 +243,9 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             case KEY_QUEUE_FRAGMENT:
                 break;
             case KEY_SEARCH_FRAGMENT:
-                display(mQueueFragment);
                 miSearchView.setQuery("", false);
                 animateSearchbar(false);
+                display(mQueueFragment);
                 break;
         }
     }
