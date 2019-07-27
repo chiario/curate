@@ -42,6 +42,6 @@
     </style>
 
     <style name="Curate.ImageButton" parent="android:Widget.ImageButton">
-        <item name="android:tint">@color/white_80</item>
+        <item name="android:tint">@color/white</item>
     </style>
 </resources>
