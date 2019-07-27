@@ -37,6 +37,7 @@ public class LiveSearchManager {
 
         @Override
         public void run() {
+            // Cancel the request if the query has changed in the debounce time
             if(!query.getQuery().equals(desiredQuery) || isCancelled) {
                 mPendingSearches.remove(this);
                 return;
@@ -45,24 +46,28 @@ public class LiveSearchManager {
             query.find(e -> {
                 mPendingSearches.remove(this);
 
-                if(e != null || isCancelled) {
-                    return;
-                }
+                // Don't run the callback if the search failed or was cancelled
+                if(e != null || isCancelled) return;
 
-                if(mostRecentlyCompleted == null || createdTime > mostRecentlyCompleted.createdTime) {
-                    mostRecentlyCompleted = this;
+                // Update the last completed request and run the callback if this request was created
+                // after the last completed one
+                if(mLastCompletedRequest == null || createdTime > mLastCompletedRequest.createdTime) {
+                    mLastCompletedRequest = this;
                     mSearchCallback.onSearchCompleted(query.getQuery(), query.getResults());
                 }
             });
         }
     }
 
-    private String desiredQuery;
-    private SearchRequest mostRecentlyCompleted;
-    private Handler mHandlerThread;
-    private List<SearchRequest> mPendingSearches;
-    private SearchCallback mSearchCallback;
+    private String desiredQuery; // The current query the user has typed in
+    private SearchRequest mLastCompletedRequest; // The most recently completed search request
+    private Handler mHandlerThread; // Handler thread for running search requests
+    private List<SearchRequest> mPendingSearches; // A list of search requests that have not completed yet
+    private SearchCallback mSearchCallback; // Callback to run when a search request completes
 
+    /**
+     * @param searchCallback the callback to run when a search request is completed
+     */
     public LiveSearchManager(SearchCallback searchCallback) {
         mHandlerThread = new Handler();
         mSearchCallback = searchCallback;
@@ -94,7 +99,7 @@ public class LiveSearchManager {
      * @return true if the live query results are up to date with the desired query
      */
     public boolean isSearchComplete() {
-        Song.SearchQuery completed = mostRecentlyCompleted.query;
+        Song.SearchQuery completed = mLastCompletedRequest.query;
 
         // Return true if the most recently completed search matches the desired query
         return desiredQuery.equals(completed.getQuery());
