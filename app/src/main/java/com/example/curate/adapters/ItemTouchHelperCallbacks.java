@@ -152,6 +152,7 @@ public class ItemTouchHelperCallbacks {
 
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+			if(viewHolder instanceof SearchAdapter.SectionViewHolder) return;
 			((SearchAdapter) mAdapter).onItemSwipedAdd(viewHolder);
 		}
 
@@ -159,7 +160,9 @@ public class ItemTouchHelperCallbacks {
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
-			if (viewHolder.getAdapterPosition() == NO_POSITION ||
+			if (viewHolder instanceof SearchAdapter.SectionViewHolder ||
+					viewHolder.getAdapterPosition() < ((SearchAdapter) mAdapter).mAddToQueuePosition ||
+					viewHolder.getAdapterPosition() == NO_POSITION ||
 					((SearchAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder,
 						0, dY, actionState, isCurrentlyActive);

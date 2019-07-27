@@ -1,6 +1,7 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +19,8 @@ import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.example.curate.models.SearchItem;
 
-import org.w3c.dom.Text;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,9 +28,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+	private static final int TYPE_SONG = 0;
+	private static final int TYPE_SECTION = 1;
+
 	private Context mContext;
 	private List<Song> mSongs;
 	private MainActivity mMainActivity;
+	protected int mAddToQueuePosition = 1;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 
 	/***
@@ -50,31 +53,57 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		// Inflate the custom layout
 		LayoutInflater inflater = LayoutInflater.from(mContext);
-		
-		View searchItemView = null;
-		if(viewType == SearchItem.TYPE_SONG) {
+
+		if(viewType == TYPE_SONG) {
 			return new SongViewHolder(inflater.inflate(R.layout.item_song_search, parent, false));
-		} else if(viewType == SearchItem.TYPE_SECTION) {
+		} else {
 			return new SectionViewHolder(inflater.inflate(R.layout.item_song_section, parent, false));
 		}
-		return null;
+	}
+
+	@Override
+	public int getItemViewType(int position) {
+		if(position == 0 || position == mAddToQueuePosition) return TYPE_SECTION;
+		return TYPE_SONG;
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 		if(holder instanceof SongViewHolder) {
 			SongViewHolder songViewHolder = (SongViewHolder) holder;
-			Song song = mSongs.get(position);
+			Song song = mSongs.get(getSongsPosition(position));
 			songViewHolder.showSongData(song);
 			songViewHolder.showLoading(false);
+			if(position < mAddToQueuePosition) songViewHolder.ibLike.setVisibility(View.GONE);
+			else songViewHolder.ibLike.setVisibility(View.VISIBLE);
 		} else if(holder instanceof SectionViewHolder) {
 			SectionViewHolder sectionViewHolder = (SectionViewHolder) holder;
+			if(position == 0) {
+				if(mSongs.size() == 0) {
+					sectionViewHolder.tvSection.setText("");
+				} else if(mAddToQueuePosition == 1) {
+					sectionViewHolder.tvSection.setText("No matching songs in your queue");
+				} else {
+					sectionViewHolder.tvSection.setText("Songs in queue:");
+				}
+			} else {
+				if(position == mSongs.size() + 1 || mSongs.size() == 0) {
+					sectionViewHolder.tvSection.setText("");
+				} else {
+					sectionViewHolder.tvSection.setText("Add to queue:");
+				}
+			}
 		}
 	}
 
 	@Override
 	public int getItemCount() {
-		return mSongs.size();
+		return mSongs.size() + 2;
+	}
+
+	private int getSongsPosition(int position) {
+		if(position > mAddToQueuePosition) return position - 2;
+		return position - 1;
 	}
 
 	/***
@@ -83,16 +112,25 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 */
 	public void addAll(List<Song> list) {
 		if(mSongs == null || list == null) return;
+		List<Song> notInQueue = new ArrayList<>();
 		for(Song s : list) {
 			if(Party.getCurrentParty().contains(s)) {
-				continue;
+				mSongs.add(s);
+				notifyItemInserted(1);
+				mAddToQueuePosition++;
+			} else {
+				notInQueue.add(s);
 			}
+		}
+
+		for(Song s : notInQueue) {
 			mSongs.add(s);
-			notifyItemInserted(mSongs.size() - 1);
+			notifyItemInserted(mSongs.size() + 1);
 		}
 	}
 
 	public void clear() {
+		mAddToQueuePosition = 1;
 		mSongs.clear();
 		notifyDataSetChanged();
 	}
@@ -108,7 +146,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	/***
-	 * Internal SongViewHolder model for each item.
+	 * Internal ViewHolder model for each song.
 	 */
 	public class SongViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.ivAlbum) ImageView ivAlbum;
@@ -126,17 +164,19 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickAdd() {
+			if(getAdapterPosition() < mAddToQueuePosition) return;
 			mMainActivity.updateInteractionTime();
 			if(mIsAdding) return;
 			mIsAdding = true;
 
 			showLoading(true);
-			Party.getCurrentParty().addSong(mSongs.get(getAdapterPosition()), e -> {
+			Log.d("TAG", String.format("ap: %d, sp: %d", getAdapterPosition(), getSongsPosition(getAdapterPosition())));
+			Party.getCurrentParty().addSong(mSongs.get(getSongsPosition(getAdapterPosition())), e -> {
 				mIsAdding = false;
 				mIsSwiping = false;
 
 				if(e == null) {
-					mSongs.remove(getAdapterPosition());
+					mSongs.remove(getSongsPosition(getAdapterPosition()));
 					notifyItemRemoved(getAdapterPosition());
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				}
@@ -171,12 +211,15 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		}
 	}
 
+	/***
+	 * Internal ViewHolder model for each section heading
+	 */
 	public class SectionViewHolder extends RecyclerView.ViewHolder {
 		@BindView(R.id.tvSection) TextView tvSection;
 
 		private SectionViewHolder(View itemView) {
 			super(itemView);
-			ButterKnife.bind(itemView);
+			ButterKnife.bind(this, itemView);
 		}
 	}
 }
