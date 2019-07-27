@@ -2,14 +2,14 @@ package com.example.curate;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
 
 import com.example.curate.models.Party;
@@ -26,34 +26,30 @@ import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerState;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
+
+import static com.example.curate.ServiceUtils.ACTION_INIT;
+import static com.example.curate.ServiceUtils.ACTION_PLAY;
+import static com.example.curate.ServiceUtils.ACTION_PLAY_PAUSE;
+import static com.example.curate.ServiceUtils.ACTION_SKIP;
+import static com.example.curate.ServiceUtils.ACTION_UPDATE;
+import static com.example.curate.ServiceUtils.PAUSED_KEY;
+import static com.example.curate.ServiceUtils.PLAYBACK_POS_KEY;
+import static com.example.curate.ServiceUtils.RECEIVER_KEY;
+import static com.example.curate.ServiceUtils.RESULT_ALBUM_ART;
+import static com.example.curate.ServiceUtils.RESULT_NEW_SONG;
+import static com.example.curate.ServiceUtils.RESULT_PLAYBACK;
+import static com.example.curate.ServiceUtils.RESULT_PLAY_PAUSE;
+import static com.example.curate.ServiceUtils.SONG_ID_KEY;
+import static com.example.curate.ServiceUtils.bundleBitmap;
+import static com.example.curate.ServiceUtils.bundlePlayback;
+import static com.example.curate.ServiceUtils.bundleTrack;
 
 public class PlayerService extends JobIntentService {
     private static final String TAG = "PlayerService";
     private static final String REDIRECT_URI = "http://com.example.curate/callback";
-
-    // Unique job ID for this service
-    private static final int PLAYER_JOB_ID = 1000;
     private static final int NEXT_SONG_DELAY = 2000;
 
-    public static final String RECEIVER_KEY = "receiver";
-    public static final String SONG_ID_KEY = "spotifyId";
-    public static final String PLAYBACK_POS_KEY = "playbackPosition";
-    public static final String DURATION_KEY = "duration";
-    public static final String PAUSED_KEY = "isPaused";
-    public static final String TITLE_KEY = "title";
-    public static final String ARTIST_KEY = "artist";
-    public static final String IMAGE_KEY = "image";
-    public static final String ACTION_PLAY = "action.PLAY";
-    public static final String ACTION_UPDATE = "action.UPDATE";
-    public static final String ACTION_INIT = "action.CONNECT";
-    public static final String ACTION_SKIP = "action.SKIP";
-    public static final String ACTION_PLAY_PAUSE = "action.PLAY_PAUSE";
-    public static final int RESULT_NEW_SONG = 123;
-    public static final int RESULT_PLAY_PAUSE = 456;
-    public static final int RESULT_ALBUM_ART = 789;
-    public static final int RESULT_SEEK = 1000;
 
     private static String CLIENT_ID;
     private static SpotifyAppRemote mSpotifyAppRemote;
@@ -61,17 +57,19 @@ public class PlayerService extends JobIntentService {
     private static PlayerApi mPlayerApi;
     private Context mContext;
     private static ResultReceiver mResultReceiver;
-
     private boolean mIsSpotifyInstalled;
     private static boolean mIsSpotifyConnected;
 
     private long mLastPlaybackPosition;
     private long mCurrDuration;
     private long mTimeRemaining;
-    private String mCurrSongId;
+    private String mCurrSongUri;
 
+    private Party mCurrentParty;
     private SaveCallback mPlaylistUpdatedCallback;
     private List<PlaylistEntry> mPlaylist;
+
+
 
     // Default constructor
     public PlayerService() {
@@ -82,11 +80,18 @@ public class PlayerService extends JobIntentService {
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
+        mCurrentParty = Party.getCurrentParty();
         CLIENT_ID = getString(R.string.clientId);
         connectSpotifyRemote(); //TODO check installation first
-        mPlaylist = Party.getCurrentParty().getPlaylist();
-        Log.d(TAG, "Got playlist " + mPlaylist);
         initializePlaylistUpdateCallback();
+    }
+
+    private void initializePlaylistUpdateCallback() {
+        mPlaylist = mCurrentParty.getPlaylist();
+        mPlaylistUpdatedCallback = e -> {
+            mPlaylist = mCurrentParty.getPlaylist();
+        };
+        mCurrentParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
     }
 
     /**
@@ -96,26 +101,27 @@ public class PlayerService extends JobIntentService {
     protected void onHandleWork(@NonNull Intent intent) {
         Log.d(TAG, "onHandleWork() called with: intent = [" + intent + "]");
         if (intent.getAction() != null) {
+            mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
             switch (intent.getAction()) {
                 case ACTION_INIT:
-                    mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
                     break;
                 case ACTION_PLAY: // TODO - this action is called when the admin taps a song in the rv adapter
-                    mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
                     String newSongId = intent.getStringExtra(SONG_ID_KEY);
                     playNewSong(newSongId);
                     break;
                 case ACTION_SKIP:
-                    mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
+                    pausePlayer();
                     String nextSongId = retrieveNextSong();
-                    playNewSong(nextSongId);
+                    if (nextSongId != null) {
+                        playNewSong(nextSongId);
+                    } else {
+                        pausePlayer();
+                    }
                     break;
                 case ACTION_PLAY_PAUSE:
-                    mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
                     playPause();
                     break;
                 case ACTION_UPDATE:
-                    mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
                     long seekPosition = intent.getLongExtra(PLAYBACK_POS_KEY, 0);
                     seekTo(seekPosition);
                     break;
@@ -123,61 +129,52 @@ public class PlayerService extends JobIntentService {
         }
     }
 
-    /**
-     * Convenience method for enqueuing work into this service.
-     */
-    public static void enqueueWork(Context context, PlayerResultReceiver playerResultReceiver, String ACTION, @Nullable Bundle data) {
-        Intent intent = new Intent(context, PlayerService.class);
-        intent.putExtra(RECEIVER_KEY, playerResultReceiver);
-
-        switch (ACTION) {
-            case ACTION_UPDATE:
-                long seekTo = data.getLong(PLAYBACK_POS_KEY);
-                intent.putExtra(PLAYBACK_POS_KEY, seekTo);
-                break;
-            case ACTION_PLAY:
-                String newSongId = data.getString(SONG_ID_KEY);
-                intent.putExtra(SONG_ID_KEY, newSongId); // TODO - more efficient way to do this??
-                break;
-        }
-
-        intent.setAction(ACTION);
-        enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
-    }
-
-    // Auto-play methods
+    // Auto-play fields and methods
 
     final Handler runnableHandler = new Handler();
-
-    final Runnable songRunnable = new Runnable() {
-//        private String lastSongId;
-        @Override
-        public void run() {
-            String nextSongId = retrieveNextSong();
+    final Runnable songRunnable = () -> {
+        String nextSongId = retrieveNextSong();
+        if (nextSongId != null) {
             playNewSong(nextSongId);
-            //TODO - add some check to ensure new song should start playing??
+        } else {
+            pausePlayer();
         }
+        //TODO - add some check to ensure new song should start playing??
     };
+
+    private void updateRunnable(long currPosition, long currDuration, boolean isPaused) {
+        mCurrDuration = currDuration;
+        mLastPlaybackPosition = currPosition;
+        mTimeRemaining = mCurrDuration - mLastPlaybackPosition;
+        // Set the runnable according to the new time remaining
+        if (isPaused || mTimeRemaining <= 0) {
+            pauseRunnable();
+        } else {
+            playRunnable();
+        }
+    }
 
     private void pauseRunnable() {
         runnableHandler.removeCallbacks(songRunnable);
     }
 
-    private void setRunnable() {
+    private void playRunnable() {
         Log.d(TAG, "Posting runnable with delay " + mTimeRemaining/1000);
         runnableHandler.removeCallbacks(songRunnable);
-
         if (mTimeRemaining > NEXT_SONG_DELAY) {
             runnableHandler.postDelayed(songRunnable, mTimeRemaining - NEXT_SONG_DELAY);
+        } else {
+            Log.d(TAG, "Play runnable called with not enough time remaining"); // This line should never be reached
         }
     }
 
+
+    // Spotify PlayerApi methods
+
     /**
-     * Connects context to spotify remote player
-     * Subscribes to player state on connection
+     * Connects context to Spotify Android Remote Player SDK and subscribes to PlayerState
      */
     private void connectSpotifyRemote() {
-//        if (mSpotifyAppRemote == null || !mSpotifyAppRemote.isConnected()) {
         if (!mIsSpotifyConnected) {
             SpotifyAppRemote.connect(mContext, new ConnectionParams.Builder(CLIENT_ID)
                     .setRedirectUri(REDIRECT_URI)
@@ -185,9 +182,9 @@ public class PlayerService extends JobIntentService {
                     .build(), new Connector.ConnectionListener() {
                 @Override
                 public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                    Log.d(TAG, "Spotify remote app connected!");
                     mIsSpotifyConnected = true;
                     mSpotifyAppRemote = spotifyAppRemote;
-                    Log.d(TAG, "Spotify remote app connected!");
                     mPlayerApi = mSpotifyAppRemote.getPlayerApi();
                     onSubscribeToPlayerState();
                 }
@@ -196,7 +193,6 @@ public class PlayerService extends JobIntentService {
                 public void onFailure(Throwable error) {
                     if (error instanceof NotLoggedInException || error instanceof UserNotAuthorizedException) {
                         mIsSpotifyConnected = false;
-                        Log.e(TAG, error.toString());
                         // Show login button and trigger the login flow from auth library when clicked TODO
                         Log.d(TAG, "User is not logged in to SpotifyPlayer", error);
                     } else if (error instanceof CouldNotFindSpotifyApp) {
@@ -205,13 +201,11 @@ public class PlayerService extends JobIntentService {
                     }
                 }
             });
+        } else {
+            assert mSpotifyAppRemote.isConnected();
         }
     }
 
-    /**
-     * Subscribes to Spotify remote application player state.
-     * First deletes any existing subscription.
-     */
     private void onSubscribeToPlayerState() {
         // If there is already a subscription, cancel it and start a new one
         if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
@@ -220,9 +214,7 @@ public class PlayerService extends JobIntentService {
         }
 
         mPlayerStateSubscription = (Subscription<PlayerState>) mPlayerApi.subscribeToPlayerState()
-                .setEventCallback(playerState -> {
-                    mPlayerStateEventCallback.onEvent(playerState);
-                })
+                .setEventCallback(mPlayerStateEventCallback::onEvent)
                 .setLifecycleCallback(new Subscription.LifecycleCallback() {
                     @Override
                     public void onStart() {
@@ -244,114 +236,87 @@ public class PlayerService extends JobIntentService {
      */
     private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
         if (playerState.track != null) {
-            // Only update the party's currently playing song if it has changed
-            if (!playerState.track.uri.equals(mCurrSongId) && playerState.track.name != null) {
+            // Only update the receiver with track details if the remote player has begun a new track
+            if (!playerState.track.uri.equals(mCurrSongUri) && playerState.track.name != null) {
                 Log.d(TAG, "Event with new song " + playerState.track.name + " at plackback position " + playerState.playbackPosition / 1000 + " seconds");
-                mCurrSongId = playerState.track.uri;
-                Bundle bundle = new Bundle();
-                bundle.putString(SONG_ID_KEY, playerState.track.uri);
-                bundle.putString(TITLE_KEY, playerState.track.name);
-                bundle.putString(ARTIST_KEY, playerState.track.artist.name);
-                bundle.putLong(DURATION_KEY, playerState.track.duration);
-                bundle.putBoolean(PAUSED_KEY, playerState.isPaused);
-                bundle.putLong(PLAYBACK_POS_KEY, playerState.playbackPosition);
-                mResultReceiver.send(RESULT_NEW_SONG, bundle);
+                setCurrentlyPlaying(playerState.track.uri);
+                mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
                 getAlbumArt();
-                /*Party.getCurrentParty().setCurrentlyPlaying(playerState.track.uri, e -> {
-                    if (e == null) {
-                        Log.e(TAG, "Success setting currently playing song");
-                    } else {
-                        Log.e(TAG, "Error setting currently playing song", e);
-                    }
-                });*///TODO
-            } else {
+            } else { // If the track hasn't changed, update the receiver with the current playback position
                 Log.d(TAG, "Event with playback position " + playerState.playbackPosition / 1000 + " seconds");
-                Bundle bundle = new Bundle();
-                bundle.putLong(PLAYBACK_POS_KEY, playerState.playbackPosition);
-                bundle.putBoolean(PAUSED_KEY, playerState.isPaused);
-                mResultReceiver.send(RESULT_SEEK, bundle);
+                mResultReceiver.send(RESULT_PLAYBACK, bundlePlayback(playerState));
             }
-
-            mCurrDuration = playerState.track.duration;
-            mLastPlaybackPosition = playerState.playbackPosition;
-            mTimeRemaining = mCurrDuration - mLastPlaybackPosition;
-            if (playerState.isPaused || mTimeRemaining == 0) {
-                pauseRunnable();
-            } else {
-                setRunnable();
-            }
+            updateRunnable(playerState.playbackPosition, playerState.track.duration, playerState.isPaused);
         }
     };
 
-// call this on create
-    private void initializePlaylistUpdateCallback() {
-        mPlaylistUpdatedCallback = e -> {
-            // do something
-            mPlaylist = Party.getCurrentParty().getPlaylist();
-            Log.d(TAG, "Playlist updated to " + mPlaylist);
-        };
-        Party.getCurrentParty().registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+
+
+    private void setCurrentlyPlaying(String uri) {
+        mCurrSongUri = uri;
+        mCurrentParty.setCurrentlyPlaying(uri.replace("spotify:track:", ""), e -> {
+            if (e == null) {
+                Log.d(TAG, "Set currently playing success!");
+            } else {
+                Log.e(TAG, "Error setting currently playing song", e);
+            }
+        });
     }
 
-    /**
-     * Pauses or resumes remote player based on current pause state.
-     * Sends new pause state to receiver.
-     */
+    // Playback methods
+
     private void playPause() {
         if (mPlayerApi != null) {
             mPlayerApi.getPlayerState().setResultCallback(playerState -> {
                 if (playerState.isPaused) {
-                    mPlayerApi.resume()
-                            .setResultCallback(empty -> {
-                                Bundle bundle = new Bundle();
-                                bundle.putBoolean(PAUSED_KEY, false);
-                                mResultReceiver.send(RESULT_PLAY_PAUSE, bundle);
-                                Log.d(TAG, "Resume successful");
-                            })
-                            .setErrorCallback(throwable -> Log.e(TAG, "Error resuming play!", throwable));
+                    resumePlayer();
                 } else {
-                    pause();
+                    pausePlayer();
                 }
             });
         }
     }
 
-    private void pause() {
-        if (mPlayerApi != null) {
-            mPlayerApi.pause()
-                    .setResultCallback(empty -> {
-                        Bundle bundle = new Bundle();
-                        bundle.putBoolean(PAUSED_KEY, true);
-                        mResultReceiver.send(RESULT_PLAY_PAUSE, bundle);
-                        Log.d(TAG, "Pause successful");
-                    })
-                    .setErrorCallback(throwable -> Log.e(TAG, "Error pausing play!", throwable));
-        }
+    private void resumePlayer() {
+        mPlayerApi.resume()
+                .setResultCallback(empty -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(PAUSED_KEY, false);
+                    mResultReceiver.send(RESULT_PLAY_PAUSE, bundle);
+                    Log.d(TAG, "Resume successful");
+                })
+                .setErrorCallback(throwable -> Log.e(TAG, "Error resuming play!", throwable));
     }
 
+    private void pausePlayer() {
+        mPlayerApi.pause()
+                .setResultCallback(empty -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(PAUSED_KEY, true);
+                    mResultReceiver.send(RESULT_PLAY_PAUSE, bundle);
+                    Log.d(TAG, "Pause successful");
+                })
+                .setErrorCallback(throwable -> Log.e(TAG, "Error pausing play!", throwable));
+    }
 
+    public void seekTo(long progress) {
+        if (mPlayerApi != null) {
+            mPlayerApi.seekTo(progress)
+                    .setResultCallback(empty -> Log.d(TAG, "Seek success!"))
+                    .setErrorCallback(error -> Log.e(TAG, "Cannot seek unless you have premium!", error));
+        }
+    }
 
     private void playNewSong(String spotifyId) {
         if (mPlayerApi != null) {
             mPlayerApi.play("spotify:track:" + spotifyId)
-                    .setResultCallback(empty -> {
-                        Party.getCurrentParty().setCurrentlyPlaying(spotifyId, e -> {
-                            if (e == null) {
-                                Log.d(TAG, "Set currently playing success!");
-                            } else {
-                                Log.e(TAG, "Error setting curerntly playing song", e);
-                            }
-                        });
-                        mPlayerApi.getPlayerState()
-                                .setResultCallback(playerState -> Log.d(TAG, "Play success"))
-                                .setErrorCallback(throwable -> Log.e(TAG, "Play error", throwable));
-            });
+                    .setResultCallback(empty -> Log.d(TAG, "Success playing new song " + spotifyId))
+                    .setErrorCallback(throwable -> Log.e(TAG, "Error playing new song " + spotifyId, throwable));
         }
     }
 
     /**
-     * This function retrieves the top song in the locally cached playlist for the current party
-     * and deletes it.
+     * This function retrieves the top song in the locally cached playlist and deletes it.
      * If the playlist is empty, it logs an error.
      *
      * @return the spotify ID of the song to be played
@@ -359,53 +324,31 @@ public class PlayerService extends JobIntentService {
     private String retrieveNextSong() {
         if(mPlaylist.isEmpty()) {
             Log.e(TAG, "Playlist is empty!");
-            //TODO - Toast
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Your queue is empty!", Toast.LENGTH_LONG).show());
             return null;
         }
         String spotifyId = mPlaylist.get(0).getSong().getSpotifyId();
-        mPlaylist.remove(0); //TODO ???
+        mPlaylist.remove(0);
         return spotifyId;
     }
 
     /**
-     * Seeks to a new position in the current song playing remotely
-     *
-     * @param progress New position to seek to
-     */
-    public void seekTo(long progress) {
-        if (mPlayerApi != null) {
-            mPlayerApi.seekTo(progress)
-                    .setResultCallback(empty -> {
-                        mLastPlaybackPosition = progress;
-                        mTimeRemaining = mCurrDuration - mLastPlaybackPosition;
-//                    setRunnable();
-                        Log.d(TAG, "Seek success!");
-                    })
-                    .setErrorCallback(error -> Log.e(TAG, "Cannot seek unless you have premium!", error));
-        }
-    }
-
-    /**
-     * Retrieves the bitmap for the album art of the curently playing song.
-     * Converts the bitmap to a byte array and sends to receiver for loading into views.
+     * Retrieves the album art bitmap of the currently playing song, converts to a byte array
+     * and sends to receiver for loading into views.
      */
     private void getAlbumArt() {
         mPlayerApi.getPlayerState().setResultCallback(playerState -> {
             mSpotifyAppRemote.getImagesApi()
                     .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
                     .setResultCallback(bitmap -> {
-                        Bundle bundle = new Bundle();
-
-                        // convert bitmap to Byte array
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                        byte[] byteArray = stream.toByteArray();
-
-                        bundle.putByteArray(IMAGE_KEY,byteArray); //TODO string
-                        mResultReceiver.send(RESULT_ALBUM_ART, bundle);
+                        mResultReceiver.send(RESULT_ALBUM_ART, bundleBitmap(bitmap));
                     });
         });
     }
+
+
+
+
 
     //TODO - implement this
     /**

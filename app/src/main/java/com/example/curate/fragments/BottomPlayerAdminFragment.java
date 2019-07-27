@@ -31,8 +31,8 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.curate.PlayerResultReceiver;
-import com.example.curate.PlayerService;
 import com.example.curate.R;
+import com.example.curate.TrackProgressBar;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
 import com.google.android.gms.location.LocationCallback;
@@ -44,18 +44,22 @@ import butterknife.OnClick;
 
 import static android.graphics.Typeface.BOLD;
 import static android.graphics.Typeface.NORMAL;
-import static com.example.curate.PlayerService.ACTION_INIT;
-import static com.example.curate.PlayerService.ACTION_UPDATE;
-import static com.example.curate.PlayerService.ARTIST_KEY;
-import static com.example.curate.PlayerService.DURATION_KEY;
-import static com.example.curate.PlayerService.IMAGE_KEY;
-import static com.example.curate.PlayerService.PAUSED_KEY;
-import static com.example.curate.PlayerService.PLAYBACK_POS_KEY;
-import static com.example.curate.PlayerService.RESULT_ALBUM_ART;
-import static com.example.curate.PlayerService.RESULT_NEW_SONG;
-import static com.example.curate.PlayerService.RESULT_PLAY_PAUSE;
-import static com.example.curate.PlayerService.RESULT_SEEK;
-import static com.example.curate.PlayerService.TITLE_KEY;
+import static com.example.curate.ServiceUtils.ACTION_INIT;
+import static com.example.curate.ServiceUtils.ACTION_PLAY_PAUSE;
+import static com.example.curate.ServiceUtils.ACTION_SKIP;
+import static com.example.curate.ServiceUtils.ACTION_UPDATE;
+import static com.example.curate.ServiceUtils.ARTIST_KEY;
+import static com.example.curate.ServiceUtils.DURATION_KEY;
+import static com.example.curate.ServiceUtils.IMAGE_KEY;
+import static com.example.curate.ServiceUtils.PAUSED_KEY;
+import static com.example.curate.ServiceUtils.PLAYBACK_POS_KEY;
+import static com.example.curate.ServiceUtils.RESULT_ALBUM_ART;
+import static com.example.curate.ServiceUtils.RESULT_NEW_SONG;
+import static com.example.curate.ServiceUtils.RESULT_PLAYBACK;
+import static com.example.curate.ServiceUtils.RESULT_PLAY_PAUSE;
+import static com.example.curate.ServiceUtils.SONG_ID_KEY;
+import static com.example.curate.ServiceUtils.TITLE_KEY;
+import static com.example.curate.ServiceUtils.enqueuePlayer;
 
 public class BottomPlayerAdminFragment extends Fragment implements PlayerResultReceiver.Receiver {
     private static final String TAG = "BottomPlayerAdmin";
@@ -84,8 +88,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
     private Typeface mNormalFont;
 
     private LocationCallback mLocationCallback = null;
-
-    public PlayerResultReceiver mPlayerResultReceiver;
+    public static PlayerResultReceiver mPlayerResultReceiver;
 
     public BottomPlayerAdminFragment() {
         // Required empty public constructor
@@ -109,7 +112,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
         mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
         mPlayerResultReceiver.setReceiver(this);
         // This INIT call effectively creates the service by spawning a new worker thread
-        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, ACTION_INIT, null);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_INIT, null);
     }
 
     @Override
@@ -118,7 +121,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
         View view = inflater.inflate(R.layout.fragment_bottom_player_admin, container, false);
         ButterKnife.bind(this, view);
 
-        mTrackProgressBar = new TrackProgressBar(mSeekBar);
+        mTrackProgressBar = new TrackProgressBar(this, mSeekBar);
 
         mLocationManager = new LocationManager(getContext());
         if(mLocationManager.hasNecessaryPermissions() && Party.getLocationEnabled()) {
@@ -140,11 +143,11 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
         return view;
     }
 
-    /*@Override
+    @Override
     public void onResume() {
         super.onResume();
-        mSpotifyPlayer.checkSpotifyInstalled();
-    }*/
+        setUpService();
+    }
 
 
     /**
@@ -176,19 +179,23 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
 
     @OnClick(R.id.ivPrev)
     public void onRestartSong() {
+        onSeekTo(0);
+    }
+
+    public void onSeekTo(long pos) {
         Bundle bundle = new Bundle();
-        bundle.putLong(PLAYBACK_POS_KEY, 0);
-        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_UPDATE, bundle);
+        bundle.putLong(PLAYBACK_POS_KEY, pos);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_UPDATE, bundle);
     }
 
     @OnClick(R.id.ivPlayPause)
     public void onPlayPause() {
-        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_PLAY_PAUSE, null);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_PLAY_PAUSE, null);
     }
 
     @OnClick(R.id.ivNext)
     public void onSkipNext() {
-        PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, PlayerService.ACTION_SKIP, null);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_SKIP, null);
     }
 
     @OnClick(R.id.ibShare)
@@ -367,117 +374,25 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         Log.d(TAG, "Received result code " + resultCode + " with data " + resultData);
-        if (resultCode == RESULT_PLAY_PAUSE) {
-            if (resultData != null) {
-                boolean isPaused = resultData.getBoolean(PAUSED_KEY);
-                setPaused(isPaused);
-
-            }
-        } else if (resultCode == RESULT_NEW_SONG) {
-            if (resultData != null) {
-                //String newSongId = resultData.getString(SONG_ID_KEY);
-                long newDuration = resultData.getLong(DURATION_KEY);
-                String newTitle = resultData.getString(TITLE_KEY);
-                String newArtist = resultData.getString(ARTIST_KEY);
-                long playbackPos = resultData.getLong(PLAYBACK_POS_KEY);
-                boolean isPaused = resultData.getBoolean(PAUSED_KEY);
-                //TODO - update song information
-                mTrackProgressBar.setDuration(newDuration);
-                mTrackProgressBar.update(playbackPos);
-                setTrackDetails(newTitle, newArtist);
-                setPaused(isPaused);
-            }
-        } else if (resultCode == RESULT_ALBUM_ART) {
-            if (resultData != null) {
+        if (resultData != null) {
+            if (resultCode == RESULT_PLAY_PAUSE) {
+                setPaused(resultData.getBoolean(PAUSED_KEY));
+            } else if (resultCode == RESULT_NEW_SONG) {
+                String newSongId = resultData.getString(SONG_ID_KEY);
+                // Update song information
+                mTrackProgressBar.setDuration(resultData.getLong(DURATION_KEY));
+                mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
+                setTrackDetails(resultData.getString(TITLE_KEY), resultData.getString(ARTIST_KEY));
+                setPaused(resultData.getBoolean(PAUSED_KEY));
+            } else if (resultCode == RESULT_ALBUM_ART) {
                 // Decode byte array into bitmap
                 byte[] byteArray = resultData.getByteArray(IMAGE_KEY);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                 ivAlbum.setImageBitmap(bitmap);
-            }
-        } else if (resultCode == RESULT_SEEK) {
-            if (resultData != null) {
-                long seekTo = resultData.getLong(PLAYBACK_POS_KEY);
-                boolean isPaused = resultData.getBoolean(PAUSED_KEY);
-                mTrackProgressBar.update(seekTo);
-                setPaused(isPaused);
+            } else if (resultCode == RESULT_PLAYBACK) {
+                mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
+                setPaused(resultData.getBoolean(PAUSED_KEY));
             }
         }
     }
-
-    public class TrackProgressBar {
-        private static final int NEXT_SONG_DELAY = 1000;
-        private static final int LOOP_DURATION = 500;
-        private SeekBar mSeekBar;
-        private Handler mHandler;
-        private boolean mIsBeingTouched;
-
-        public TrackProgressBar(SeekBar seekBar) {
-            mSeekBar = seekBar;
-            mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
-            mHandler = new Handler();
-            mIsBeingTouched = false;
-        }
-
-        private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener
-                = new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                /*int timeRemaining = mSeekBar.getMax() - progress;
-                if (timeRemaining < NEXT_SONG_DELAY && !mIsBeingTouched) {
-                    mHandler.removeCallbacks(mSeekRunnable);
-                    playNextSong();
-                }*/
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                mIsBeingTouched = true;
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                long timeRemaining = mSeekBar.getMax() - seekBar.getProgress();
-                long progress = timeRemaining > NEXT_SONG_DELAY ? seekBar.getProgress() : mSeekBar.getMax() - NEXT_SONG_DELAY;
-
-                // Alert service to update playback position
-                Bundle bundle = new Bundle();
-                bundle.putLong(PLAYBACK_POS_KEY, progress);
-                PlayerService.enqueueWork(getContext(), mPlayerResultReceiver, ACTION_UPDATE, bundle);
-                mIsBeingTouched = false; // TODO
-            }
-        };
-
-        private final Runnable mSeekRunnable = new Runnable() {
-            @Override
-            public void run() {
-                int progress = mSeekBar.getProgress();
-                mSeekBar.setProgress(progress + LOOP_DURATION);
-                mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
-            }
-        };
-
-        public void setDuration(long duration) {
-            mSeekBar.setMax((int) duration);
-        }
-
-        public void update(long progress) {
-            mSeekBar.setProgress((int) progress);
-            mHandler.removeCallbacks(mSeekRunnable);
-            mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
-        }
-
-        public void pause() {
-            mHandler.removeCallbacks(mSeekRunnable);
-        }
-
-        public void unpause() {
-            mHandler.removeCallbacks(mSeekRunnable);
-            mHandler.postDelayed(mSeekRunnable, LOOP_DURATION);
-        }
-
-        public void setEnabled(boolean isEnabled) {
-            mSeekBar.setEnabled(isEnabled);
-        }
-    }
-
 }

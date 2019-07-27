@@ -563,8 +563,10 @@ public class Party extends ParseObject {
 
         ParseCloud.callFunctionInBackground("setCurrentlyPlaying", params, (FunctionCallback<Song>) (song, e) -> {
             if (e == null) {
-                Log.d("Party.java", "got song " + song.getTitle());
-                mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY)));
+                if (song != null) {
+                    Log.d("Party.java", "got song " + song.getTitle());
+                    mCurrentParty.put(CURRENTLY_PLAYING_KEY, (Song) Objects.requireNonNull(mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY)));
+                }
             } else {
                 Log.e("Party.java", "Could not set the next song");
             }

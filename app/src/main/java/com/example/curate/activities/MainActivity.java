@@ -40,7 +40,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.curate.R;
 import com.example.curate.fragments.BottomPlayerAdminFragment;
-import com.example.curate.fragments.BottomPlayerClientFragment;
+import com.example.curate.fragments.BottomPlayerFragment;
 import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         if (mIsAdmin) {
             mBottomPlayerFragment = BottomPlayerAdminFragment.newInstance();
         } else {
-            mBottomPlayerFragment = BottomPlayerClientFragment.newInstance();
+            mBottomPlayerFragment = BottomPlayerFragment.newInstance();
         }
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 

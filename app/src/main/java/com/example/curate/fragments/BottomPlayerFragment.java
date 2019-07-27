@@ -1,26 +1,19 @@
 package com.example.curate.fragments;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.res.ResourcesCompat;
@@ -30,14 +23,8 @@ import com.bumptech.glide.Glide;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
-import com.example.curate.utils.LocationManager;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerContext;
-import com.spotify.protocol.types.PlayerState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,7 +33,7 @@ import butterknife.OnClick;
 import static android.graphics.Typeface.BOLD;
 import static android.graphics.Typeface.NORMAL;
 
-public class BottomPlayerClientFragment extends Fragment {
+public class BottomPlayerFragment extends Fragment {
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
@@ -66,12 +53,12 @@ public class BottomPlayerClientFragment extends Fragment {
     private Typeface mBoldFont;
     private Typeface mNormalFont;
 
-    public BottomPlayerClientFragment() {
+    public BottomPlayerFragment() {
         // Required empty public constructor
     }
 
-    public static BottomPlayerClientFragment newInstance() {
-        BottomPlayerClientFragment fragment = new BottomPlayerClientFragment();
+    public static BottomPlayerFragment newInstance() {
+        BottomPlayerFragment fragment = new BottomPlayerFragment();
         return fragment;
     }
 
