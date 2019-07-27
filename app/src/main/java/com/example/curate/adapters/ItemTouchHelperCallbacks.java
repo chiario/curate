@@ -75,7 +75,10 @@ public class ItemTouchHelperCallbacks {
 				View itemView = viewHolder.itemView;
 
 				// Draw background
-				drawBackground(c, R.color.darkBlue, itemView);
+				background.setColor(mContext.getResources().getColor(R.color.darkBlue));
+				background.setBounds(0, itemView.getTop(),
+						itemView.getLeft() + (int) dX, itemView.getBottom());
+				background.draw(c);
 
 				// Draw icon
 				int width = (itemView.getBottom() - itemView.getTop())/3;
@@ -118,13 +121,11 @@ public class ItemTouchHelperCallbacks {
 				return;
 			}
 			View itemView = viewHolder.itemView;
-			if(!isCurrentlyActive || viewHolder.getAdapterPosition() == NO_POSITION) {
-				c.drawColor(mContext.getResources().getColor(R.color.darkGray));
-				if(viewHolder.getAdapterPosition() == NO_POSITION) return;
-			}
 			if(dX < 0) {
 				// Draw background
-				drawBackground(c, R.color.colorAccent, itemView);
+				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
+				background.setBounds(itemView.getRight(), itemView.getTop(), itemView.getRight() + (int) dX, itemView.getBottom());
+				background.draw(c);
 
 				// Draw icon
 				int width = (itemView.getBottom() - itemView.getTop())/3;
@@ -173,7 +174,10 @@ public class ItemTouchHelperCallbacks {
 
 			if(dX < 0) {
 				// Draw background
-				drawBackground(c, R.color.colorAccent, itemView);
+				background.setColor(mContext.getResources().getColor(R.color.colorAccent));
+				background.setBounds(itemView.getRight(), itemView.getTop(),
+						itemView.getRight() + (int) dX, itemView.getBottom());
+				background.draw(c);
 
 				// Draw icon
 				int width = (itemView.getBottom() - itemView.getTop())/3;
