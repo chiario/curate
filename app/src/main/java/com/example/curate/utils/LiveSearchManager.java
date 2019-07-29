@@ -99,6 +99,8 @@ public class LiveSearchManager {
      * @return true if the live query results are up to date with the desired query
      */
     public boolean isSearchComplete() {
+        if(mLastCompletedRequest == null) return false;
+
         Song.SearchQuery completed = mLastCompletedRequest.query;
 
         // Return true if the most recently completed search matches the desired query
