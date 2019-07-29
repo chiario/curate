@@ -219,8 +219,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
             setSeekbar(true);
             setButtonVisibility(View.VISIBLE);
             ibExpandCollapse.setSelected(true);
-        }
-        else {
+        } else {
             mCollapsed.applyTo(mPlayerBackground);
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_collapsed));
             setVisibility(View.GONE);
@@ -245,8 +244,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
             tvTitle.setText(builder);
             tvArtist.setText(mArtistName);
             tvArtist.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             // TODO: Change font here
             tvTitle.setSelected(true);
             SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
@@ -281,8 +279,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
             mSeekBar.setThumb(mSeekbarThumbDrawable);
             int sidePadding = (int) dpToPx(16f);
             mSeekBar.setPadding(sidePadding, 0, sidePadding, 0);
-        }
-        else {
+        } else {
             // Hide the thumb
             mSeekBar.setThumb(new ColorDrawable(ContextCompat.getColor(getContext(), R.color.transparent)));
             mSeekBar.setPadding(0, 0, 0, 0);
@@ -312,8 +309,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
                 Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(locationResult.getLastLocation()), e -> {
                     if (e == null) {
                         Log.d("MainActivity", "Party location updated!");
-                    }
-                    else {
+                    } else {
                         Log.e("MainActivity", "yike couldnt update party location!", e);
                     }
                 });
@@ -329,8 +325,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
                 Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(location), e -> {
                     if (e == null) {
                         Log.d("MainActivity", "Party location updated!");
-                    }
-                    else {
+                    } else {
                         Log.e("MainActivity", "yike couldnt update party location!", e);
                     }
                 });
@@ -357,8 +352,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && Party.getLocationEnabled()) {
                 // Location permission has been granted, register location updater
                 registerLocationUpdater();
-            }
-            else {
+            } else {
                 Log.i("AdminManager", "Location permission was not granted.");
             }
         }

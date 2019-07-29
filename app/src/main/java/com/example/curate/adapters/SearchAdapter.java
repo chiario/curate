@@ -182,8 +182,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					mSongs.add(mAddToQueuePosition - 1, song);
 					notifyItemInserted(mAddToQueuePosition++);
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
-				}
-				else {
+				} else {
 					showLoading(false);
 					Toast.makeText(mContext, "Could not add song", Toast.LENGTH_SHORT).show();
 				}

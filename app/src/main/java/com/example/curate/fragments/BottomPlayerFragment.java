@@ -76,8 +76,7 @@ public class BottomPlayerFragment extends Fragment {
             params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_expanded));
             ibExpandCollapse.setSelected(true);
             mPlayerBackground.setLayoutParams(params);
-        }
-        else {
+        } else {
             mCollapsed.applyTo(mPlayerBackground);
             ivAlbum.setVisibility(View.GONE);
             ibShare.setVisibility(View.GONE);
@@ -101,8 +100,7 @@ public class BottomPlayerFragment extends Fragment {
             tvTitle.setText(builder);
             tvArtist.setText(mArtistName);
             tvArtist.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             tvTitle.setSelected(true);
             SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
             SpannableString artist = new SpannableString(mArtistName);

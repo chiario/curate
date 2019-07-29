@@ -269,9 +269,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         ft.show(fragment);
         if(fragment.equals(mSearchFragment))
             ft.addToBackStack(fragment.getTag());
-        else if(fragment.equals(mQueueFragment)) {
-
-        }
         ft.commit();
 
         mActiveFragment = fragment;

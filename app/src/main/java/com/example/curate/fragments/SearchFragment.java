@@ -175,10 +175,11 @@ public class SearchFragment extends Fragment {
 					mAdapter.addAll(search.getResults());
 				}
 			} else {
-				if(e.getMessage().startsWith("400"))
+				if(e.getMessage().startsWith("400")) {
 					showText(getString(R.string.no_search_result));
-				else
+				} else {
 					showText(getString(R.string.search_error));
+				}
 			}
 		});
 	}

@@ -109,8 +109,7 @@ public class Party extends ParseObject {
                 // Save the created party to the singleton instance
                 mCurrentParty = party;
                 mCurrentParty.initialize();
-            }
-            else {
+            } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not create party!", e);
             }
@@ -137,8 +136,7 @@ public class Party extends ParseObject {
                 // Remove the current party from the singleton instance
                 mCurrentParty = null;
                 Log.d("Party.java", "Party deleted");
-            }
-            else {
+            } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not delete party!", e);
             }
