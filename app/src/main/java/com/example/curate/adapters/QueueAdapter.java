@@ -22,7 +22,6 @@ import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.parse.SaveCallback;
 
-import java.text.ParseException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -114,6 +113,10 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
+			itemView.setOnClickListener(view -> {
+				Song song = mPlaylist.get(getAdapterPosition()).getSong();
+				mMainActivity.getBottomPlayerFragment().onPlayNew(song.getSpotifyId());
+			});
 		}
 
 

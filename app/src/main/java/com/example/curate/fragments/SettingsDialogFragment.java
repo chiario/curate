@@ -1,9 +1,7 @@
 package com.example.curate.fragments;
 
 import android.app.AlertDialog;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +13,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -96,9 +91,9 @@ public class SettingsDialogFragment extends DialogFragment {
             Party.saveSettings(newLocationEnabled, newName, e -> {
                 if(e == null) {
                     if(newLocationEnabled) {
-                        ((MainActivity) getActivity()).getBottomPlayerFragment().registerLocationUpdater();
+                        ((MainActivity) getActivity()).registerLocationUpdater();
                     } else {
-                        ((MainActivity) getActivity()).getBottomPlayerFragment().deregisterLocationUpdater();
+                        ((MainActivity) getActivity()).deregisterLocationUpdater();
                     }
                     dismiss();
                 } else {

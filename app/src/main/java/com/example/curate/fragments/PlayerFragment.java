@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.res.ResourcesCompat;
@@ -33,7 +34,7 @@ import butterknife.OnClick;
 import static android.graphics.Typeface.BOLD;
 import static android.graphics.Typeface.NORMAL;
 
-public class BottomPlayerFragment extends Fragment {
+public class PlayerFragment extends Fragment {
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
@@ -47,81 +48,19 @@ public class BottomPlayerFragment extends Fragment {
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
 
-    private String mTrackName = "--";
-    private String mArtistName = "--";
-    private boolean isExpanded;
+    String mTrackName = "--";
+    String mArtistName = "--";
+    boolean isExpanded;
     private Typeface mBoldFont;
     private Typeface mNormalFont;
 
-    public BottomPlayerFragment() {
+    public PlayerFragment() {
         // Required empty public constructor
     }
 
-    public static BottomPlayerFragment newInstance() {
-        BottomPlayerFragment fragment = new BottomPlayerFragment();
+    public static PlayerFragment newInstance() {
+        PlayerFragment fragment = new PlayerFragment();
         return fragment;
-    }
-
-    /***
-     * Set the bottom players expanded state
-     * @param isExpanded The new state to be in
-     */
-    private void setExpanded(boolean isExpanded) {
-        this.isExpanded = isExpanded;
-        ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
-        if(isExpanded) {
-            mExpanded.applyTo(mPlayerBackground);
-            ivAlbum.setVisibility(View.VISIBLE);
-            ibShare.setVisibility(View.VISIBLE);
-            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_expanded));
-            ibExpandCollapse.setSelected(true);
-            mPlayerBackground.setLayoutParams(params);
-        } else {
-            mCollapsed.applyTo(mPlayerBackground);
-            ivAlbum.setVisibility(View.GONE);
-            ibShare.setVisibility(View.GONE);
-            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_collapsed));
-            ibExpandCollapse.setSelected(false);
-            mPlayerBackground.setLayoutParams(params);
-        }
-        updateText();
-    }
-
-    private void initFonts() {
-        mBoldFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), BOLD);
-        mNormalFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), NORMAL);
-    }
-
-    private void updateText() {
-        int flag = SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE;
-        if(isExpanded) {
-            SpannableStringBuilder builder = new SpannableStringBuilder(mTrackName);
-            builder.setSpan(new TypefaceSpan(mBoldFont), 0, builder.length(), flag);
-            tvTitle.setText(builder);
-            tvArtist.setText(mArtistName);
-            tvArtist.setVisibility(View.VISIBLE);
-        } else {
-            tvTitle.setSelected(true);
-            SpannableString title = new SpannableString(String.format("%s · ", mTrackName));
-            SpannableString artist = new SpannableString(mArtistName);
-            title.setSpan(new TypefaceSpan(mBoldFont), 0, title.length(), flag);
-            artist.setSpan(new TypefaceSpan(mNormalFont), 0, artist.length(), flag);
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            builder.append(title);
-            builder.append(artist);
-            tvTitle.setText(builder);
-            tvArtist.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    @OnClick(R.id.ibExpandCollapse)
-    public void onClickExpandCollapse() {
-        setExpanded(!ibExpandCollapse.isSelected());
-    }
-
-    @OnClick(R.id.clCurrPlaying)
-    public void onClickClCurrPlaying() {
-        setExpanded(!ibExpandCollapse.isSelected());
     }
 
     @Override
@@ -130,7 +69,7 @@ public class BottomPlayerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bottom_player_client, container, false);
         ButterKnife.bind(this, view);
@@ -146,8 +85,80 @@ public class BottomPlayerFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        removeSongUpdateCallback();
+    }
+
+    /***
+     * Set the bottom players expanded state
+     * @param isExpanded The new state to be in
+     */
+    public void setExpanded(boolean isExpanded) {
+        this.isExpanded = isExpanded;
+        ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
+        if(isExpanded) {
+            mExpanded.applyTo(mPlayerBackground);
+            setVisibility(View.VISIBLE);
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_expanded));
+            ibExpandCollapse.setSelected(true);
+            mPlayerBackground.setLayoutParams(params);
+        } else {
+            mCollapsed.applyTo(mPlayerBackground);
+            setVisibility(View.GONE);
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_client_height_collapsed));
+            ibExpandCollapse.setSelected(false);
+            mPlayerBackground.setLayoutParams(params);
+        }
+        updateText();
+    }
+
+    public void setVisibility(int visibility) {
+        ivAlbum.setVisibility(visibility);
+        ibShare.setVisibility(visibility);
+    }
+
+    void initFonts() {
+        mBoldFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), BOLD);
+        mNormalFont = Typeface.create(ResourcesCompat.getFont(getContext(), R.font.nunito), NORMAL);
+    }
+
+    void updateText() {
+        int flag = SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE;
+        if(isExpanded) {
+            SpannableStringBuilder builder = new SpannableStringBuilder(mTrackName);
+            builder.setSpan(new TypefaceSpan(mBoldFont), 0, builder.length(), flag);
+            tvTitle.setText(builder);
+            tvArtist.setText(mArtistName);
+            tvArtist.setVisibility(View.VISIBLE);
+        } else {
+            // TODO: Change font here
+            tvTitle.setSelected(true);
+            SpannableString title = new SpannableString(String.format("%s · ", mTrackName));
+            SpannableString artist = new SpannableString(mArtistName);
+            title.setSpan(new TypefaceSpan(mBoldFont), 0, title.length(), flag);
+            artist.setSpan(new TypefaceSpan(mNormalFont), 0, artist.length(), flag);
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            builder.append(title);
+            builder.append(artist);
+            tvTitle.setText(builder);
+            tvArtist.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @OnClick(R.id.ibExpandCollapse)
+    void onClickExpandCollapse() {
+        setExpanded(!ibExpandCollapse.isSelected());
+    }
+
+    @OnClick(R.id.clCurrPlaying)
+    void onClickClCurrPlaying() {
+        setExpanded(!ibExpandCollapse.isSelected());
+    }
+
     @OnClick(R.id.ibShare)
-    public void onClickShare() {
+    void onClickShare() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -155,13 +166,9 @@ public class BottomPlayerFragment extends Fragment {
         startActivity(Intent.createChooser(intent, "Share this song!"));
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        removeSongUpdateCallback();
-    }
-
+    // Song update callback methods are only called in client fragment
     private void initializeSongUpdateCallback() {
+        Log.d("BottomPlayerClient", "Initializing song update callback");
         mCurrentSongUpdatedCallback = e -> {
             if (e == null) {
                 Song currentSong = Party.getCurrentParty().getCurrentSong();

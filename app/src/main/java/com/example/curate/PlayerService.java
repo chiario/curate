@@ -80,17 +80,14 @@ public class PlayerService extends JobIntentService {
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
-        mCurrentParty = Party.getCurrentParty();
         CLIENT_ID = getString(R.string.clientId);
         connectSpotifyRemote(); //TODO check installation first
-        initializePlaylistUpdateCallback();
     }
 
     private void initializePlaylistUpdateCallback() {
+        mCurrentParty = Party.getCurrentParty();
         mPlaylist = mCurrentParty.getPlaylist();
-        mPlaylistUpdatedCallback = e -> {
-            mPlaylist = mCurrentParty.getPlaylist();
-        };
+        mPlaylistUpdatedCallback = e -> mPlaylist = mCurrentParty.getPlaylist();
         mCurrentParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
     }
 
@@ -104,8 +101,9 @@ public class PlayerService extends JobIntentService {
             mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
             switch (intent.getAction()) {
                 case ACTION_INIT:
+                    initializePlaylistUpdateCallback();
                     break;
-                case ACTION_PLAY: // TODO - this action is called when the admin taps a song in the rv adapter
+                case ACTION_PLAY:
                     String newSongId = intent.getStringExtra(SONG_ID_KEY);
                     playNewSong(newSongId);
                     break;
@@ -266,7 +264,7 @@ public class PlayerService extends JobIntentService {
     // Playback methods
 
     private void playPause() {
-        if (mPlayerApi != null) {
+        if (mPlayerApi != null && mSpotifyAppRemote.isConnected()) {
             mPlayerApi.getPlayerState().setResultCallback(playerState -> {
                 if (playerState.isPaused) {
                     resumePlayer();
@@ -300,7 +298,7 @@ public class PlayerService extends JobIntentService {
     }
 
     public void seekTo(long progress) {
-        if (mPlayerApi != null) {
+        if (mPlayerApi != null && mSpotifyAppRemote.isConnected()) {
             mPlayerApi.seekTo(progress)
                     .setResultCallback(empty -> Log.d(TAG, "Seek success!"))
                     .setErrorCallback(error -> Log.e(TAG, "Cannot seek unless you have premium!", error));
@@ -308,7 +306,7 @@ public class PlayerService extends JobIntentService {
     }
 
     private void playNewSong(String spotifyId) {
-        if (mPlayerApi != null) {
+        if (mPlayerApi != null && mSpotifyAppRemote.isConnected()) {
             mPlayerApi.play("spotify:track:" + spotifyId)
                     .setResultCallback(empty -> Log.d(TAG, "Success playing new song " + spotifyId))
                     .setErrorCallback(throwable -> Log.e(TAG, "Error playing new song " + spotifyId, throwable));
@@ -322,14 +320,15 @@ public class PlayerService extends JobIntentService {
      * @return the spotify ID of the song to be played
      */
     private String retrieveNextSong() {
-        if(mPlaylist.isEmpty()) {
+        if(mPlaylist == null || mPlaylist.isEmpty()) {
             Log.e(TAG, "Playlist is empty!");
             new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Your queue is empty!", Toast.LENGTH_LONG).show());
             return null;
+        } else {
+            String spotifyId = mPlaylist.get(0).getSong().getSpotifyId();
+            mPlaylist.remove(0);
+            return spotifyId;
         }
-        String spotifyId = mPlaylist.get(0).getSong().getSpotifyId();
-        mPlaylist.remove(0);
-        return spotifyId;
     }
 
     /**

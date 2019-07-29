@@ -3,16 +3,16 @@ package com.example.curate;
 import android.os.Handler;
 import android.widget.SeekBar;
 
-import com.example.curate.fragments.BottomPlayerAdminFragment;
+import com.example.curate.fragments.AdminPlayerFragment;
 
 public class TrackProgressBar {
     private static final int NEXT_SONG_DELAY = 2000;
     private static final int LOOP_DURATION = 500;
     private SeekBar mSeekBar;
     private Handler mHandler;
-    private BottomPlayerAdminFragment mFragment;
+    private AdminPlayerFragment mFragment;
 
-    public TrackProgressBar(BottomPlayerAdminFragment fragment, SeekBar seekBar) {
+    public TrackProgressBar(AdminPlayerFragment fragment, SeekBar seekBar) {
         mSeekBar = seekBar;
         mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
         mHandler = new Handler();

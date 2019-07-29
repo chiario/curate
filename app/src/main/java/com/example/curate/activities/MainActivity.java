@@ -9,14 +9,16 @@ import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.content.res.Resources;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +30,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -40,15 +43,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.curate.R;
-import com.example.curate.fragments.BottomPlayerAdminFragment;
-import com.example.curate.fragments.BottomPlayerFragment;
+import com.example.curate.fragments.AdminPlayerFragment;
+import com.example.curate.fragments.PlayerFragment;
 import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.User;
+import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.ReverseInterpolator;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
 import com.parse.ParseUser;
 
@@ -83,13 +89,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private ValueAnimator mSearchbarAnimator;
     private boolean mIsSearchbarExpanded = false;
     private boolean mIsAdmin = false;
-
+    private LocationManager mLocationManager;
+    private LocationCallback mLocationCallback = null;
     private long lastInteractionTime;
     private Handler notificationHandler;
 
-    public BottomPlayerAdminFragment getBottomPlayerFragment() {
+    public AdminPlayerFragment getBottomPlayerFragment() {
         if(!mIsAdmin) return null;
-        return (BottomPlayerAdminFragment) mBottomPlayerFragment;
+        return (AdminPlayerFragment) mBottomPlayerFragment;
     }
 
     @Override
@@ -103,21 +110,25 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         initializeFragments(savedInstanceState);
 
         if (mIsAdmin) {
-            mBottomPlayerFragment = BottomPlayerAdminFragment.newInstance();
+            mBottomPlayerFragment = AdminPlayerFragment.newInstance();
+            // Set up the location manager
+            mLocationManager = new LocationManager(this);
+            if(mLocationManager.hasNecessaryPermissions() && Party.getLocationEnabled()) {
+                registerLocationUpdater();
+            } else {
+                mLocationManager.requestPermissions();
+            }
         } else {
-            mBottomPlayerFragment = BottomPlayerFragment.newInstance();
+            mBottomPlayerFragment = PlayerFragment.newInstance();
+            // Set up push notifications
+            lastInteractionTime = SystemClock.elapsedRealtime();
+            notificationHandler = new Handler();
+            notificationHandler.post(addSongsNotification);
         }
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        if(!mIsAdmin) {
-            lastInteractionTime = SystemClock.elapsedRealtime();
-            notificationHandler = new Handler();
-            notificationHandler.post(addSongsNotification);
-        }
-
         initSearchBarAnimations();
 
         ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mainActivity -> runOnUiThread(() -> {
@@ -440,4 +451,61 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     public void updateInteractionTime() {
         lastInteractionTime = SystemClock.elapsedRealtime();
     }
+
+    public void registerLocationUpdater() {
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(locationResult.getLastLocation()), e -> {
+                    if (e == null) {
+                        Log.d(TAG, "Party location updated!");
+                    } else {
+                        Log.e(TAG, "yike couldnt update party location!", e);
+                    }
+                });
+            }
+        };
+
+        // Update location when user moves
+        mLocationManager.registerLocationUpdateCallback(mLocationCallback);
+
+        // Force update location at least once
+        mLocationManager.getCurrentLocation(location -> {
+            if(location != null) {
+                Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(location), e -> {
+                    if (e == null) {
+                        Log.d(TAG, "Party location updated!");
+                    } else {
+                        Log.e(TAG, "yike couldnt update party location!", e);
+                    }
+                });
+            }
+        });
+    }
+
+    public void deregisterLocationUpdater() {
+        if(mLocationCallback == null) return;
+        mLocationManager.deregisterLocationUpdateCallback(mLocationCallback);
+        Party.clearLocation(e -> {
+            if(e == null) {
+                mLocationCallback = null;
+            } else {
+                registerLocationUpdater();
+                Log.e(TAG, "Couldn't clear location!", e);
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && Party.getLocationEnabled()) {
+                // Location permission has been granted, register location updater
+                registerLocationUpdater();
+            } else {
+                Log.i(TAG, "Location permission was not granted.");
+            }
+        }
+    }
+
 }
