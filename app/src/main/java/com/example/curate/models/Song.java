@@ -82,7 +82,7 @@ public class Song extends ParseObject {
 	}
 
 	@Parcel
-	public static class ParcelableSong {
+	protected static class ParcelableSong {
 		String spotifyId;
 		String title;
 		String artist;
