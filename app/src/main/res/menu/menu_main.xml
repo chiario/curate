@@ -11,5 +11,12 @@
         android:id="@+id/miSettings"
         android:title="Settings"
         app:showAsAction="collapseActionView"/>
+    <item
+        android:id="@+id/miBack"
+        android:icon="@drawable/ic_cancel"
+        android:orderInCategory="0"
+        android:title="Back"
+        android:visible="false"
+        app:showAsAction="always" />
 
 </menu>

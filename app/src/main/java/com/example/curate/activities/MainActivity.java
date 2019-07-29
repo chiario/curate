@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
     @BindView(R.id.miSearch) SearchView miSearchView;
     @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
+    @BindView(R.id.ibBack) ImageButton ibBack;
 
     private FragmentManager mFragmentManager;
     private Fragment mActiveFragment;
@@ -184,10 +186,18 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
+        ibBack.setOnClickListener(view -> {
+            onBackPressed();
+            if(miSearchView.hasFocus()) {
+                miSearchView.clearFocus();
+                hideKeyboard(miSearchView);
+            }
+        });
 
         if (miSearchView != null) {
             miSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             miSearchView.setIconifiedByDefault(false);
+
             miSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
@@ -281,8 +291,9 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         if(mActiveFragment != null)
             ft.hide(mActiveFragment);
         ft.show(fragment);
-        if(fragment.equals(mSearchFragment))
+        if(fragment.equals(mSearchFragment)) {
             ft.addToBackStack(fragment.getTag());
+        }
         ft.commit();
 
         mActiveFragment = fragment;
@@ -327,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private void animateSearchbar(boolean isExpanding) {
         if(mIsSearchbarExpanded == isExpanding)
             return;
+        ibBack.setVisibility(isExpanding ? View.VISIBLE : View.GONE);
         mIsSearchbarExpanded = isExpanding;
         mSearchbarAnimator.setInterpolator(isExpanding
                 ? new AccelerateDecelerateInterpolator()
