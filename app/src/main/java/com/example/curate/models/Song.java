@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @ParseClassName("Song")
-public class Song extends ParseObject {
+public class Song extends ComparableParseObject {
 
 	public static final String SPOTIFY_ID_KEY = "spotifyId";
 	public static final String TITLE_KEY = "title";
