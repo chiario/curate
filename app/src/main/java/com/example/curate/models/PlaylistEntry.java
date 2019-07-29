@@ -13,11 +13,12 @@ import com.parse.SaveCallback;
 import java.util.HashMap;
 
 @ParseClassName("PlaylistEntry")
-public class PlaylistEntry extends ParseObject {
+public class PlaylistEntry extends ComparableParseObject {
     private static final String SONG_KEY = "song";
     private static final String SCORE_KEY = "score";
     private static final String PARTY_KEY = "party";
-    private static final String LIKED_KEY = "isLikedByUser";
+
+    private boolean isLikedByUser = false;
 
     public PlaylistEntry() {
         // Required empty constructor
@@ -32,7 +33,11 @@ public class PlaylistEntry extends ParseObject {
     }
 
     public boolean isLikedByUser() {
-        return getBoolean(LIKED_KEY);
+        return isLikedByUser;
+    }
+
+    public void setIsLikedByUser(boolean isLikedByUser) {
+        this.isLikedByUser = isLikedByUser;
     }
 
 }
