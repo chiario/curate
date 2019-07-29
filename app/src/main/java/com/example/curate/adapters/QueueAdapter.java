@@ -127,7 +127,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			showLoading(true);
 			// TODO fix mass deleting (crash gracefully?)
 			// TODO swiping then clicking is not working
-			Party.getCurrentParty().removeSong(mPlaylist.get(getAdapterPosition()).getSong(), e -> {
+			Party.getCurrentParty().getPlaylist().removeEntry(mPlaylist.get(getAdapterPosition()), e -> {
 				isUpdating = false;
 				mIsSwiping = false;
 
@@ -163,9 +163,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 			v.setSelected(!isLiked);
 			if(isLiked) {
-				Party.getCurrentParty().unlikeSong(entry.getSong().getSpotifyId(), callback);
+				Party.getCurrentParty().getPlaylist().unlikeEntry(entry, callback);
 			} else {
-				Party.getCurrentParty().likeSong(entry.getSong().getSpotifyId(), callback);
+				Party.getCurrentParty().getPlaylist().likeEntry(entry, callback);
 			}
 		}
 

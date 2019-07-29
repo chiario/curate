@@ -71,11 +71,11 @@ public class QueueFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		mParty = Party.getCurrentParty();
-		mParty.updatePlaylist(e -> {
+		mParty.getPlaylist().update(e -> {
 			if(e == null) {
 				textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 
-				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist(), (MainActivity) getActivity());
+				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist().getEntries(), (MainActivity) getActivity());
 				mAdapter.setHasStableIds(true);
 
 				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());

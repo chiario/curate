@@ -168,7 +168,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	public void addAll(List<Song> list) {
 		if(mSongsInAdd == null || mSongsInQueue == null || list == null) return;
 		for(Song s : list) {
-			if(Party.getCurrentParty().contains(s)) {
+			if(Party.getCurrentParty().getPlaylist().contains(s)) {
 				mSongsInQueue.add(s);
 			} else {
 				mSongsInAdd.add(s);
@@ -251,7 +251,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			mIsAdding = true;
 
 			showLoading(true);
-			Party.getCurrentParty().addSong(mSong, e -> {
+			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
 				mIsAdding = false;
 				mIsSwiping = false;
 

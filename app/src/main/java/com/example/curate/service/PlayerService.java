@@ -93,8 +93,8 @@ public class PlayerService extends JobIntentService {
 
     private void initializePlaylistUpdateCallback() {
         mCurrentParty = Party.getCurrentParty();
-        mPlaylist = mCurrentParty.getPlaylist();
-        mPlaylistUpdatedCallback = e -> mPlaylist = mCurrentParty.getPlaylist();
+        mPlaylist = mCurrentParty.getPlaylist().getEntries();
+        mPlaylistUpdatedCallback = e -> mPlaylist = mCurrentParty.getPlaylist().getEntries();
         mCurrentParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
     }
 
