@@ -122,6 +122,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			if(isUpdating) return;
 			isUpdating = true;
 			showLoading(true);
+			// TODO fix mass deleting (crash gracefully?)
 			Party.getCurrentParty().removeSong(mPlaylist.get(getAdapterPosition()).getSong(), e -> {
 				isUpdating = false;
 				mIsSwiping = false;

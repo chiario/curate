@@ -102,7 +102,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	private int getSongsPosition(int position) {
-		if(position > mAddToQueuePosition) return position - 2;
+		if(position >= mAddToQueuePosition) return position - 2;
 		return position - 1;
 	}
 
@@ -171,13 +171,16 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 			showLoading(true);
 			Log.d("TAG", String.format("ap: %d, sp: %d", getAdapterPosition(), getSongsPosition(getAdapterPosition())));
-			Party.getCurrentParty().addSong(mSongs.get(getSongsPosition(getAdapterPosition())), e -> {
+			Song song = mSongs.get(getSongsPosition(getAdapterPosition()));
+			Party.getCurrentParty().addSong(song, e -> {
 				mIsAdding = false;
 				mIsSwiping = false;
 
 				if(e == null) {
-					mSongs.remove(getSongsPosition(getAdapterPosition()));
+					mSongs.remove(song);
 					notifyItemRemoved(getAdapterPosition());
+					mSongs.add(mAddToQueuePosition - 1, song);
+					notifyItemInserted(mAddToQueuePosition++);
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				}
 				else {
