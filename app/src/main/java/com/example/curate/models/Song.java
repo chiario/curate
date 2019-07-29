@@ -1,14 +1,19 @@
 package com.example.curate.models;
 
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.versionedparcelable.ParcelField;
 
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
+
+import org.parceler.Parcel;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +30,14 @@ public class Song extends ParseObject {
 
 	public Song() {
 		// Required empty constructor
+	}
+
+	public Song(ParcelableSong song) {
+		put(SPOTIFY_ID_KEY, song.spotifyId);
+		put(TITLE_KEY, song.title);
+		put(ARTIST_KEY, song.artist);
+		put(ALBUM_KEY, song.album);
+		put(IMAGE_URL_KEY, song.artUrl);
 	}
 
 	public String getSpotifyId() {
@@ -45,6 +58,46 @@ public class Song extends ParseObject {
 
 	public String getImageUrl() {
 		return getString(IMAGE_URL_KEY);
+	}
+
+	public static Parcelable createParcelFromSongs(List<Song> songs) {
+		List<ParcelableSong> parcelableSongs = new ArrayList<>();
+
+		for(Song song : songs) {
+			parcelableSongs.add(new ParcelableSong(song));
+		}
+
+		return Parcels.wrap(parcelableSongs);
+	}
+
+	public static List<Song> retrieveSongsFromParcel(Parcelable parcel) {
+		List<ParcelableSong> parcelableSongs = Parcels.unwrap(parcel);
+		List<Song> songs = new ArrayList<>();
+
+		for(ParcelableSong song : parcelableSongs) {
+			songs.add(new Song(song));
+		}
+
+		return songs;
+	}
+
+	@Parcel
+	public static class ParcelableSong {
+		String spotifyId;
+		String title;
+		String artist;
+		String album;
+		String artUrl;
+
+		public ParcelableSong() {}
+
+		public ParcelableSong(Song song) {
+			spotifyId = song.getSpotifyId();
+			title = song.getTitle();
+			artist = song.getArtist();
+			album = song.getAlbum();
+			artUrl = song.getImageUrl();
+		}
 	}
 
 	/**
