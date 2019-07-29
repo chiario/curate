@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
@@ -10,9 +11,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Parcelable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +31,10 @@ import com.example.curate.adapters.SearchAdapter;
 import com.example.curate.models.Song;
 import com.example.curate.utils.LiveSearchManager;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +45,7 @@ import butterknife.ButterKnife;
 public class SearchFragment extends Fragment {
 
 	private static final String TAG = "SearchFragment";
+	private static final String SONGS_KEY = "Songs";
 
 	@BindView(R.id.rvSearch) RecyclerView rvSearch;
 	@BindView(R.id.progressBar) ProgressBar progressBar;
@@ -46,6 +53,7 @@ public class SearchFragment extends Fragment {
 	@BindView(R.id.tvError) TextView tvError;
 	@BindView(R.id.tvDescription) TextView tvDescription;
 
+	List<Song> mSongs;
 	SearchAdapter mAdapter;
 	LiveSearchManager mLiveSearchManager;
 
@@ -84,26 +92,6 @@ public class SearchFragment extends Fragment {
 		mLiveSearchManager.updateQuery(query);
 	}
 
-	public void clearSearch() {
-		progressBar.setVisibility(View.INVISIBLE);
-		mAdapter.clear();
-		showSearchDescription(null);
-		showText(getString(R.string.new_search));
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		clearSearch();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		mAdapter.clear();
-		showSearchDescription(null);
-	}
-
 	/***
 	 * Inflate the proper layout
 	 * @param inflater
@@ -115,7 +103,15 @@ public class SearchFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_search, container, false);
+		View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+		if(savedInstanceState != null) {
+			onRestoreInstanceState(savedInstanceState);
+		} else {
+			mSongs = new ArrayList<>();
+		}
+
+		return view;
 	}
 
 	/***
@@ -129,7 +125,7 @@ public class SearchFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		// Create the mAdapter, along with onClick listener for the "add" button
-		mAdapter = new SearchAdapter(getContext(), new ArrayList<Song>(), (MainActivity) getActivity());
+		mAdapter = new SearchAdapter(getContext(), mSongs, (MainActivity) getActivity());
 
 		// Attach Swipe listeners
 		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
@@ -150,9 +146,22 @@ public class SearchFragment extends Fragment {
 			} else {
 				showSearchDescription(query);
 				hideText();
+				mSongs = results;
 				mAdapter.addAll(results);
 			}
 		});
+	}
+
+	public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+		Parcelable listParcelable = savedInstanceState.getParcelable(SONGS_KEY);
+		mSongs = Song.retrieveSongsFromParcel(listParcelable);
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putParcelable(SONGS_KEY, Song.createParcelFromSongs(mSongs));
 	}
 
 	/***
@@ -172,6 +181,7 @@ public class SearchFragment extends Fragment {
 				} else {
 					showSearchDescription(searchText);
 					hideText();
+					mSongs = search.getResults();
 					mAdapter.addAll(search.getResults());
 				}
 			} else {

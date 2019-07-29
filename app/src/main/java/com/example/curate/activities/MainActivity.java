@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @BindView(R.id.miSearch) SearchView miSearchView;
     @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
 
-    private FragmentManager mFragmentManager = getSupportFragmentManager();
+    private FragmentManager mFragmentManager;
     private Fragment mActiveFragment;
     private QueueFragment mQueueFragment;
     private SearchFragment mSearchFragment;
@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             builder.show();
         }), this);
 
+//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         AnimationDrawable backgroundAnimation = (AnimationDrawable) findViewById(R.id.rootView).getBackground();
         backgroundAnimation.setEnterFadeDuration(10);
         backgroundAnimation.setExitFadeDuration(getResources().getInteger(R.integer.anim_gradient_transition_time));
@@ -140,10 +141,12 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     }
 
     private void initializeFragments(Bundle savedInstanceState) {
+        mFragmentManager = getSupportFragmentManager();
         if(savedInstanceState != null) {
-            mQueueFragment = (QueueFragment) mFragmentManager.findFragmentByTag(KEY_QUEUE_FRAGMENT);
-            mSearchFragment = (SearchFragment) mFragmentManager.findFragmentByTag(KEY_SEARCH_FRAGMENT);
-            mActiveFragment = mFragmentManager.findFragmentByTag(savedInstanceState.getString(KEY_ACTIVE));
+            mQueueFragment = (QueueFragment) mFragmentManager.getFragment(savedInstanceState, KEY_QUEUE_FRAGMENT);
+            mSearchFragment = (SearchFragment) mFragmentManager.getFragment(savedInstanceState, KEY_SEARCH_FRAGMENT);
+            mActiveFragment = savedInstanceState.getString(KEY_ACTIVE).equals(KEY_QUEUE_FRAGMENT)
+                    ? mQueueFragment : mSearchFragment;
         }
 
         if(mQueueFragment == null) {
@@ -239,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_ACTIVE, mActiveFragment.getTag());
+        getSupportFragmentManager().putFragment(outState, KEY_ACTIVE, mActiveFragment);
     }
 
     @Override
