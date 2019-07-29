@@ -2,6 +2,7 @@ package com.example.curate;
 import android.app.Application;
 import android.content.Context;
 
+import com.example.curate.models.Like;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
@@ -34,6 +35,7 @@ public class ParseApp extends Application {
 		ParseObject.registerSubclass(Song.class);
 		ParseObject.registerSubclass(Party.class);
 		ParseObject.registerSubclass(PlaylistEntry.class);
+		ParseObject.registerSubclass(Like.class);
 		ParseUser.registerSubclass(User.class);
 
 		// set applicationId, and server server based on the values in the Heroku settings.
