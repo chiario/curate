@@ -21,21 +21,27 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-	private static final int TYPE_SONG = 0;
-	private static final int TYPE_SECTION = 1;
+	private static final int TYPE_SECTION = 0;
+	public static final int TYPE_SONG_IN_QUEUE = 1;
+	private static final int TYPE_SONG_IN_ADD = 2;
+
+	private static final String IN_QUEUE_TEXT = "Songs in queue:";
+	private static final String ADD_TEXT = "Add to queue:";
 
 	private Context mContext;
 	private List<Song> mSongs;
 	private MainActivity mMainActivity;
-	protected int mAddToQueuePosition = 1;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
+	private Map<String, Integer> sectionMap;
 
 	/***
 	 * Creates the adapter for holding songs
@@ -46,6 +52,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		mContext = context;
 		mSongs = songs;
 		mMainActivity = mainActivity;
+
+		sectionMap = new HashMap<>();
 	}
 
 	@NonNull
@@ -54,7 +62,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		// Inflate the custom layout
 		LayoutInflater inflater = LayoutInflater.from(mContext);
 
-		if(viewType == TYPE_SONG) {
+		if(viewType == TYPE_SONG_IN_ADD || viewType == TYPE_SONG_IN_QUEUE) {
 			return new SongViewHolder(inflater.inflate(R.layout.item_song_search, parent, false));
 		} else {
 			return new SectionViewHolder(inflater.inflate(R.layout.item_song_section, parent, false));
@@ -63,8 +71,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 	@Override
 	public int getItemViewType(int position) {
-		if(position == 0 || position == mAddToQueuePosition) return TYPE_SECTION;
-		return TYPE_SONG;
+		if(sectionMap.values().contains(position)) return TYPE_SECTION;
+		else if(position < getPosition(ADD_TEXT)) return TYPE_SONG_IN_QUEUE;
+		else return TYPE_SONG_IN_ADD;
 	}
 
 	@Override
@@ -74,36 +83,34 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			Song song = mSongs.get(getSongsPosition(position));
 			songViewHolder.showSongData(song);
 			songViewHolder.showLoading(false);
-			if(position < mAddToQueuePosition) songViewHolder.ibLike.setVisibility(View.GONE);
+			if(songViewHolder.getItemViewType() == TYPE_SONG_IN_QUEUE) songViewHolder.ibLike.setVisibility(View.GONE);
 			else songViewHolder.ibLike.setVisibility(View.VISIBLE);
 		} else if(holder instanceof SectionViewHolder) {
 			SectionViewHolder sectionViewHolder = (SectionViewHolder) holder;
-			if(position == 0) {
-				if(mSongs.size() == 0) {
-					sectionViewHolder.tvSection.setText("");
-				} else if(mAddToQueuePosition == 1) {
-					sectionViewHolder.tvSection.setText("No matching songs in your queue");
-				} else {
-					sectionViewHolder.tvSection.setText("Songs in queue:");
-				}
-			} else {
-				if(position == mSongs.size() + 1 || mSongs.size() == 0) {
-					sectionViewHolder.tvSection.setText("");
-				} else {
-					sectionViewHolder.tvSection.setText("Add to queue:");
-				}
+			if(position == getPosition(IN_QUEUE_TEXT)) {
+				sectionViewHolder.tvSection.setText(IN_QUEUE_TEXT);
+			} else if(position == getPosition(ADD_TEXT)) {
+				sectionViewHolder.tvSection.setText(ADD_TEXT);
 			}
 		}
 	}
 
+	private int getPosition(String key) {
+		Integer temp = sectionMap.get(key);
+		return temp == null ? -1 : temp;
+	}
+
 	@Override
 	public int getItemCount() {
-		return mSongs.size() + 2;
+		return mSongs.size() + sectionMap.size();
 	}
 
 	private int getSongsPosition(int position) {
-		if(position >= mAddToQueuePosition) return position - 2;
-		return position - 1;
+		int newPosition = position;
+		for(int sectionPos : sectionMap.values()) {
+			if(position > sectionPos) newPosition--;
+		}
+		return newPosition;
 	}
 
 	/***
@@ -117,12 +124,26 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			if(Party.getCurrentParty().contains(s)) {
 				mSongs.add(s);
 				notifyItemInserted(1);
-				mAddToQueuePosition++;
 			} else {
 				notInQueue.add(s);
 			}
 		}
+		if(mSongs.size() == 0) {
+			if(sectionMap.containsKey(IN_QUEUE_TEXT)) {
+				int temp = sectionMap.remove(IN_QUEUE_TEXT);
+				notifyItemRemoved(temp);
+			}
+		} else {
+			sectionMap.put(IN_QUEUE_TEXT, 0);
+			notifyItemInserted(0);
+		}
 
+		sectionMap.put(ADD_TEXT, getItemCount());
+
+		if(notInQueue.size() == 0 && sectionMap.containsKey(ADD_TEXT)) {
+			int temp = sectionMap.remove(ADD_TEXT);
+			notifyItemRemoved(temp);
+		}
 		for(Song s : notInQueue) {
 			mSongs.add(s);
 			notifyItemInserted(mSongs.size() + 1);
@@ -130,8 +151,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	public void clear() {
-		mAddToQueuePosition = 1;
 		mSongs.clear();
+		sectionMap.clear();
 		notifyDataSetChanged();
 	}
 
@@ -164,23 +185,29 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickAdd() {
-			if(getAdapterPosition() < mAddToQueuePosition) return;
+			if(getItemViewType() == TYPE_SONG_IN_QUEUE) return;
 			mMainActivity.updateInteractionTime();
 			if(mIsAdding) return;
 			mIsAdding = true;
 
 			showLoading(true);
-			Log.d("TAG", String.format("ap: %d, sp: %d", getAdapterPosition(), getSongsPosition(getAdapterPosition())));
 			Song song = mSongs.get(getSongsPosition(getAdapterPosition()));
 			Party.getCurrentParty().addSong(song, e -> {
 				mIsAdding = false;
 				mIsSwiping = false;
 
 				if(e == null) {
+					int addPosition = sectionMap.get(ADD_TEXT);
 					mSongs.remove(song);
 					notifyItemRemoved(getAdapterPosition());
-					mSongs.add(mAddToQueuePosition - 1, song);
-					notifyItemInserted(mAddToQueuePosition++);
+					mSongs.add(addPosition - 1, song);
+					notifyItemInserted(addPosition++);
+					if(addPosition == mSongs.size() + sectionMap.size() - 1) {
+						sectionMap.remove(ADD_TEXT);
+						notifyItemRemoved(getItemCount() - 1);
+					} else {
+						sectionMap.put(ADD_TEXT, addPosition);
+					}
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
 					showLoading(false);

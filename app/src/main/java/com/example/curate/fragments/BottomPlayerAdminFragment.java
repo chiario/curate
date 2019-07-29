@@ -247,7 +247,7 @@ public class BottomPlayerAdminFragment extends Fragment implements PlayerResultR
         } else {
             // TODO: Change font here
             tvTitle.setSelected(true);
-            SpannableString title = new SpannableString(String.format("%s - ", mTrackName));
+            SpannableString title = new SpannableString(String.format("%s · ", mTrackName));
             SpannableString artist = new SpannableString(mArtistName);
             title.setSpan(new TypefaceSpan(mBoldFont), 0, title.length(), flag);
             artist.setSpan(new TypefaceSpan(mNormalFont), 0, artist.length(), flag);

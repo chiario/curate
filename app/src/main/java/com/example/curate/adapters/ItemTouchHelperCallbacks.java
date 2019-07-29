@@ -162,7 +162,7 @@ public class ItemTouchHelperCallbacks {
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
 			if (viewHolder instanceof SearchAdapter.SectionViewHolder ||
-					viewHolder.getAdapterPosition() < ((SearchAdapter) mAdapter).mAddToQueuePosition ||
+					viewHolder.getItemViewType() == SearchAdapter.TYPE_SONG_IN_QUEUE ||
 					viewHolder.getAdapterPosition() == NO_POSITION ||
 					((SearchAdapter) mAdapter).isSwiping()) {
 				super.onChildDraw(c, recyclerView, viewHolder,
