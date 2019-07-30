@@ -23,6 +23,7 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.example.curate.models.User;
 import com.parse.SaveCallback;
 
 import java.util.List;
@@ -120,6 +121,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
+		@BindView(R.id.tvAddedBy) TextView tvAddedBy;
 
 		private boolean isUpdating;
 		private PlaylistEntry mEntry;
@@ -195,6 +197,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			tvArtist.setText(song.getArtist());
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(mEntry.isLikedByUser());
+			ibLike.setSelected(entry.isLikedByUser());
+			User user = entry.getAddedBy();
+			if(user != null) {
+				String screenName = user.getScreenName();
+				if (screenName != null) {
+					tvAddedBy.setText(screenName);
+				}
+			}
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)

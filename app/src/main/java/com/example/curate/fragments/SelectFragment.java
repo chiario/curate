@@ -102,7 +102,6 @@ public class SelectFragment extends Fragment {
 
     @OnClick(R.id.btnCreateParty)
     public void onCreateParty() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         EditText etPartyName = new EditText(getContext());
         EditText etScreenName = new EditText(getContext());
@@ -122,7 +121,6 @@ public class SelectFragment extends Fragment {
                     });
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});
-
         builder.show();
     }
 

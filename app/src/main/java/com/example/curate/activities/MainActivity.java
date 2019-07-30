@@ -383,6 +383,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         if (!mIsAdmin) {
             Party.leaveParty(e -> {
                 removeNotifications();
+                ((User) ParseUser.getCurrentUser()).setScreenName(null);
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(intent);
                 finish();
@@ -394,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     public void onDeleteQueue() {
         if (mIsAdmin) {
             Party.deleteParty(e -> {
+                ((User) ParseUser.getCurrentUser()).setScreenName(null);
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(intent);
                 finish();

@@ -16,6 +16,8 @@ import java.util.HashMap;
 public class PlaylistEntry extends ComparableParseObject {
     private static final String SONG_KEY = "song";
     private static final String SCORE_KEY = "score";
+    private static final String ADDED_BY_KEY = "addedBy";
+    private static final String LIKED_KEY = "isLikedByUser";
     private static final String PARTY_KEY = "party";
 
     private boolean isLikedByUser = false;
@@ -42,6 +44,10 @@ public class PlaylistEntry extends ComparableParseObject {
 
     public boolean contentsEqual(PlaylistEntry other) {
         return getSong().equals(other.getSong()) && isLikedByUser == other.isLikedByUser;
+    }
+
+    public User getAddedBy() {
+        return (User) getParseObject(ADDED_BY_KEY);
     }
 
 }

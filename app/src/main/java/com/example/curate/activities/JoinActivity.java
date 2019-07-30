@@ -47,15 +47,6 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
     @Override
     public void onPartyObtained() {
-        getUserName();
-    }
-
-    @Override
-    public void onJoinPartySelected() {
-        displayJoinFragment();
-    }
-
-    private void getUserName() {
         User.getExistingScreenName();
         User user = (User) ParseUser.getCurrentUser();
         if(user.getScreenName() == null) {
@@ -76,6 +67,11 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
         } else {
             switchToMainActivity();
         }
+    }
+
+    @Override
+    public void onJoinPartySelected() {
+        displayJoinFragment();
     }
 
     private void switchToMainActivity() {
