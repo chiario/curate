@@ -152,6 +152,10 @@ public class SearchFragment extends Fragment {
 		});
 	}
 
+	public void clear() {
+		mAdapter.clear();
+	}
+
 	public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		Parcelable listParcelable = savedInstanceState.getParcelable(SONGS_KEY);
 		mSongs = Song.retrieveSongsFromParcel(listParcelable);

@@ -268,7 +268,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 							return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
 						}
 					};
-					linearSmoothScroller.setTargetPosition(0);
+					linearSmoothScroller.setTargetPosition(mSongsInQueue.size());
 					rvSearch.getLayoutManager().startSmoothScroll(linearSmoothScroller);
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
