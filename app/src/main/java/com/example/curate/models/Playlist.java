@@ -149,7 +149,9 @@ public class Playlist {
     }
 
     public List<PlaylistEntry> getEntries() {
-        return mEntries;
+        synchronized (mEntryMutex) {
+            return mEntries;
+        }
     }
 
     /**
