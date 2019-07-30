@@ -17,6 +17,8 @@ import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +51,7 @@ public class Party extends ComparableParseObject {
         ParseQuery<Party> parseQuery = ParseQuery.getQuery(Party.class);
         parseQuery.include(CURRENTLY_PLAYING_KEY);
         parseQuery.whereEqualTo("objectId", getObjectId());
+        parseQuery.selectKeys(Arrays.asList(CACHED_PLAYLIST_KEY, CURRENTLY_PLAYING_KEY));
         SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
 
         // Listen for when the party is updated
