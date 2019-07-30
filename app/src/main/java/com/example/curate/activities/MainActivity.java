@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                         startActivity(intent);
                         Party.partyDeleted();
                     });
+            builder.setCancelable(false);
             builder.show();
         }), this);
     }
