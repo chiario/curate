@@ -75,7 +75,6 @@ public class QueueFragment extends Fragment {
 		textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 
 		mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist().getEntries(), (MainActivity) getActivity());
-		mAdapter.setHasStableIds(true);
 
 		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
 		new ItemTouchHelper(callbacks.likeCallback).attachToRecyclerView(rvQueue);
@@ -83,7 +82,7 @@ public class QueueFragment extends Fragment {
 			new ItemTouchHelper(callbacks.deleteCallback).attachToRecyclerView(rvQueue);
 
 		rvQueue.setAdapter(mAdapter);
-		rvQueue.setLayoutManager(new AnimatedLinearLayoutManager(getContext()));
+		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 		initializePlaylistUpdateCallback();
 	}
@@ -98,10 +97,10 @@ public class QueueFragment extends Fragment {
 	private void initializePlaylistUpdateCallback() {
 		mPlaylistUpdatedCallback = e -> {
 			if(e == null) {
+				mAdapter.submitPlaylist(mParty.getPlaylist());
 				getActivity().runOnUiThread(() -> {
 					textContainer.setVisibility(
 							mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
-					mAdapter.notifyDataSetChanged();
 				});
 			}
 		};

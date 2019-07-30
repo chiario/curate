@@ -12,12 +12,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
+import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.parse.SaveCallback;
@@ -30,9 +33,10 @@ import butterknife.OnClick;
 
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
-	private List<PlaylistEntry> mPlaylist;
+//	private List<PlaylistEntry> mPlaylist;
 	private MainActivity mMainActivity;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
+	private AsyncListDiffer<PlaylistEntry> mPlaylistDiffer;
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -41,9 +45,23 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	 */
 	public QueueAdapter(Context context, List<PlaylistEntry> playlist, MainActivity mainActivity) {
 		mContext = context;
-		mPlaylist = playlist;
+//		mPlaylist = playlist;
 		mMainActivity = mainActivity;
 		mIsSwiping = false;
+		mPlaylistDiffer = new AsyncListDiffer<>(this, new DiffUtil.ItemCallback<PlaylistEntry>() {
+			@Override
+			public boolean areItemsTheSame(@NonNull PlaylistEntry oldItem, @NonNull PlaylistEntry newItem) {
+				return oldItem.equals(newItem);
+			}
+
+			@Override
+			public boolean areContentsTheSame(@NonNull PlaylistEntry oldItem, @NonNull PlaylistEntry newItem) {
+				return oldItem.contentsEqual(newItem);
+			}
+
+
+		});
+		mPlaylistDiffer.submitList(playlist);
 	}
 
 	@NonNull
@@ -64,20 +82,13 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		PlaylistEntry entry = mPlaylist.get(position);
-		holder.showEntryData(entry);
-		holder.showLoading(false);
-	}
-
-	@Override
-	public long getItemId(int position) {
-		Song song = mPlaylist.get(position).getSong();
-		return song.getSpotifyId().hashCode();
+		PlaylistEntry entry = mPlaylistDiffer.getCurrentList().get(position);
+		holder.bindEntry(entry);
 	}
 
 	@Override
 	public int getItemCount() {
-		return mPlaylist.size();
+		return mPlaylistDiffer.getCurrentList().size();
 	}
 
 	public void onItemSwipedRemove(RecyclerView.ViewHolder viewHolder) {
@@ -96,6 +107,10 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		return mIsSwiping;
 	}
 
+	public void submitPlaylist(Playlist playlist) {
+		mPlaylistDiffer.submitList(playlist.getEntries());
+	}
+
 	/***
 	 * Internal ViewHolder model for each item.
 	 */
@@ -109,13 +124,15 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
 		private boolean isUpdating;
+		private PlaylistEntry mEntry;
 
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 			itemView.setOnClickListener(view -> {
-				Song song = mPlaylist.get(getAdapterPosition()).getSong();
-				mMainActivity.getBottomPlayerFragment().onPlayNew(song.getSpotifyId());
+				if(mEntry != null) {
+					mMainActivity.getBottomPlayerFragment().onPlayNew(mEntry.getSong().getSpotifyId());
+				}
 			});
 		}
 
@@ -127,12 +144,12 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			showLoading(true);
 			// TODO fix mass deleting (crash gracefully?)
 			// TODO swiping then clicking is not working
-			Party.getCurrentParty().getPlaylist().removeEntry(mPlaylist.get(getAdapterPosition()), e -> {
+			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, e -> {
 				isUpdating = false;
 				mIsSwiping = false;
 
 				if(e == null) {
-					notifyDataSetChanged();
+					submitPlaylist(Party.getCurrentParty().getPlaylist());
 				} else {
 					showLoading(false);
 					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
@@ -146,15 +163,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			if(isUpdating) return;
 			isUpdating = true;
 
-			final PlaylistEntry entry = mPlaylist.get(getAdapterPosition());
-			final boolean isLiked = entry.isLikedByUser();
+			final boolean isLiked = mEntry.isLikedByUser();
 			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
 			final SaveCallback callback = e -> {
 				isUpdating = false;
 				mIsSwiping = false;
 
 				if (e == null) {
-					notifyDataSetChanged();
+					submitPlaylist(Party.getCurrentParty().getPlaylist());
 				} else {
 					v.setSelected(isLiked);
 					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
@@ -163,9 +179,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 			v.setSelected(!isLiked);
 			if(isLiked) {
-				Party.getCurrentParty().getPlaylist().unlikeEntry(entry, callback);
+				Party.getCurrentParty().getPlaylist().unlikeEntry(mEntry, callback);
 			} else {
-				Party.getCurrentParty().getPlaylist().likeEntry(entry, callback);
+				Party.getCurrentParty().getPlaylist().likeEntry(mEntry, callback);
 			}
 		}
 
@@ -173,15 +189,18 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		 * Displays a PlaylistEntry's information in the view
 		 * @param entry the PlaylistEntry whose information should be displayed
 		 */
-		private void showEntryData(PlaylistEntry entry) {
-			Song song = entry.getSong();
+		private void bindEntry(PlaylistEntry entry) {
+			mEntry = entry;
+			Song song = mEntry.getSong();
 			tvArtist.setText(song.getArtist());
 			tvTitle.setText(song.getTitle());
-			ibLike.setSelected(entry.isLikedByUser());
+			ibLike.setSelected(mEntry.isLikedByUser());
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
 					.into(ivAlbum);
+
+			showLoading(false);
 		}
 
 		/**
