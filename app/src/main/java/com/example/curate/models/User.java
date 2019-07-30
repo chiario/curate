@@ -21,7 +21,8 @@ import java.util.List;
 public class User extends ParseUser {
 
 	private static MainActivity mParentActivity;
-	private static String mScreenName;
+
+	public static String SCREEN_NAME_KEY = "screenName";
 
 	public interface PartyDeletedListener {
 		void onPartyDeleted(MainActivity mainActivity);
@@ -62,30 +63,24 @@ public class User extends ParseUser {
 
 	public void setScreenName(String screenName) {
 		HashMap<String, Object> params = new HashMap<>();
-		params.put("screenName", screenName);
+		params.put(SCREEN_NAME_KEY, screenName);
 		ParseCloud.callFunctionInBackground("setScreenName", params, new FunctionCallback<String>() {
 			@Override
 			public void done(String screenName, ParseException e) {
-				if(e == null) {
-					mScreenName = screenName;
-				} else {
+				if(e != null) {
 					Log.e("User.java", "Couldn't set username", e);
 				}
 			}
 		});
 	}
 
-	public static void getExistingScreenName() {
+	public static String getCurrentScreenName() {
 		HashMap<String, Object> params = new HashMap<>();
 		try {
-			mScreenName = ParseCloud.callFunction("getCurrentScreenName", params);
+			return ParseCloud.callFunction("getCurrentScreenName", params);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public String getScreenName() {
-		if(mScreenName == null) getExistingScreenName();
-		return mScreenName;
+		return null;
 	}
 }

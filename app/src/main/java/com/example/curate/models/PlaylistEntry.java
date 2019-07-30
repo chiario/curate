@@ -46,8 +46,7 @@ public class PlaylistEntry extends ComparableParseObject {
         return getSong().equals(other.getSong()) && isLikedByUser == other.isLikedByUser;
     }
 
-    public User getAddedBy() {
-        return (User) getParseObject(ADDED_BY_KEY);
+    public String getAddedBy() {
+        return getString("addedBy");
     }
-
 }

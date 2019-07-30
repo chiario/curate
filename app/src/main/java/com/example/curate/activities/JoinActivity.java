@@ -3,7 +3,6 @@ package com.example.curate.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,9 +46,8 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
     @Override
     public void onPartyObtained() {
-        User.getExistingScreenName();
         User user = (User) ParseUser.getCurrentUser();
-        if(user.getScreenName() == null) {
+        if(user.getCurrentScreenName() == null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             EditText etScreenName = new EditText(this);
             builder.setTitle("Set your username")
