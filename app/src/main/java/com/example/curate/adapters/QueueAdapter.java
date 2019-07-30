@@ -33,7 +33,6 @@ import butterknife.OnClick;
 
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
-//	private List<PlaylistEntry> mPlaylist;
 	private MainActivity mMainActivity;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 	private AsyncListDiffer<PlaylistEntry> mPlaylistDiffer;
@@ -45,7 +44,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	 */
 	public QueueAdapter(Context context, List<PlaylistEntry> playlist, MainActivity mainActivity) {
 		mContext = context;
-//		mPlaylist = playlist;
 		mMainActivity = mainActivity;
 		mIsSwiping = false;
 		mPlaylistDiffer = new AsyncListDiffer<>(this, new DiffUtil.ItemCallback<PlaylistEntry>() {
