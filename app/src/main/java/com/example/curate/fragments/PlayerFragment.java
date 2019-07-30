@@ -87,8 +87,8 @@ public class PlayerFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         removeSongUpdateCallback();
+        super.onDestroy();
     }
 
     /***

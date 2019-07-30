@@ -83,6 +83,12 @@ public class PlayerService extends JobIntentService {
         mContext = getApplicationContext();
         CLIENT_ID = getString(R.string.clientId);
         connectSpotifyRemote(); //TODO check installation first
+        try {
+            mCurrentParty = Party.getCurrentParty();
+            mPlaylist = mCurrentParty.getPlaylist();
+        } catch (Exception e) {
+            Log.e(TAG, "Couldn't get current party and playlist", e);
+        }
     }
 
     private void initializePlaylistUpdateCallback() {
