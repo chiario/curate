@@ -69,7 +69,7 @@ public class Party extends ParseObject {
     // Current party lifecycle methods
 
     /**
-     * Creates a new party with the current user as the admin
+     * Gets the user's current party if it exists
      * @param callback callback to run after the cloud function is executed
      */
     public static void getExistingParty(@Nullable final SaveCallback callback) {
@@ -585,7 +585,7 @@ public class Party extends ParseObject {
         return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
     }
 
-    public static int getPartyUserCount(/*@Nullable final FunctionCallback<Integer> callback*/) {
+    public static int getPartyUserCount() {
         HashMap<String, Object> params = new HashMap<>();
         try {
             return ParseCloud.callFunction("getPartyUserCount", params);

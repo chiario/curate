@@ -1,19 +1,27 @@
 package com.example.curate.models;
 
+import android.util.Log;
+
 import com.example.curate.activities.MainActivity;
+import com.parse.FunctionCallback;
+import com.parse.Parse;
 import com.parse.ParseClassName;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @ParseClassName("_User")
 public class User extends ParseUser {
 
 	private static MainActivity mParentActivity;
+	private static String mScreenName;
 
 	public interface PartyDeletedListener {
 		void onPartyDeleted(MainActivity mainActivity);
@@ -50,5 +58,34 @@ public class User extends ParseUser {
 	public void deregisterPartyDeletedListener(PartyDeletedListener partyDeletedListener) {
 		if(partyDeletedListeners == null) return;
 		partyDeletedListeners.remove(partyDeletedListener);
+	}
+
+	public void setScreenName(String screenName) {
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("screenName", screenName);
+		ParseCloud.callFunctionInBackground("setScreenName", params, new FunctionCallback<String>() {
+			@Override
+			public void done(String screenName, ParseException e) {
+				if(e == null) {
+					mScreenName = screenName;
+				} else {
+					Log.e("User.java", "Couldn't set username", e);
+				}
+			}
+		});
+	}
+
+	public static void getExistingScreenName() {
+		HashMap<String, Object> params = new HashMap<>();
+		try {
+			mScreenName = ParseCloud.callFunction("getCurrentScreenName", params);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getScreenName() {
+		if(mScreenName == null) getExistingScreenName();
+		return mScreenName;
 	}
 }

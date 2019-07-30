@@ -102,12 +102,16 @@ public class SelectFragment extends Fragment {
 
     @OnClick(R.id.btnCreateParty)
     public void onCreateParty() {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        EditText etName = new EditText(getContext());
+        EditText etPartyName = new EditText(getContext());
+        EditText etScreenName = new EditText(getContext());
         builder.setTitle("Give your party a name...")
-                .setView(etName)
+                .setView(etScreenName)
+                .setView(etPartyName)
                 .setPositiveButton("Create", (dialogInterface, i) -> {
-                    Party.createParty(etName.getText().toString(), e -> {
+
+                    Party.createParty(etPartyName.getText().toString(), e -> {
                         if(e == null) {
                             if (mListener != null) {
                                 mListener.onPartyObtained();
@@ -120,7 +124,6 @@ public class SelectFragment extends Fragment {
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {});
 
         builder.show();
-
     }
 
     @OnClick(R.id.btnJoinParty)
