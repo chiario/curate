@@ -21,10 +21,12 @@ public class Playlist {
 
     private List<PlaylistEntry> mEntries;
     private List<Like> mLikes;
-    private String mCachedValue;
+    private String mPrevCachedValue;
+    private final Object mEntryMutex = new Object();
 
     public Playlist(String cachedPlaylist) {
         mLikes = updateLikes();
+        mEntries = new ArrayList<>();
         updateFromCache(cachedPlaylist);
     }
 
@@ -34,10 +36,12 @@ public class Playlist {
      * @return true if song is added, false if not
      */
     public boolean contains(Song song) {
-        for(PlaylistEntry entry : mEntries) {
-            if(entry.getSong().equals(song)) return true;
+        synchronized (mEntryMutex) {
+            for(PlaylistEntry entry : mEntries) {
+                if(entry.getSong().equals(song)) return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -102,16 +106,18 @@ public class Playlist {
         params.put(Song.IMAGE_URL_KEY, song.getImageUrl());
 
         ParseCloud.callFunctionInBackground("addSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
-            if (e == null) {
-                mEntries = playlist;
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not add song!", e);
-            }
+            synchronized (mEntryMutex) {
+                if (e == null) {
+                    mEntries = playlist;
+                } else {
+                    // Log the error if we get one
+                    Log.e("Party.java", "Could not add song!", e);
+                }
 
-            // Run the callback if it exists
-            if (callback != null) {
-                callback.done(e);
+                // Run the callback if it exists
+                if (callback != null) {
+                    callback.done(e);
+                }
             }
         });
     }
@@ -126,16 +132,18 @@ public class Playlist {
         params.put(ENTRY_ID, entry.getObjectId());
 
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
-            if (e == null) {
-                mEntries = playlist;
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not remove song!", e);
-            }
+            synchronized (mEntryMutex) {
+                if (e == null) {
+                    mEntries = playlist;
+                } else {
+                    // Log the error if we get one
+                    Log.e("Party.java", "Could not remove song!", e);
+                }
 
-            // Run the callback if it exists
-            if (callback != null) {
-                callback.done(e);
+                // Run the callback if it exists
+                if (callback != null) {
+                    callback.done(e);
+                }
             }
         });
     }
@@ -155,16 +163,18 @@ public class Playlist {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("getPlaylist", params, (List<PlaylistEntry> playlist, ParseException e) -> {
-            if (e == null) {
-                mEntries = playlist;
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not get playlist!", e);
-            }
+            synchronized (mEntryMutex) {
+                if (e == null) {
+                    mEntries = playlist;
+                } else {
+                    // Log the error if we get one
+                    Log.e("Party.java", "Could not get playlist!", e);
+                }
 
-            // Run the callback if it exists
-            if (callback != null) {
-                callback.done(e);
+                // Run the callback if it exists
+                if (callback != null) {
+                    callback.done(e);
+                }
             }
         });
     }
@@ -185,28 +195,29 @@ public class Playlist {
     }
 
     public void updateFromCache(String cachedPlaylist) {
-        if(cachedPlaylist == null || (mCachedValue != null && mCachedValue.equals(cachedPlaylist))) {
-            mEntries = new ArrayList<>();
-            return;
-        }
-
-        try {
-            JSONArray playlistJson = new JSONArray(cachedPlaylist);
-            ArrayList<PlaylistEntry> entries = new ArrayList<>();
-
-            for(int i = 0; i < playlistJson.length(); i++) {
-                // Create entry object from JSON
-                PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
-                        PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
-
-                entry.setIsLikedByUser(isEntryLiked(entry));
-                entries.add(entry);
+        synchronized (mEntryMutex) {
+            // If the cache hasn't changed don't update the playlist
+            if(mPrevCachedValue != null && mPrevCachedValue.equals(cachedPlaylist)) {
+                return;
             }
 
-            mEntries = entries;
-            mCachedValue = cachedPlaylist;
-        } catch (JSONException e) {
-            Log.e("Playlist.java", "Couldn't parse cached playlist", e);
+            try {
+                JSONArray playlistJson = new JSONArray(cachedPlaylist);
+                mEntries = new ArrayList<>();
+
+                for (int i = 0; i < playlistJson.length(); i++) {
+                    // Create entry object from JSON
+                    PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
+                            PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+
+                    entry.setIsLikedByUser(isEntryLiked(entry));
+                    mEntries.add(entry);
+                }
+
+                mPrevCachedValue = cachedPlaylist;
+            } catch (JSONException e) {
+                Log.e("Playlist.java", "Couldn't parse cached playlist", e);
+            }
         }
     }
 
@@ -218,7 +229,9 @@ public class Playlist {
     }
 
     public boolean isEmpty() {
-        return mEntries.isEmpty();
+        synchronized (mEntryMutex) {
+            return mEntries.isEmpty();
+        }
     }
 
 }
