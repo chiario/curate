@@ -185,8 +185,10 @@ public class Playlist {
     }
 
     public void updateFromCache(String cachedPlaylist) {
-        if(cachedPlaylist == null || (mCachedValue != null && mCachedValue.equals(cachedPlaylist)))
+        if(cachedPlaylist == null || (mCachedValue != null && mCachedValue.equals(cachedPlaylist))) {
+            mEntries = new ArrayList<>();
             return;
+        }
 
         try {
             JSONArray playlistJson = new JSONArray(cachedPlaylist);
