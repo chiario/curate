@@ -11,7 +11,6 @@ import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class Playlist {
 
     public Playlist(String cachedPlaylist) {
         mLikes = updateLikes();
-        update(cachedPlaylist);
+        updateFromCache(cachedPlaylist);
     }
 
     /***
@@ -151,6 +150,7 @@ public class Playlist {
      * absolutely necessary!
      * @param callback callback to run after the cloud function is executed
      */
+    @Deprecated
     public void update(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
 
@@ -184,36 +184,35 @@ public class Playlist {
         }
     }
 
-    public void update(String cachedPlaylist) {
-        if(cachedPlaylist == null) return;
-
-        if(mCachedValue != null && mCachedValue.equals(cachedPlaylist)) {
+    public void updateFromCache(String cachedPlaylist) {
+        if(cachedPlaylist == null || (mCachedValue != null && mCachedValue.equals(cachedPlaylist)))
             return;
-        }
-        mCachedValue = cachedPlaylist;
 
         try {
             JSONArray playlistJson = new JSONArray(cachedPlaylist);
             ArrayList<PlaylistEntry> entries = new ArrayList<>();
 
             for(int i = 0; i < playlistJson.length(); i++) {
-                JSONObject entryJson = playlistJson.getJSONObject(i);
-                PlaylistEntry entry = PlaylistEntry.fromJSON(entryJson, PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+                // Create entry object from JSON
+                PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
+                        PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
 
-                for(Like like : mLikes) {
-                    if(like.getEntry().equals(entry)) {
-                        entry.setIsLikedByUser(true);
-                        break;
-                    }
-                }
+                entry.setIsLikedByUser(isEntryLiked(entry));
                 entries.add(entry);
             }
 
             mEntries = entries;
-
+            mCachedValue = cachedPlaylist;
         } catch (JSONException e) {
             Log.e("Playlist.java", "Couldn't parse cached playlist", e);
         }
+    }
+
+    private boolean isEntryLiked(PlaylistEntry entry) {
+        for(Like like : mLikes) {
+            if(like.getEntry().equals(entry)) return true;
+        }
+        return false;
     }
 
     public boolean isEmpty() {

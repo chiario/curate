@@ -10,7 +10,6 @@ import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -19,10 +18,8 @@ import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @ParseClassName("Party")
 public class Party extends ComparableParseObject {
@@ -62,7 +59,7 @@ public class Party extends ComparableParseObject {
                 mCurrentParty.put(CURRENTLY_PLAYING_KEY, currentlyPlaying);
             }
 
-            mPlaylist.update(party.getString(CACHED_PLAYLIST_KEY));
+            mPlaylist.updateFromCache(party.getString(CACHED_PLAYLIST_KEY));
 
             for(SaveCallback callback : mPlaylistUpdateCallbacks) {
                 callback.done(null);
@@ -411,7 +408,7 @@ public class Party extends ComparableParseObject {
             }
         });
     }
-//TODO - update ParseCloud "setCurrentlyPlaying"
+
     /**
      * Gets the party's current song.
      * @return the current song
