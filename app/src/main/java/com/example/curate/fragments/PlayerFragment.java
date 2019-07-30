@@ -35,6 +35,7 @@ import static android.graphics.Typeface.BOLD;
 import static android.graphics.Typeface.NORMAL;
 
 public class PlayerFragment extends Fragment {
+    private static final String TAG = "PlayerFragment";
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;

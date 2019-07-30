@@ -1,10 +1,13 @@
 package com.example.curate.fragments;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,9 +25,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
-import com.example.curate.service.PlayerResultReceiver;
 import com.example.curate.R;
 import com.example.curate.TrackProgressBar;
+import com.example.curate.service.PlayerResultReceiver;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,7 +44,9 @@ import static com.example.curate.service.ServiceUtils.IMAGE_KEY;
 import static com.example.curate.service.ServiceUtils.PAUSED_KEY;
 import static com.example.curate.service.ServiceUtils.PLAYBACK_POS_KEY;
 import static com.example.curate.service.ServiceUtils.RESULT_ALBUM_ART;
+import static com.example.curate.service.ServiceUtils.RESULT_INSTALL_SPOTIFY;
 import static com.example.curate.service.ServiceUtils.RESULT_NEW_SONG;
+import static com.example.curate.service.ServiceUtils.RESULT_OPEN_SPOTIFY;
 import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
 import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
 import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
@@ -49,7 +54,7 @@ import static com.example.curate.service.ServiceUtils.TITLE_KEY;
 import static com.example.curate.service.ServiceUtils.enqueuePlayer;
 
 public class AdminPlayerFragment extends PlayerFragment implements PlayerResultReceiver.Receiver {
-    private static final String TAG = "BottomPlayerAdmin";
+    private static final String TAG = "AdminPlayerFragment";
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
@@ -218,6 +223,9 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     private void setUpService() {
         mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
         mPlayerResultReceiver.setReceiver(this);
+        mPlayerResultReceiver.setmIsSpotifyInstalled(checkSpotifyInstalled());
+
+
         // This INIT call effectively creates the service by spawning a new worker thread
         enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_CONNECT, null);
     }
@@ -249,6 +257,55 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
                 mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
                 setPausedState(resultData.getBoolean(PAUSED_KEY));
             }
+        } else if (resultCode == RESULT_INSTALL_SPOTIFY) {
+            installSpotify();
+        } else if (resultCode == RESULT_OPEN_SPOTIFY) {
+            openSpotify();
         }
+    }
+
+
+    private boolean checkSpotifyInstalled() {
+        PackageManager pm = getContext().getPackageManager();
+        try {
+            pm.getPackageInfo("com.spotify.music", 0);
+            Log.d(TAG, "Spotify app is installed");
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Spotify app is not installed");
+            installSpotify();
+            // TODO prompt installation
+            return false;
+        }
+    }
+
+    private void installSpotify() {
+        final String appPackageName = "com.spotify.music";
+        final String referrer = "adjust_campaign=PACKAGE_NAME&adjust_tracker=ndjczk&utm_source=adjust_preinstall";
+
+        try {
+            Uri uri = Uri.parse("market://details")
+                    .buildUpon()
+                    .appendQueryParameter("id", appPackageName)
+                    .appendQueryParameter("referrer", referrer)
+                    .build();
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } catch (android.content.ActivityNotFoundException ignored) {
+            Uri uri = Uri.parse("https://play.google.com/store/apps/details")
+                    .buildUpon()
+                    .appendQueryParameter("id", appPackageName)
+                    .appendQueryParameter("referrer", referrer)
+                    .build();
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        }
+    }
+
+    private void openSpotify() {
+        Log.d(TAG, "opening spotify");
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("spotify:track:" + getString(R.string.default_song_id)));
+        intent.putExtra(Intent.EXTRA_REFERRER,
+                Uri.parse("android-app://" + getContext().getPackageName()));
+        startActivity(intent);
     }
 }

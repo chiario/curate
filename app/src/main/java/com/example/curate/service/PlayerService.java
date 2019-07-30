@@ -38,7 +38,9 @@ import static com.example.curate.service.ServiceUtils.PAUSED_KEY;
 import static com.example.curate.service.ServiceUtils.PLAYBACK_POS_KEY;
 import static com.example.curate.service.ServiceUtils.RECEIVER_KEY;
 import static com.example.curate.service.ServiceUtils.RESULT_ALBUM_ART;
+import static com.example.curate.service.ServiceUtils.RESULT_INSTALL_SPOTIFY;
 import static com.example.curate.service.ServiceUtils.RESULT_NEW_SONG;
+import static com.example.curate.service.ServiceUtils.RESULT_OPEN_SPOTIFY;
 import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
 import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
 import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
@@ -71,7 +73,6 @@ public class PlayerService extends JobIntentService {
     private List<PlaylistEntry> mPlaylist;
 
 
-
     // Default constructor
     public PlayerService() {
         super();
@@ -99,7 +100,7 @@ public class PlayerService extends JobIntentService {
     }
 
     /**
-     *  This method is called whenever the service is triggered or work is enqueued
+     * This method is called whenever the service is triggered or work is enqueued
      */
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
@@ -164,7 +165,7 @@ public class PlayerService extends JobIntentService {
     }
 
     private void playRunnable() {
-        Log.d(TAG, "Posting runnable with delay " + mTimeRemaining/1000);
+        Log.d(TAG, "Posting runnable with delay " + mTimeRemaining / 1000);
         runnableHandler.removeCallbacks(songRunnable);
         if (mTimeRemaining > NEXT_SONG_DELAY) {
             runnableHandler.postDelayed(songRunnable, mTimeRemaining - NEXT_SONG_DELAY);
@@ -196,13 +197,15 @@ public class PlayerService extends JobIntentService {
 
                 @Override
                 public void onFailure(Throwable error) {
-                    if (error instanceof NotLoggedInException || error instanceof UserNotAuthorizedException) {
-                        mIsSpotifyConnected = false;
-                        // Show login button and trigger the login flow from auth library when clicked TODO
-                        Log.d(TAG, "User is not logged in to SpotifyPlayer", error);
+                    mIsSpotifyConnected = false;
+                    if (error instanceof NotLoggedInException) {
+                        Log.e(TAG, "User is not logged in to Spotify.");
+                        mResultReceiver.send(RESULT_OPEN_SPOTIFY, null);
+                    } else if (error instanceof UserNotAuthorizedException) {
+                        Log.d(TAG, "User is not authorized.", error);
                     } else if (error instanceof CouldNotFindSpotifyApp) {
-                        Log.e(TAG, "User does not have SpotifyPlayer app installed on device", error);
-                        // Show button to download SpotifyPlayer TODO
+                        Log.e(TAG, "User does not have Spotify app installed on device");
+                        mResultReceiver.send(RESULT_INSTALL_SPOTIFY, null);
                     }
                 }
             });
@@ -210,6 +213,8 @@ public class PlayerService extends JobIntentService {
             assert mSpotifyAppRemote.isConnected();
         }
     }
+
+
 
     private void onSubscribeToPlayerState() {
         // If there is already a subscription, cancel it and start a new one
@@ -231,7 +236,7 @@ public class PlayerService extends JobIntentService {
                         Log.d(TAG, "Event: end");
                     }
                 })
-                .setErrorCallback(throwable -> Log.e(TAG,throwable + "Subscribe to PlayerState failed!"));
+                .setErrorCallback(throwable -> Log.e(TAG, throwable + "Subscribe to PlayerState failed!"));
     }
 
     /**
@@ -254,7 +259,6 @@ public class PlayerService extends JobIntentService {
             updateRunnable(playerState.playbackPosition, playerState.track.duration, playerState.isPaused);
         }
     };
-
 
 
     private void setCurrentlyPlaying(String uri) {
@@ -327,7 +331,7 @@ public class PlayerService extends JobIntentService {
      * @return the spotify ID of the song to be played
      */
     private String retrieveNextSong() {
-        if(mPlaylist == null || mPlaylist.isEmpty()) {
+        if (mPlaylist == null || mPlaylist.isEmpty()) {
             Log.e(TAG, "Playlist is empty!");
             new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Your queue is empty!", Toast.LENGTH_LONG).show());
             return null;
@@ -351,24 +355,4 @@ public class PlayerService extends JobIntentService {
                     });
         });
     }
-
-
-
-
-
-    //TODO - implement this
-    /**
-     * Checks if SpotifyPlayer app is installed on device by searching for the package name
-     */
-    /*public void checkSpotifyInstalled() {
-        PackageManager pm = mContext.getPackageManager();
-        try {
-            pm.getPackageInfo("com.spotify.music", 0);
-            mIsSpotifyInstalled = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            mIsSpotifyInstalled = false;
-            Log.e(TAG, "SpotifyPlayer app is not installed");
-            // TODO prompt installation
-        }
-    }*/
 }

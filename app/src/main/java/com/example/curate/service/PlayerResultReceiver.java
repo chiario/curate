@@ -7,6 +7,7 @@ import android.support.v4.os.ResultReceiver;
 public class PlayerResultReceiver extends ResultReceiver {
     private static final String TAG = "PlayerResultReceiver";
     private Receiver mReceiver;
+    private static boolean mIsSpotifyInstalled;
 
 
     /**
@@ -34,8 +35,16 @@ public class PlayerResultReceiver extends ResultReceiver {
     // This method passes result to the receiver if receiver has been assigned
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (mReceiver != null) {
+        if (mReceiver != null && mIsSpotifyInstalled) {
             mReceiver.onReceiveResult(resultCode, resultData);
         }
+    }
+
+    public void setmIsSpotifyInstalled(boolean mIsSpotifyInstalled) {
+        this.mIsSpotifyInstalled = mIsSpotifyInstalled;
+    }
+
+    public boolean ismIsSpotifyInstalled() {
+        return mIsSpotifyInstalled;
     }
 }

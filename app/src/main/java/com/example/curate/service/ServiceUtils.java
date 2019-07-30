@@ -35,6 +35,8 @@ public class ServiceUtils {
     public static final int RESULT_PLAY_PAUSE = 456;
     public static final int RESULT_ALBUM_ART = 789;
     public static final int RESULT_PLAYBACK = 1000;
+    public static final int RESULT_OPEN_SPOTIFY = 2000;
+    public static final int RESULT_INSTALL_SPOTIFY = 3000;
 
     // Unique job ID for this service
     private static final int PLAYER_JOB_ID = 1000;
