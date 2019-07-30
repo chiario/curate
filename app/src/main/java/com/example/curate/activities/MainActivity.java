@@ -45,8 +45,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.curate.R;
 import com.example.curate.fragments.AdminPlayerFragment;
-import com.example.curate.fragments.PlayerFragment;
 import com.example.curate.fragments.InfoDialogFragment;
+import com.example.curate.fragments.PlayerFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
 import com.example.curate.fragments.SettingsDialogFragment;
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             lastInteractionTime = SystemClock.elapsedRealtime();
             notificationHandler = new Handler();
             notificationHandler.post(addSongsNotification);
+            setPartyDeleteListener();
         }
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
@@ -133,6 +134,14 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         initSearchBarAnimations();
 
+//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        AnimationDrawable backgroundAnimation = (AnimationDrawable) findViewById(R.id.rootView).getBackground();
+        backgroundAnimation.setEnterFadeDuration(10);
+        backgroundAnimation.setExitFadeDuration(getResources().getInteger(R.integer.anim_gradient_transition_time));
+        backgroundAnimation.start();
+    }
+
+    private void setPartyDeleteListener() {
         ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mainActivity -> runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
             builder
@@ -145,12 +154,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
                     });
             builder.show();
         }), this);
-
-//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        AnimationDrawable backgroundAnimation = (AnimationDrawable) findViewById(R.id.rootView).getBackground();
-        backgroundAnimation.setEnterFadeDuration(10);
-        backgroundAnimation.setExitFadeDuration(getResources().getInteger(R.integer.anim_gradient_transition_time));
-        backgroundAnimation.start();
     }
 
     private void initializeFragments(Bundle savedInstanceState) {

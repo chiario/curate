@@ -193,6 +193,8 @@ public class PlayerFragment extends Fragment {
     }
 
     private void removeSongUpdateCallback() {
-        mParty.deregisterPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
+        if (mParty != null) {
+            mParty.deregisterPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
+        }
     }
 }
