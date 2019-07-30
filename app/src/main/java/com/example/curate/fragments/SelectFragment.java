@@ -104,9 +104,7 @@ public class SelectFragment extends Fragment {
     public void onCreateParty() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         EditText etPartyName = new EditText(getContext());
-        EditText etScreenName = new EditText(getContext());
         builder.setTitle("Give your party a name...")
-                .setView(etScreenName)
                 .setView(etPartyName)
                 .setPositiveButton("Create", (dialogInterface, i) -> {
 

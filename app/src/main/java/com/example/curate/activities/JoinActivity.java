@@ -55,12 +55,8 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
             builder.setTitle("Set your username")
                     .setView(etScreenName)
                     .setPositiveButton("Rock out!", (dialogInterface, i) -> {
-                        if(etScreenName.getText().toString().equals("")) {
-                            Toast.makeText(this, "Username is empty!", Toast.LENGTH_SHORT).show();
-                        } else {
-                            user.setScreenName(etScreenName.getText().toString());
-                            switchToMainActivity();
-                        }
+                        user.setScreenName(etScreenName.getText().toString());
+                        switchToMainActivity();
                     });
             builder.setCancelable(false);
             builder.show();
