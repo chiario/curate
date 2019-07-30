@@ -60,6 +60,22 @@ public class Song extends ComparableParseObject {
 		return getString(IMAGE_URL_KEY);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o instanceof Song) {
+			Song song = (Song) o;
+			return getSpotifyId().equals(song.getSpotifyId());
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return getSpotifyId().hashCode();
+	}
+
 	public static Parcelable createParcelFromSongs(List<Song> songs) {
 		List<ParcelableSong> parcelableSongs = new ArrayList<>();
 
