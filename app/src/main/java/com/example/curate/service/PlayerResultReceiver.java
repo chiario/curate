@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.service;
 
 import android.os.Bundle;
 import android.os.Handler;

@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.service;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 
+import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.parse.SaveCallback;
@@ -28,22 +29,22 @@ import com.spotify.protocol.types.PlayerState;
 
 import java.util.List;
 
-import static com.example.curate.ServiceUtils.ACTION_INIT;
-import static com.example.curate.ServiceUtils.ACTION_PLAY;
-import static com.example.curate.ServiceUtils.ACTION_PLAY_PAUSE;
-import static com.example.curate.ServiceUtils.ACTION_SKIP;
-import static com.example.curate.ServiceUtils.ACTION_UPDATE;
-import static com.example.curate.ServiceUtils.PAUSED_KEY;
-import static com.example.curate.ServiceUtils.PLAYBACK_POS_KEY;
-import static com.example.curate.ServiceUtils.RECEIVER_KEY;
-import static com.example.curate.ServiceUtils.RESULT_ALBUM_ART;
-import static com.example.curate.ServiceUtils.RESULT_NEW_SONG;
-import static com.example.curate.ServiceUtils.RESULT_PLAYBACK;
-import static com.example.curate.ServiceUtils.RESULT_PLAY_PAUSE;
-import static com.example.curate.ServiceUtils.SONG_ID_KEY;
-import static com.example.curate.ServiceUtils.bundleBitmap;
-import static com.example.curate.ServiceUtils.bundlePlayback;
-import static com.example.curate.ServiceUtils.bundleTrack;
+import static com.example.curate.service.ServiceUtils.ACTION_CONNECT;
+import static com.example.curate.service.ServiceUtils.ACTION_PLAY;
+import static com.example.curate.service.ServiceUtils.ACTION_PLAY_PAUSE;
+import static com.example.curate.service.ServiceUtils.ACTION_SKIP;
+import static com.example.curate.service.ServiceUtils.ACTION_UPDATE;
+import static com.example.curate.service.ServiceUtils.PAUSED_KEY;
+import static com.example.curate.service.ServiceUtils.PLAYBACK_POS_KEY;
+import static com.example.curate.service.ServiceUtils.RECEIVER_KEY;
+import static com.example.curate.service.ServiceUtils.RESULT_ALBUM_ART;
+import static com.example.curate.service.ServiceUtils.RESULT_NEW_SONG;
+import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
+import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
+import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
+import static com.example.curate.service.ServiceUtils.bundleBitmap;
+import static com.example.curate.service.ServiceUtils.bundlePlayback;
+import static com.example.curate.service.ServiceUtils.bundleTrack;
 
 public class PlayerService extends JobIntentService {
     private static final String TAG = "PlayerService";
@@ -100,7 +101,7 @@ public class PlayerService extends JobIntentService {
         if (intent.getAction() != null) {
             mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
             switch (intent.getAction()) {
-                case ACTION_INIT:
+                case ACTION_CONNECT:
                     initializePlaylistUpdateCallback();
                     break;
                 case ACTION_PLAY:

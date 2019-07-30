@@ -22,7 +22,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
-import com.example.curate.PlayerResultReceiver;
+import com.example.curate.service.PlayerResultReceiver;
 import com.example.curate.R;
 import com.example.curate.TrackProgressBar;
 
@@ -30,23 +30,23 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.example.curate.ServiceUtils.ACTION_INIT;
-import static com.example.curate.ServiceUtils.ACTION_PLAY;
-import static com.example.curate.ServiceUtils.ACTION_PLAY_PAUSE;
-import static com.example.curate.ServiceUtils.ACTION_SKIP;
-import static com.example.curate.ServiceUtils.ACTION_UPDATE;
-import static com.example.curate.ServiceUtils.ARTIST_KEY;
-import static com.example.curate.ServiceUtils.DURATION_KEY;
-import static com.example.curate.ServiceUtils.IMAGE_KEY;
-import static com.example.curate.ServiceUtils.PAUSED_KEY;
-import static com.example.curate.ServiceUtils.PLAYBACK_POS_KEY;
-import static com.example.curate.ServiceUtils.RESULT_ALBUM_ART;
-import static com.example.curate.ServiceUtils.RESULT_NEW_SONG;
-import static com.example.curate.ServiceUtils.RESULT_PLAYBACK;
-import static com.example.curate.ServiceUtils.RESULT_PLAY_PAUSE;
-import static com.example.curate.ServiceUtils.SONG_ID_KEY;
-import static com.example.curate.ServiceUtils.TITLE_KEY;
-import static com.example.curate.ServiceUtils.enqueuePlayer;
+import static com.example.curate.service.ServiceUtils.ACTION_CONNECT;
+import static com.example.curate.service.ServiceUtils.ACTION_PLAY;
+import static com.example.curate.service.ServiceUtils.ACTION_PLAY_PAUSE;
+import static com.example.curate.service.ServiceUtils.ACTION_SKIP;
+import static com.example.curate.service.ServiceUtils.ACTION_UPDATE;
+import static com.example.curate.service.ServiceUtils.ARTIST_KEY;
+import static com.example.curate.service.ServiceUtils.DURATION_KEY;
+import static com.example.curate.service.ServiceUtils.IMAGE_KEY;
+import static com.example.curate.service.ServiceUtils.PAUSED_KEY;
+import static com.example.curate.service.ServiceUtils.PLAYBACK_POS_KEY;
+import static com.example.curate.service.ServiceUtils.RESULT_ALBUM_ART;
+import static com.example.curate.service.ServiceUtils.RESULT_NEW_SONG;
+import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
+import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
+import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
+import static com.example.curate.service.ServiceUtils.TITLE_KEY;
+import static com.example.curate.service.ServiceUtils.enqueuePlayer;
 
 public class AdminPlayerFragment extends PlayerFragment implements PlayerResultReceiver.Receiver {
     private static final String TAG = "BottomPlayerAdmin";
@@ -89,15 +89,13 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         View view = inflater.inflate(R.layout.fragment_bottom_player_admin, container, false);
         ButterKnife.bind(this, view);
 
-        mTrackProgressBar = new TrackProgressBar(this, mSeekBar);
-
         initFonts();
+        setProgressBar();
 
         mCollapsed = new ConstraintSet();
         mCollapsed.clone(getContext(), R.layout.fragment_bottom_player_admin_collapsed);
         mExpanded = new ConstraintSet();
         mExpanded.clone(getContext(), R.layout.fragment_bottom_player_admin);
-        mSeekbarThumbDrawable = mSeekBar.getThumb();
         setExpanded(false);
 
         return view;
@@ -136,6 +134,11 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
             mPlayerBackground.setLayoutParams(params);
         }
         updateText();
+    }
+
+    private void setProgressBar() {
+        mTrackProgressBar = new TrackProgressBar(this, mSeekBar);
+        mSeekbarThumbDrawable = mSeekBar.getThumb();
     }
 
     private void setButtonVisibility(int visibility) {
@@ -210,13 +213,13 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
 
     // PlayerService methods
     /**
-     * This function sets this fragment as a new receiver for the PlayerService
+     * Sets this fragment as a PlayerService receiver and enqueues an action to connect Spotify remote
      */
     private void setUpService() {
         mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
         mPlayerResultReceiver.setReceiver(this);
         // This INIT call effectively creates the service by spawning a new worker thread
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_INIT, null);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_CONNECT, null);
     }
     /**
      * Method overwritten from the PlayerResultReceiver.

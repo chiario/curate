@@ -1,6 +1,5 @@
 package com.example.curate.fragments;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +18,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,6 +32,7 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
+    @BindView(R.id.tvSongLimitNumber) TextView tvSongLimitNumber;
 
     private String mPartyName;
     private Boolean mIsLocationEnabled;
@@ -79,42 +80,67 @@ public class SettingsDialogFragment extends DialogFragment {
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
 
-        // Set the toolbar and click listeners
+        setToolbar();
+    }
+
+    private void setToolbar() {
         mToolbar.setNavigationOnClickListener(v -> {
             dismiss();
         });
         mToolbar.getNavigationIcon().setTint(ContextCompat.getColor(getContext(), R.color.white));
         mToolbar.inflateMenu(R.menu.menu_info);
         mToolbar.setOnMenuItemClickListener(menuItem -> {
-            String newName = etPartyName.getText().toString();
-            Boolean newLocationEnabled = switchLocation.isChecked();
-            Party.saveSettings(newLocationEnabled, newName, e -> {
-                if(e == null) {
-                    if(newLocationEnabled) {
-                        ((MainActivity) getActivity()).registerLocationUpdater();
-                    } else {
-                        ((MainActivity) getActivity()).deregisterLocationUpdater();
-                    }
-                    dismiss();
-                } else {
-                    Toast.makeText(getContext(), "Could not save settings", Toast.LENGTH_SHORT).show();
-                }
-            });
+            onSaveSettings();
             return true;
         });
     }
 
+    private void onSaveSettings() {
+        String newName = etPartyName.getText().toString();
+        boolean newLocationEnabled = switchLocation.isChecked();
+        int newUserLimit = Integer.parseInt(tvUserLimitNumber.getText().toString());
+        int newSongLimit = Integer.parseInt(tvSongLimitNumber.getText().toString());
+        Party.saveSettings(newLocationEnabled, newName, e -> { //TODO - update this function to take in the new user and song limits
+            if(e == null) {
+                if(newLocationEnabled) {
+                    ((MainActivity) getActivity()).registerLocationUpdater();
+                } else {
+                    ((MainActivity) getActivity()).deregisterLocationUpdater();
+                }
+                dismiss();
+            } else {
+                Toast.makeText(getContext(), "Could not save settings", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     @OnClick({R.id.tvUserLimitText, R.id.tvUserLimitNumber})
-    public void setUserLimit() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        EditText etUserLimitNumber = new EditText(getContext());
-        builder.setView(etUserLimitNumber)
-                .setTitle("Set a user limit")
+    void setUserLimit() {
+        buildAlertDialog("user", tvUserLimitNumber);
+
+    }
+
+    @OnClick({R.id.tvSongLimitNumber, R.id.tvSongLimitText})
+    void setSongLimit() {
+        buildAlertDialog("song", tvSongLimitNumber);
+    }
+
+    private void buildAlertDialog(String type, TextView textView) {
+        EditText etLimit = new EditText(getContext());
+        etLimit.setText(textView.getText().toString());
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setView(etLimit)
+                .setTitle(String.format("Set a new %s limit...", type))
                 .setPositiveButton("OK", (dialogInterface, i) -> {
-                    String limit = etUserLimitNumber.getText().toString();
-                    tvUserLimitNumber.setText(limit);
+                    String newLimit = etLimit.getText().toString();
+                    try {
+                        Integer.parseInt(newLimit);
+                        textView.setText(newLimit);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getContext(), "Please input a number", Toast.LENGTH_LONG).show();
+                    }
                 })
-                .setNegativeButton("CANCEL", (dialogInterface, i) -> {})
                 .show();
 
     }

@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.service;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +26,7 @@ public class ServiceUtils {
     // Action keys
     public static final String ACTION_PLAY = "action.PLAY";
     public static final String ACTION_UPDATE = "action.UPDATE";
-    public static final String ACTION_INIT = "action.CONNECT";
+    public static final String ACTION_CONNECT = "action.CONNECT";
     public static final String ACTION_SKIP = "action.SKIP";
     public static final String ACTION_PLAY_PAUSE = "action.PLAY_PAUSE";
 

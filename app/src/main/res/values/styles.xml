@@ -12,6 +12,8 @@
         <item name="actionOverflowMenuStyle">@style/Curate.MenuPopup</item>
         <item name="buttonStyle">@style/Curate.Button</item>
         <item name="android:colorEdgeEffect">@color/colorAccent_70</item>
+        <item name="colorSurface">@color/mediumGray</item>
+        attr/colorSurface
     </style>
 
     <style name="Curate.SeekBar" parent="Widget.AppCompat.SeekBar">
