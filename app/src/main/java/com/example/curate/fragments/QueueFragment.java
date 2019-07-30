@@ -71,27 +71,21 @@ public class QueueFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		mParty = Party.getCurrentParty();
-		mParty.getPlaylist().update(e -> {
-			if(e == null) {
-				textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 
-				mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist().getEntries(), (MainActivity) getActivity());
-				mAdapter.setHasStableIds(true);
+		textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 
-				ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
-				new ItemTouchHelper(callbacks.likeCallback).attachToRecyclerView(rvQueue);
-				if(Party.getCurrentParty().isCurrentUserAdmin())
-					new ItemTouchHelper(callbacks.deleteCallback).attachToRecyclerView(rvQueue);
+		mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist().getEntries(), (MainActivity) getActivity());
+		mAdapter.setHasStableIds(true);
 
-				rvQueue.setAdapter(mAdapter);
-				rvQueue.setLayoutManager(new AnimatedLinearLayoutManager(getContext()));
-				rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
+		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
+		new ItemTouchHelper(callbacks.likeCallback).attachToRecyclerView(rvQueue);
+		if(Party.getCurrentParty().isCurrentUserAdmin())
+			new ItemTouchHelper(callbacks.deleteCallback).attachToRecyclerView(rvQueue);
 
-				initializePlaylistUpdateCallback();
-			} else {
-				Toast.makeText(getContext(), "Could not load playlist", Toast.LENGTH_LONG).show();
-			}
-		});
+		rvQueue.setAdapter(mAdapter);
+		rvQueue.setLayoutManager(new AnimatedLinearLayoutManager(getContext()));
+		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
+		initializePlaylistUpdateCallback();
 	}
 
 	@Override
@@ -104,8 +98,11 @@ public class QueueFragment extends Fragment {
 	private void initializePlaylistUpdateCallback() {
 		mPlaylistUpdatedCallback = e -> {
 			if(e == null) {
-				mAdapter.notifyDataSetChanged();
-				textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
+				getActivity().runOnUiThread(() -> {
+					textContainer.setVisibility(
+							mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
+					mAdapter.notifyDataSetChanged();
+				});
 			}
 		};
 		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
