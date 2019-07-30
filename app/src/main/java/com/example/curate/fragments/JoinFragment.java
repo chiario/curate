@@ -106,6 +106,10 @@ public class JoinFragment extends Fragment {
 
     private void getNearbyParties() {
         mLocationManager.getCurrentLocation(location -> {
+            if(location == null) {
+                Toast.makeText(getContext(), "Could not get nearby parties!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             Log.d("LOCATION", String.format("lat: %f, long: %f", location.getLatitude(), location.getLongitude()));
 
