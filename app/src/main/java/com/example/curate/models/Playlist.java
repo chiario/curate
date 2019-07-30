@@ -5,9 +5,16 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.parse.ParseCloud;
+import com.parse.ParseDecoder;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,6 +23,12 @@ public class Playlist {
 
     private List<PlaylistEntry> mSongs;
     private List<Like> mLikes;
+    private String mCachedValue;
+
+    public Playlist() {
+        mSongs = new ArrayList<>();
+        mLikes = new ArrayList<>();
+    }
 
     /***
      * Checks if a song is already added to the playlist
@@ -23,10 +36,8 @@ public class Playlist {
      * @return true if song is added, false if not
      */
     public boolean contains(Song song) {
-        // TODO: Improve efficiency
-        for(int i = 0; i < mSongs.size(); i++) {
-            if(mSongs.get(i).getSong().getSpotifyId().equals(song.getSpotifyId()))
-                return true;
+        for(PlaylistEntry entry : mSongs) {
+            if(entry.getSong().equals(song)) return true;
         }
         return false;
     }
@@ -94,16 +105,14 @@ public class Playlist {
 
         ParseCloud.callFunctionInBackground("addSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                // Preserve the playlist object so that it can be used in an adapter
-                mSongs.clear();
-                mSongs.addAll(playlist);
+                mSongs = playlist;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not add song!", e);
             }
 
             // Run the callback if it exists
-            if(callback != null) {
+            if (callback != null) {
                 callback.done(e);
             }
         });
@@ -120,16 +129,14 @@ public class Playlist {
 
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                // Preserve the playlist object so that it can be used in an adapter
-                mSongs.clear();
-                mSongs.addAll(playlist);
+                mSongs = playlist;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not remove song!", e);
             }
 
             // Run the callback if it exists
-            if(callback != null) {
+            if (callback != null) {
                 callback.done(e);
             }
         });
@@ -150,23 +157,49 @@ public class Playlist {
 
         ParseCloud.callFunctionInBackground("getPlaylist", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                // Preserve the playlist object so that it can be used in an adapter
-                mSongs.clear();
-                mSongs.addAll(playlist);
+                mSongs = playlist;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not get playlist!", e);
             }
 
             // Run the callback if it exists
-            if(callback != null) {
+            if (callback != null) {
                 callback.done(e);
             }
         });
     }
 
     public void update(String cachedPlaylist) {
+        if(cachedPlaylist == null) return;
 
+        if(mCachedValue != null && mCachedValue.equals(cachedPlaylist)) {
+            return;
+        }
+        mCachedValue = cachedPlaylist;
+
+        try {
+            JSONArray playlistJson = new JSONArray(cachedPlaylist);
+            ArrayList<PlaylistEntry> entries = new ArrayList<>();
+
+            for(int i = 0; i < playlistJson.length(); i++) {
+                JSONObject entryJson = playlistJson.getJSONObject(i);
+                PlaylistEntry entry = PlaylistEntry.fromJSON(entryJson, PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+
+                for(Like like : mLikes) {
+                    if(like.getEntry().equals(entry)) {
+                        entry.setIsLikedByUser(true);
+                        break;
+                    }
+                }
+                entries.add(entry);
+            }
+
+            mSongs = entries;
+
+        } catch (JSONException e) {
+            Log.e("Playlist.java", "Couldn't parse cached playlist", e);
+        }
     }
 
     public boolean isEmpty() {
