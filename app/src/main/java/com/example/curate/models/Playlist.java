@@ -24,9 +24,9 @@ public class Playlist {
     private List<Like> mLikes;
     private String mCachedValue;
 
-    public Playlist() {
-        mEntries = new ArrayList<>();
-        mLikes = new ArrayList<>();
+    public Playlist(String cachedPlaylist) {
+        mLikes = updateLikes();
+        update(cachedPlaylist);
     }
 
     /***
@@ -167,6 +167,21 @@ public class Playlist {
                 callback.done(e);
             }
         });
+    }
+
+    /**
+     * Updates the party's likes from the parse server.  This method is called synchronously since
+     * it is called in Party.initialize which is run in a separate thread.
+     */
+    private List<Like> updateLikes() {
+        HashMap<String, Object> params = new HashMap<>();
+
+        try {
+            return ParseCloud.callFunction("getLikes", params);
+        } catch (ParseException e) {
+            Log.e("Playlist.java", "Couldn't get likes", e);
+            return new ArrayList<>();
+        }
     }
 
     public void update(String cachedPlaylist) {
