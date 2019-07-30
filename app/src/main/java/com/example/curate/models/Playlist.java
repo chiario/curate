@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import com.parse.ParseCloud;
 import com.parse.ParseDecoder;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
 import org.json.JSONArray;
@@ -21,12 +20,12 @@ import java.util.List;
 public class Playlist {
     private static final String ENTRY_ID = "entryId";
 
-    private List<PlaylistEntry> mSongs;
+    private List<PlaylistEntry> mEntries;
     private List<Like> mLikes;
     private String mCachedValue;
 
     public Playlist() {
-        mSongs = new ArrayList<>();
+        mEntries = new ArrayList<>();
         mLikes = new ArrayList<>();
     }
 
@@ -36,7 +35,7 @@ public class Playlist {
      * @return true if song is added, false if not
      */
     public boolean contains(Song song) {
-        for(PlaylistEntry entry : mSongs) {
+        for(PlaylistEntry entry : mEntries) {
             if(entry.getSong().equals(song)) return true;
         }
         return false;
@@ -105,7 +104,7 @@ public class Playlist {
 
         ParseCloud.callFunctionInBackground("addSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                mSongs = playlist;
+                mEntries = playlist;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not add song!", e);
@@ -129,7 +128,7 @@ public class Playlist {
 
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                mSongs = playlist;
+                mEntries = playlist;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not remove song!", e);
@@ -143,7 +142,7 @@ public class Playlist {
     }
 
     public List<PlaylistEntry> getEntries() {
-        return mSongs;
+        return mEntries;
     }
 
     /**
@@ -157,7 +156,7 @@ public class Playlist {
 
         ParseCloud.callFunctionInBackground("getPlaylist", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             if (e == null) {
-                mSongs = playlist;
+                mEntries = playlist;
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not get playlist!", e);
@@ -195,7 +194,7 @@ public class Playlist {
                 entries.add(entry);
             }
 
-            mSongs = entries;
+            mEntries = entries;
 
         } catch (JSONException e) {
             Log.e("Playlist.java", "Couldn't parse cached playlist", e);
@@ -203,7 +202,7 @@ public class Playlist {
     }
 
     public boolean isEmpty() {
-        return mSongs.isEmpty();
+        return mEntries.isEmpty();
     }
 
 }
