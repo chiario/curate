@@ -1,6 +1,7 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -93,13 +95,13 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 		if(holder instanceof SongViewHolder) {
 			SongViewHolder songViewHolder = (SongViewHolder) holder;
+			songViewHolder.showSongData(getSong(position, songViewHolder));
+			songViewHolder.showLoading(false);
 			if(songViewHolder.getItemViewType() == TYPE_SONG_IN_QUEUE) {
 				songViewHolder.ibLike.setVisibility(View.GONE);
 			} else {
 				songViewHolder.ibLike.setVisibility(View.VISIBLE);
 			}
-			songViewHolder.showSongData(getSong(position, songViewHolder));
-			songViewHolder.showLoading(false);
 		} else if(holder instanceof SectionViewHolder) {
 			SectionViewHolder sectionViewHolder = (SectionViewHolder) holder;
 			if(sectionViewHolder.getItemViewType() == TYPE_SECTION_QUEUE) {
@@ -162,8 +164,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			if(!mSectionQueue) {
 				mSectionQueue = true;
 				notifyItemInserted(0);
-				int scroll = Math.max(((LinearLayoutManager) rvSearch.getLayoutManager()).findFirstVisibleItemPosition() - 1, 0);
-				rvSearch.smoothScrollToPosition(scroll);
 			}
 		}
 
@@ -234,6 +234,15 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					mSongsInQueue.add(mSong);
 					notifyItemInserted(mSongsInQueue.size());
 					updateSections();
+					LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(rvSearch.getContext()) {
+						private static final float MILLISECONDS_PER_INCH = 100f;
+						@Override
+						protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+							return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
+						}
+					};
+					linearSmoothScroller.setTargetPosition(0);
+					rvSearch.getLayoutManager().startSmoothScroll(linearSmoothScroller);
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
 					showLoading(false);
