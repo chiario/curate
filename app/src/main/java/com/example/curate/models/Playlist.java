@@ -203,22 +203,24 @@ public class Playlist {
                 return;
             }
 
-            try {
-                JSONArray playlistJson = new JSONArray(cachedPlaylist);
-                mEntries = new ArrayList<>();
+            if(cachedPlaylist != null) {
+                try {
+                    JSONArray playlistJson = new JSONArray(cachedPlaylist);
+                    mEntries = new ArrayList<>();
 
-                for (int i = 0; i < playlistJson.length(); i++) {
-                    // Create entry object from JSON
-                    PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
-                            PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+                    for (int i = 0; i < playlistJson.length(); i++) {
+                        // Create entry object from JSON
+                        PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
+                                PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
 
-                    entry.setIsLikedByUser(isEntryLiked(entry));
-                    mEntries.add(entry);
+                        entry.setIsLikedByUser(isEntryLiked(entry));
+                        mEntries.add(entry);
+                    }
+
+                    mPrevCachedValue = cachedPlaylist;
+                } catch (JSONException e) {
+                    Log.e("Playlist.java", "Couldn't parse cached playlist", e);
                 }
-
-                mPrevCachedValue = cachedPlaylist;
-            } catch (JSONException e) {
-                Log.e("Playlist.java", "Couldn't parse cached playlist", e);
             }
         }
     }
