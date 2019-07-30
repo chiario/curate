@@ -44,6 +44,7 @@ public class Party extends ComparableParseObject {
      */
     private void initialize() {
         mPlaylist = new Playlist();
+        mPlaylist.update(getString(CACHED_PLAYLIST_KEY));
         mPlaylistUpdateCallbacks = new ArrayList<>();
 
         // Set up live query
