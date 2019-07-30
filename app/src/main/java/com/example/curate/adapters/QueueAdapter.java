@@ -1,6 +1,7 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,7 +122,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
-		@BindView(R.id.tvAddedBy) TextView tvAddedBy;
 
 		private boolean isUpdating;
 		private PlaylistEntry mEntry;
@@ -194,17 +194,21 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		private void bindEntry(PlaylistEntry entry) {
 			mEntry = entry;
 			Song song = mEntry.getSong();
-			tvArtist.setText(song.getArtist());
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(mEntry.isLikedByUser());
 			ibLike.setSelected(entry.isLikedByUser());
+
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(song.getArtist());
 			User user = entry.getAddedBy();
 			if(user != null) {
 				String screenName = user.getScreenName();
 				if (screenName != null) {
-					tvAddedBy.setText(screenName);
+					stringBuilder.append(String.format(" · Added by %s", screenName));
 				}
 			}
+			tvArtist.setText(stringBuilder.toString());
+
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
