@@ -112,6 +112,12 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		}
 	}
 
+	/**
+	 * Get the song for a position
+	 * @param position - the current adapter position
+	 * @param songViewHolder The viewholder which will hold the song
+	 * @return the song the viewholder should hold
+	 */
 	private Song getSong(int position, SongViewHolder songViewHolder) {
 		if(songViewHolder.getItemViewType() == TYPE_SONG_IN_QUEUE) {
 			return mSongsInQueue.get(getQueuePosition(position));
@@ -120,19 +126,37 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		}
 	}
 
+	/**
+	 * Get the number of displayed sections in the adapter
+	 * @return - The number of displayd section headers
+	 */
 	private int getSectionCount() {
 		return (mSectionAdd ? 1 : 0) + (mSectionQueue ? 1 : 0);
 	}
 
+	/**
+	 * Get the total number of items in the adapter, including section headers
+	 * @return - The total number of items
+	 */
 	@Override
 	public int getItemCount() {
 		return mSongsInQueue.size() + mSongsInAdd.size() + getSectionCount();
 	}
 
+	/**
+	 * Gets the position in the mSongsInQueue list from the adapter position
+	 * @param position - the current adapter position
+	 * @return the position in the mSongsInQueue list
+	 */
 	private int getQueuePosition(int position) {
 		return position - (mSectionQueue ? 1 : 0);
 	}
 
+	/**
+	 * Gets the position in the mSongsInAdd list from the adapter position
+	 * @param position - the current adapter position
+	 * @return the position in the mSongsInAdd list
+	 */
 	private int getAddPosition(int position) {
 		return position - mSongsInQueue.size() - getSectionCount();
 	}
@@ -154,6 +178,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		updateSections();
 	}
 
+	/**
+	 * Updates the section titles, add and removing them if needed
+	 */
 	private void updateSections() {
 		if(mSongsInQueue.size() == 0) {
 			if(mSectionQueue) {
@@ -253,6 +280,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		/**
 		 * Displays a Song's information in the view
+		 * Song is cached in viewholder until updated
 		 * @param song the song whose information should be displayed
 		 */
 		private void showSongData(Song song) {
