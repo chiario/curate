@@ -25,6 +25,7 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.example.curate.utils.NotificationHelper;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 
@@ -170,7 +171,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		}
 
 		public void like() {
-			mMainActivity.updateInteractionTime();
+			NotificationHelper.updateInteractionTime();
 			if(isRemoving || isLiking) return;
 			isLiking = true;
 

@@ -53,6 +53,7 @@ import com.example.curate.fragments.SettingsDialogFragment;
 import com.example.curate.models.Party;
 import com.example.curate.models.User;
 import com.example.curate.utils.LocationManager;
+import com.example.curate.utils.NotificationHelper;
 import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
@@ -69,12 +70,9 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
-    private static final String CHANNEL_ID = "CurateChannel";
 
-    // Timings subject to change
-    private static final int NOTIFICATION_THRESHOLD = 10 * 60 * 1000; // 10 minutes in millis
-    private static final int NOTIFICATION_CHECK_TIME = 60 * 1000; // 1 minute in millis
-    private static final int NOTIFICATION_ID = 70; // Only ever show 1 notification
+
+
 
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
@@ -126,9 +124,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         } else {
             mBottomPlayerFragment = PlayerFragment.newInstance();
             // Set up push notifications
-            lastInteractionTime = SystemClock.elapsedRealtime();
-            notificationHandler = new Handler();
-            notificationHandler.post(addSongsNotification);
+            NotificationHelper.initializeNotifications(this);
+
             setPartyDeleteListener();
         }
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
@@ -416,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @Override
     public void onLeaveQueue() {
         Party.leaveParty(e -> {
-            removeNotifications();
+            NotificationHelper.removeNotifications(MainActivity.this);
             removePartyDeleteListener();
             ((User) ParseUser.getCurrentUser()).setScreenName(null);
             Intent intent = new Intent(MainActivity.this, JoinActivity.class);
@@ -433,72 +430,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             startActivity(intent);
             finish();
         });
-    }
-
-    Runnable addSongsNotification = new Runnable() {
-        @Override
-        public void run() {
-            if(SystemClock.elapsedRealtime() - lastInteractionTime > NOTIFICATION_THRESHOLD) createNotification();
-
-            // Check interactions in NOTIFICATION_CHECK_TIME millis
-            new Handler().postDelayed(addSongsNotification, NOTIFICATION_CHECK_TIME);
-        }
-    };
-
-    private void createNotification() {
-        createNotificationChannel();
-
-        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notification)
-                .setColor(getResources().getColor(R.color.colorAccent))
-                .setContentTitle("Add a song to party!")
-                .setContentText("It's been a while, don't miss out on the fun")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                // Set the intent that will fire when the user taps the notification
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
-        updateInteractionTime();
-    }
-
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-
-            // Return if notification channel is already created
-            if(notificationManager.getNotificationChannel(CHANNEL_ID) != null) return;
-
-            String name = "Curate Channel";
-            String description = "Notifies user to add song";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-    private void removeNotifications() {
-        if(!mIsAdmin) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                notificationManager.deleteNotificationChannel(CHANNEL_ID);
-            }
-            notificationHandler.removeCallbacks(addSongsNotification);
-        }
-    }
-
-    public void updateInteractionTime() {
-        lastInteractionTime = SystemClock.elapsedRealtime();
     }
 
     public void registerLocationUpdater() {

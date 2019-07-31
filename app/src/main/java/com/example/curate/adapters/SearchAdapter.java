@@ -21,6 +21,7 @@ import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
+import com.example.curate.utils.NotificationHelper;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
@@ -262,7 +263,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		private void onAdd(@Nullable SaveCallback saveCallback) {
 			if(getItemViewType() == TYPE_SONG_IN_QUEUE) return;
-			mMainActivity.updateInteractionTime();
+			NotificationHelper.updateInteractionTime();
 			if(mIsAdding) return;
 			mIsAdding = true;
 			showLoading(true);
