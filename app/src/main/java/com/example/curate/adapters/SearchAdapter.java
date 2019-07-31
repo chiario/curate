@@ -1,7 +1,6 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -226,18 +224,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		return mIsSwiping;
 	}
 
-	private void scrollBack() {
-		LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(rvSearch.getContext()) {
-			private static final float MILLISECONDS_PER_INCH = 100f;
-			@Override
-			protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-				return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
-			}
-		};
-		linearSmoothScroller.setTargetPosition(mSongsInQueue.size());
-		rvSearch.getLayoutManager().startSmoothScroll(linearSmoothScroller);
-	}
-
 	/***
 	 * Internal ViewHolder model for each song.
 	 */
@@ -277,7 +263,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					mSongsInQueue.add(mSong);
 					notifyItemMoved(position, mSongsInQueue.size());
 					updateSections();
-					scrollBack();
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
 					Toast.makeText(mContext, "Could not add song", Toast.LENGTH_SHORT).show();
