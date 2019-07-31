@@ -415,28 +415,24 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     @Override
     public void onLeaveQueue() {
-        if (!mIsAdmin) {
-            Party.leaveParty(e -> {
-                removeNotifications();
-                removePartyDeleteListener();
-                ((User) ParseUser.getCurrentUser()).setScreenName(null);
-                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
+        Party.leaveParty(e -> {
+            removeNotifications();
+            removePartyDeleteListener();
+            ((User) ParseUser.getCurrentUser()).setScreenName(null);
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     @Override
     public void onDeleteQueue() {
-        if (mIsAdmin) {
-            Party.deleteParty(e -> {
-                ((User) ParseUser.getCurrentUser()).setScreenName(null);
-                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
+        Party.deleteParty(e -> {
+            ((User) ParseUser.getCurrentUser()).setScreenName(null);
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     Runnable addSongsNotification = new Runnable() {
