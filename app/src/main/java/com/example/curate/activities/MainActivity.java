@@ -204,9 +204,45 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+
         MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
+
+        if (miSearchView != null) {
+            initializeSearch();
+        }
+
+        // Set info option onClick callback
+        miInfo.setOnMenuItemClickListener(menuItem -> {
+            // Retrieve the current mParty's name and join code
+            String name = Party.getCurrentParty().getName();
+            String joinCode = Party.getCurrentParty().getJoinCode();
+
+            InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
+            infoDialogFragment.show(mFragmentManager, "fragment_party_info");
+            return true;
+        });
+
+        // Set setting option onClick callback
+        miSettings.setOnMenuItemClickListener(menuItem -> {
+            SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
+            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
+            settings.show(mFragmentManager, "fragment_admin_settings");
+            return true;
+        });
+
+        // Only show settings for admin
+        miSettings.setVisible(mIsAdmin);
+        miSettings.setEnabled(mIsAdmin);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Initializes the searchbar onclicks
+     */
+    private void initializeSearch() {
+        // Set up back button onClick
         ibBack.setOnClickListener(view -> {
             onBackPressed();
             if(miSearchView.hasFocus()) {
@@ -215,55 +251,33 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             }
         });
 
-        if (miSearchView != null) {
-            miSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            miSearchView.setIconifiedByDefault(false);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        miSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        miSearchView.setIconifiedByDefault(false);
 
-            miSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    search(query, miSearchView);
-                    return true;
-                }
+        // Set SearchView callbacks
+        miSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search(query, miSearchView);
+                return true;
+            }
 
-                @Override
-                public boolean onQueryTextChange(String query) {
-                    liveSearch(query);
-                    return true;
-                }
-            });
-
-            miSearchView.setOnQueryTextFocusChangeListener((view, hasFocus) -> {
-                if(hasFocus) {
-                    display(mSearchFragment);
-//                    mSearchFragment.clearSearch();
-                    showKeyboard(view);
-                    animateSearchbar(true);
-                }
-            });
-
-        }
-
-        miInfo.setOnMenuItemClickListener(menuItem -> {
-            // Retrieve the current mParty's name and join code
-            String name = Party.getCurrentParty().getName();
-            String joinCode = Party.getCurrentParty().getJoinCode();
-
-            InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
-//            infoDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Rounded);
-            infoDialogFragment.show(mFragmentManager, "fragment_party_info");
-            return true;
-        });
-        miSettings.setOnMenuItemClickListener(menuItem -> {
-            SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
-            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
-            settings.show(mFragmentManager, "fragment_admin_settings");
-            return true;
+            @Override
+            public boolean onQueryTextChange(String query) {
+                liveSearch(query);
+                return true;
+            }
         });
 
-        miSettings.setVisible(mIsAdmin);
-        miSettings.setEnabled(mIsAdmin);
-        return super.onCreateOptionsMenu(menu);
+        // Set up fragment transition on focus change
+        miSearchView.setOnQueryTextFocusChangeListener((view, hasFocus) -> {
+            if(hasFocus) {
+                display(mSearchFragment);
+                showKeyboard(view);
+                animateSearchbar(true);
+            }
+        });
     }
 
     @Override
