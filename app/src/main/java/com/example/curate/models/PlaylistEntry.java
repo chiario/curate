@@ -43,7 +43,8 @@ public class PlaylistEntry extends ComparableParseObject {
     }
 
     public boolean contentsEqual(PlaylistEntry other) {
-        return getSong().equals(other.getSong()) && isLikedByUser == other.isLikedByUser;
+        return getSong().equals(other.getSong()) && isLikedByUser == other.isLikedByUser
+                && getAddedBy().equals(other.getAddedBy()) && getScore().equals(other.getScore());
     }
 
     public String getAddedBy() {
