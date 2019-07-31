@@ -103,6 +103,13 @@ public class Party extends ComparableParseObject {
     }
 
     /**
+     * @return the party the current user is part of, null if the user is not in a party
+     */
+    public static Party getCurrentParty() {
+        return mCurrentParty;
+    }
+
+    /**
      * Creates a new party with the current user as the admin
      * @param callback callback to run after the cloud function is executed
      */
@@ -120,32 +127,6 @@ public class Party extends ComparableParseObject {
                 Log.e("Party.java", "Could not create party!", e);
             }
 
-            // Run the callback if it exists
-            if(callback != null) {
-                callback.done(e);
-            }
-        });
-    }
-
-    public static void partyDeleted() {
-        mCurrentParty = null;
-    }
-
-    /***
-     * Deletes the current user's party
-     * @param callback callback to run after the cloud function is executed
-     */
-    public static void deleteParty(@Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
-            if (e == null) {
-                // Remove the current party from the singleton instance
-                mCurrentParty = null;
-                Log.d("Party.java", "Party deleted");
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not delete party!", e);
-            }
             // Run the callback if it exists
             if(callback != null) {
                 callback.done(e);
@@ -179,11 +160,39 @@ public class Party extends ComparableParseObject {
         });
     }
 
+    public static void partyDeleted() {
+        mCurrentParty = null;
+    }
+
+    /***
+     * Deletes the current user's party
+     * @param callback callback to run after the cloud function is executed
+     */
+    public void deleteParty(@Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        ParseCloud.callFunctionInBackground("deleteParty", params, (ParseUser user, ParseException e) -> {
+            if (e == null) {
+                // Remove the current party from the singleton instance
+                mCurrentParty = null;
+                Log.d("Party.java", "Party deleted");
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not delete party!", e);
+            }
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+
+
     /**
      * Current user leaves the current party
      * @param callback
      */
-    public static void leaveParty(@Nullable final SaveCallback callback) {
+    public void leaveParty(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("leaveParty", params, (ParseUser user, ParseException e) -> {
@@ -213,13 +222,6 @@ public class Party extends ComparableParseObject {
     }
 
     /**
-     * @return the party the current user is part of, null if the user is not in a party
-     */
-    public static Party getCurrentParty() {
-        return mCurrentParty;
-    }
-
-    /**
      * Get's the party's name
      * @return the name as a string
      */
@@ -232,7 +234,7 @@ public class Party extends ComparableParseObject {
      * @param name the new name for the party
      * @param callback callback to run after the cloud function is executed
      */
-    public static void setPartyName(String name, @Nullable final SaveCallback callback) {
+    public void setPartyName(String name, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(NAME_KEY, name);
 
@@ -263,6 +265,30 @@ public class Party extends ComparableParseObject {
     // Location methods
 
     /**
+     * Gets a list of parties near a location
+     * @param location the location near which to find parties
+     * @param callback callback to run after the cloud function is executed
+     */
+    public static void getNearbyParties(ParseGeoPoint location, @Nullable final FunctionCallback<List<Party>> callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(LOCATION_KEY, location);
+        // TODO: maybe make location a little more accurate
+        params.put("maxDistance", 5); //miles lol
+
+        ParseCloud.callFunctionInBackground("getNearbyParties", params, (List<Party> parties, ParseException e) -> {
+            if (e != null) {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get nearby parties!", e);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(parties, e);
+            }
+        });
+    }
+
+    /**
      * Updates the party's location
      * @param callback callback to run after the cloud function is executed
      */
@@ -287,7 +313,7 @@ public class Party extends ComparableParseObject {
      * Sets the party's location to undefined
      * @param callback callback to run after the cloud function is executed
      */
-    public static void clearLocation(@Nullable final SaveCallback callback) {
+    public void clearLocation(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
 
         ParseCloud.callFunctionInBackground("clearPartyLocation", params, (Party party, ParseException e) -> {
@@ -308,7 +334,7 @@ public class Party extends ComparableParseObject {
      * @param permissions boolean value to set location enabling to
      * @param callback callback to run after the cloud function is executed
      */
-    public static void setLocationEnabled(boolean permissions, @Nullable final SaveCallback callback) {
+    public void setLocationEnabled(boolean permissions, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(LOCATION_PERMISSION_KEY, permissions);
 
@@ -330,34 +356,11 @@ public class Party extends ComparableParseObject {
      * Gets the current party's location preferences
      * @return the boolean value of location enabling
      */
-    public static boolean getLocationEnabled() {
+    public boolean getLocationEnabled() {
         return mCurrentParty.getBoolean(LOCATION_PERMISSION_KEY);
     }
 
-    /**
-     * Gets a list of parties near a location
-     * @param location the location near which to find parties
-     * @param callback callback to run after the cloud function is executed
-     */
-    public static void getNearbyParties(ParseGeoPoint location, @Nullable final FunctionCallback<List<Party>> callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(LOCATION_KEY, location);
-        // TODO: maybe make location a little more accurate
-        params.put("maxDistance", 5); //miles lol
-
-        ParseCloud.callFunctionInBackground("getNearbyParties", params, (List<Party> parties, ParseException e) -> {
-            if (e != null) {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not get nearby parties!", e);
-            }
-
-            // Run the callback if it exists
-            if(callback != null) {
-                callback.done(parties, e);
-            }
-        });
-    }
-
+    // Playlist methods
 
     /**
      * Gets the party's playlist.  Make sure to call updatePlaylist() before getting this value for
@@ -444,11 +447,11 @@ public class Party extends ComparableParseObject {
      * Gets the party's current song.
      * @return the current song
      */
-    public static Song getCurrentSong() {
+    public Song getCurrentSong() {
         return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
     }
 
-    public static int getPartyUserCount() {
+    public int getPartyUserCount() {
         HashMap<String, Object> params = new HashMap<>();
         try {
             return ParseCloud.callFunction("getPartyUserCount", params);
@@ -466,7 +469,7 @@ public class Party extends ComparableParseObject {
      * @param partyName name for the party
      * @param callback callback to be called after server response
      */
-    public static void saveSettings(boolean locationEnabled, String partyName, int userLimit, int songLimit, @Nullable final SaveCallback callback) {
+    public void saveSettings(boolean locationEnabled, String partyName, int userLimit, int songLimit, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(LOCATION_PERMISSION_KEY, locationEnabled);
         params.put(NAME_KEY, partyName);
@@ -487,11 +490,11 @@ public class Party extends ComparableParseObject {
         });
     }
 
-    public static int getUserLimit() {
+    public int getUserLimit() {
         return mCurrentParty.getInt(USER_LIMIT_KEY);
     }
 
-    public static int getSongLimit() {
+    public int getSongLimit() {
         return mCurrentParty.getInt(SONG_LIMIT_KEY);
     }
 }

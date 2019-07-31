@@ -49,8 +49,8 @@ public class PlayerFragment extends Fragment {
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
 
-    String mTrackName = "--";
-    String mArtistName = "--";
+    static String mTrackName = "--";
+    static String mArtistName = "--";
     boolean isExpanded;
     private Typeface mBoldFont;
     private Typeface mNormalFont;
@@ -163,7 +163,7 @@ public class PlayerFragment extends Fragment {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentSong().getSpotifyId());
+        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + mParty.getCurrentSong().getSpotifyId());
         startActivity(Intent.createChooser(intent, "Share this song!"));
     }
 
@@ -172,7 +172,7 @@ public class PlayerFragment extends Fragment {
         Log.d(TAG, "Initializing song update callback");
         mCurrentSongUpdatedCallback = e -> {
             if (e == null) {
-                Song currentSong = Party.getCurrentSong();
+                Song currentSong = mParty.getCurrentSong();
                 if (currentSong != null) {
                     try {
                         currentSong.fetchIfNeeded(); // TODO - work around this fetch; add ParseCloud function??

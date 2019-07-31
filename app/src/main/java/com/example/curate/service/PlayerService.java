@@ -116,6 +116,7 @@ public class PlayerService extends JobIntentService {
                     long seekPosition = intent.getLongExtra(PLAYBACK_POS_KEY, 0);
                     seekTo(seekPosition);
                     break;
+
             }
         }
     }
@@ -305,6 +306,7 @@ public class PlayerService extends JobIntentService {
     private void checkConnection() {
         if (mIsSpotifyConnected) {
             mResultReceiver.send(RESULT_CONNECTED, null);
+            getCurrentPlayback();
         } else {
             mResultReceiver.send(RESULT_DISCONNECTED, null);
         }
@@ -361,6 +363,13 @@ public class PlayerService extends JobIntentService {
                     .setResultCallback(empty -> Log.d(TAG, "Success playing new song " + spotifyId))
                     .setErrorCallback(throwable -> Log.e(TAG, "Error playing new song " + spotifyId, throwable));
         }
+    }
+
+    private void getCurrentPlayback() {
+        mPlayerApi.getPlayerState().setResultCallback(playerState -> {
+            mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
+        });
+        getAlbumArt();
     }
 
     /**

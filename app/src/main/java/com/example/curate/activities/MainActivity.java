@@ -71,9 +71,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
 
-
-
-
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
@@ -82,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
     @BindView(R.id.ibBack) ImageButton ibBack;
 
+    private Party mCurrentParty;
     private FragmentManager mFragmentManager;
     private Fragment mActiveFragment;
     private QueueFragment mQueueFragment;
@@ -108,7 +106,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mIsAdmin = Party.getCurrentParty().isCurrentUserAdmin();
+        mCurrentParty = Party.getCurrentParty();
+        mIsAdmin = mCurrentParty.isCurrentUserAdmin();
 
         initializeFragments(savedInstanceState);
 
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             mBottomPlayerFragment = AdminPlayerFragment.newInstance();
             // Set up the location manager
             mLocationManager = new LocationManager(this);
-            if(mLocationManager.hasNecessaryPermissions() && Party.getLocationEnabled()) {
+            if(mLocationManager.hasNecessaryPermissions() && mCurrentParty.getLocationEnabled()) {
                 registerLocationUpdater();
             } else {
                 mLocationManager.requestPermissions();
@@ -412,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     @Override
     public void onLeaveQueue() {
-        Party.leaveParty(e -> {
+        mCurrentParty.leaveParty(e -> {
             NotificationHelper.removeNotifications(MainActivity.this);
             removePartyDeleteListener();
             ((User) ParseUser.getCurrentUser()).setScreenName(null);
@@ -424,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     @Override
     public void onDeleteQueue() {
-        Party.deleteParty(e -> {
+        mCurrentParty.deleteParty(e -> {
             ((User) ParseUser.getCurrentUser()).setScreenName(null);
             Intent intent = new Intent(MainActivity.this, JoinActivity.class);
             startActivity(intent);
@@ -466,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     public void deregisterLocationUpdater() {
         if(mLocationCallback == null) return;
         mLocationManager.deregisterLocationUpdateCallback(mLocationCallback);
-        Party.clearLocation(e -> {
+        mCurrentParty.clearLocation(e -> {
             if(e == null) {
                 mLocationCallback = null;
             } else {
@@ -479,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && Party.getLocationEnabled()) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && mCurrentParty.getLocationEnabled()) {
                 // Location permission has been granted, register location updater
                 registerLocationUpdater();
             } else {

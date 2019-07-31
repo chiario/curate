@@ -81,12 +81,6 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setUpService();
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bottom_player_admin, container, false);

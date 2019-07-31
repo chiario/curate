@@ -34,6 +34,7 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
     @BindView(R.id.tvSongLimitNumber) TextView tvSongLimitNumber;
 
+    private Party mCurrentParty;
     private String mPartyName;
     private boolean mIsLocationEnabled;
     private int mUserLimit;
@@ -72,11 +73,12 @@ public class SettingsDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        mCurrentParty = Party.getCurrentParty();
         // Fetch arguments and set views
-        mPartyName = Party.getCurrentParty().getName();
-        mIsLocationEnabled = Party.getLocationEnabled();
-        mUserLimit = Party.getUserLimit();
-        mSongLimit = Party.getSongLimit();
+        mPartyName = mCurrentParty.getName();
+        mIsLocationEnabled = mCurrentParty.getLocationEnabled();
+        mUserLimit = mCurrentParty.getUserLimit();
+        mSongLimit = mCurrentParty.getSongLimit();
 
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
@@ -103,7 +105,7 @@ public class SettingsDialogFragment extends DialogFragment {
         boolean newLocationEnabled = switchLocation.isChecked();
         int newUserLimit = Integer.parseInt(tvUserLimitNumber.getText().toString());
         int newSongLimit = Integer.parseInt(tvSongLimitNumber.getText().toString());
-        Party.saveSettings(newLocationEnabled, newName, newUserLimit, newSongLimit, e -> {
+        mCurrentParty.saveSettings(newLocationEnabled, newName, newUserLimit, newSongLimit, e -> {
             if(e == null) {
                 if(newLocationEnabled) {
                     ((MainActivity) getActivity()).registerLocationUpdater();
