@@ -324,33 +324,51 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         mActiveFragment = fragment;
     }
 
+    /**
+     * Initializes the search animation callbacks for animating the search bar
+     */
     private void initSearchBarAnimations() {
+
+        // Get the display metrics for window width
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
+        // Set the maximum values
         float maxHeight = dpToPx(56f);
         float maxWidth = displayMetrics.widthPixels;
         float maxDelta = dpToPx(16f);
         float maxRadius = dpToPx(24f);
 
+        // Set searchbar corner radius to initial/maximum value
         GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(
                 this, R.drawable.bg_searchbar);
         searchbarBackground.setCornerRadius(maxRadius);
+        ivSearchBackground.setBackground(searchbarBackground);
+
+        // Set searchbar width and height to initial/maximum values
         ViewGroup.LayoutParams params = ivSearchBackground.getLayoutParams();
         params.height = (int) (maxHeight - maxDelta / 1.5f);
         params.width = (int) (maxWidth - maxDelta);
         ivSearchBackground.setLayoutParams(params);
-        ivSearchBackground.setBackground(searchbarBackground);
 
+
+        // Set up animator from 1 to 0
         mSearchbarAnimator = ValueAnimator.ofFloat(1f, 0f);
         mSearchbarAnimator.setDuration(200);
+
+        // Update listener callback called every "tick"
         mSearchbarAnimator.addUpdateListener(anim -> {
+            // Set the animated delta and radius (percentage of maximum values)
             float currentDelta = maxDelta * (Float) anim.getAnimatedValue();
             float currentRadius = maxRadius * (Float) anim.getAnimatedValue();
+
+            // Set the layout height and width for the searchbar based on current delta
             ViewGroup.LayoutParams layout = ivSearchBackground.getLayoutParams();
             layout.height = (int) (maxHeight - currentDelta / 1.5f);
             layout.width = (int) (maxWidth - currentDelta);
             ivSearchBackground.setLayoutParams(layout);
+
+            // Set the search bar corner radius based on current radius
             searchbarBackground.setCornerRadius(currentRadius);
         });
     }
