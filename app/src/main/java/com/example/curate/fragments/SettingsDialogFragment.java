@@ -103,13 +103,15 @@ public class SettingsDialogFragment extends DialogFragment {
     private void onSaveSettings() {
         String newName = etPartyName.getText().toString();
         boolean newLocationEnabled = switchLocation.isChecked();
+        boolean isLocationEnabled = (newLocationEnabled && !mCurrentParty.getLocationEnabled());
+        boolean isLocationDisabled = (!newLocationEnabled && mCurrentParty.getLocationEnabled());
         int newUserLimit = Integer.parseInt(tvUserLimitNumber.getText().toString());
         int newSongLimit = Integer.parseInt(tvSongLimitNumber.getText().toString());
         mCurrentParty.saveSettings(newLocationEnabled, newName, newUserLimit, newSongLimit, e -> {
             if(e == null) {
-                if(newLocationEnabled) {
+                if (isLocationEnabled) {
                     ((MainActivity) getActivity()).registerLocationUpdater();
-                } else {
+                } else if (isLocationDisabled){
                     ((MainActivity) getActivity()).deregisterLocationUpdater();
                 }
                 dismiss();

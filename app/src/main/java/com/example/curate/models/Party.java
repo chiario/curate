@@ -215,8 +215,6 @@ public class Party extends ComparableParseObject {
         });
     }
 
-
-
     /**
      * Current user leaves the current party
      * @param callback
@@ -256,30 +254,6 @@ public class Party extends ComparableParseObject {
      */
     public String getName() {
         return getString(NAME_KEY);
-    }
-
-    /**
-     * Sets the current party name
-     * @param name the new name for the party
-     * @param callback callback to run after the cloud function is executed
-     */
-    public void setPartyName(String name, @Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(NAME_KEY, name);
-
-        ParseCloud.callFunctionInBackground("setPartyName", params, (Party party, ParseException e) -> {
-            if (e == null) {
-                mCurrentParty = party;
-            } else {
-                // Log the error if we get one
-                Log.e("Party.java", "Could not change party name!", e);
-            }
-
-            // Run the callback if it exists
-            if (callback != null) {
-                callback.done(e);
-            }
-        });
     }
 
     /**
@@ -359,29 +333,6 @@ public class Party extends ComparableParseObject {
     }
 
     /**
-     * Sets the current party's location preferences
-     * @param permissions boolean value to set location enabling to
-     * @param callback callback to run after the cloud function is executed
-     */
-    public void setLocationEnabled(boolean permissions, @Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(LOCATION_PERMISSION_KEY, permissions);
-
-        ParseCloud.callFunctionInBackground("setLocationEnabled", params, (Party party, ParseException e) -> {
-            if (e == null) {
-                mCurrentParty = party;
-            } else {
-                Log.e("Party.java", "Could not set location permissions!", e);
-            }
-
-            // Run the callback if it exists
-            if (callback != null) {
-                callback.done(e);
-            }
-        });
-    }
-
-    /**
      * Gets the current party's location preferences
      * @return the boolean value of location enabling
      */
@@ -427,7 +378,8 @@ public class Party extends ComparableParseObject {
         HashMap<String, Object> params = new HashMap<>();
         params.put(Song.SPOTIFY_ID_KEY, spotifyId);
 
-        ParseCloud.callFunctionInBackground("setCurrentlyPlayingSong", params, (FunctionCallback<Song>) (song, e) -> {
+        ParseCloud.callFunctionInBackground("setCurrentlyPlayingSong", params,
+                (FunctionCallback<Song>) (song, e) -> {
             if (e != null) {
                 Log.e("Party.java", "Could not set the next song");
             } else {
@@ -498,16 +450,26 @@ public class Party extends ComparableParseObject {
      * @param partyName name for the party
      * @param callback callback to be called after server response
      */
-    public void saveSettings(boolean locationEnabled, String partyName, int userLimit, int songLimit, @Nullable final SaveCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(LOCATION_PERMISSION_KEY, locationEnabled);
-        params.put(NAME_KEY, partyName);
-        params.put(USER_LIMIT_KEY, userLimit);
-        params.put(SONG_LIMIT_KEY, songLimit);
+    public void saveSettings(boolean locationEnabled, String partyName, int userLimit, int songLimit,
+                             @Nullable final SaveCallback callback) {
+        // First check if the settings have changed
+        boolean hasLocationChanged = locationEnabled != mCurrentParty.getLocationEnabled();
+        boolean hasNameChanged = !partyName.equals(mCurrentParty.getName());
+        boolean hasUserLimitChanged = userLimit != mCurrentParty.getUserLimit();
+        boolean hasSongLimitChanged = songLimit != mCurrentParty.getSongLimit();
 
-        ParseCloud.callFunctionInBackground("savePartySettings", params, (Party party, ParseException e) -> {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(LOCATION_PERMISSION_KEY, hasLocationChanged ? locationEnabled : null);
+        params.put(NAME_KEY, hasNameChanged ? partyName : null);
+        params.put(USER_LIMIT_KEY, hasUserLimitChanged ? userLimit : null);
+        params.put(SONG_LIMIT_KEY, hasSongLimitChanged ? songLimit : null);
+        ParseCloud.callFunctionInBackground("savePartySettings", params,
+                (Party party, ParseException e) -> {
             if (e == null) {
-                mCurrentParty = party;
+                mCurrentParty.put(NAME_KEY, partyName);
+                mCurrentParty.put(LOCATION_PERMISSION_KEY, locationEnabled);
+                mCurrentParty.put(USER_LIMIT_KEY, userLimit);
+                mCurrentParty.put(SONG_LIMIT_KEY, songLimit);
             } else {
                 Log.e("Party.java", "Could not set location permissions!", e);
             }

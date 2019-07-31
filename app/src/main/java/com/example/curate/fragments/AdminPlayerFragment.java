@@ -29,7 +29,6 @@ import com.example.curate.R;
 import com.example.curate.TrackProgressBar;
 import com.example.curate.models.Party;
 import com.example.curate.service.PlayerResultReceiver;
-import com.example.curate.service.ServiceUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,7 +49,10 @@ import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
 import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
 import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
 import static com.example.curate.service.ServiceUtils.TITLE_KEY;
+import static com.example.curate.service.ServiceUtils.checkConnection;
 import static com.example.curate.service.ServiceUtils.enqueuePlayer;
+import static com.example.curate.service.ServiceUtils.playNew;
+import static com.example.curate.service.ServiceUtils.updatePlayer;
 
 public class AdminPlayerFragment extends PlayerFragment implements PlayerResultReceiver.Receiver {
     private static final String TAG = "AdminPlayerFragment";
@@ -187,7 +189,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     public void onSeekTo(long pos) {
-        ServiceUtils.updatePlayer(getContext(), mPlayerResultReceiver, pos);
+        updatePlayer(getContext(), mPlayerResultReceiver, pos);
     }
 
     @OnClick(R.id.ivPrev)
@@ -206,7 +208,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     public void onPlayNew(String spotifyId) {
-        ServiceUtils.playNew(getContext(), mPlayerResultReceiver, spotifyId);
+        playNew(getContext(), mPlayerResultReceiver, spotifyId);
     }
 
     // PlayerService methods
@@ -217,7 +219,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
         mPlayerResultReceiver.setReceiver(this);
         checkSpotifyInstalled();
-        ServiceUtils.checkConnection(getContext(), mPlayerResultReceiver);
+        checkConnection(getContext(), mPlayerResultReceiver);
     }
     /**
      * Method overwritten from the PlayerResultReceiver to receive results from the PlayerService.
