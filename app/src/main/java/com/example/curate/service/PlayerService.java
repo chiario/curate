@@ -376,7 +376,6 @@ public class PlayerService extends JobIntentService {
             return null;
         } else {
             PlaylistEntry entry = mCurrentParty.getPlaylist().getEntries().get(0);
-            mCurrentParty.getPlaylist().removeEntry(entry, null);
             return entry.getSong().getSpotifyId();
         }
     }
