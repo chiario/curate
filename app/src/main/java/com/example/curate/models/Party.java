@@ -33,17 +33,20 @@ public class Party extends ComparableParseObject {
     private static final String SONG_LIMIT_KEY = "songLimit";
 
     private static Party mCurrentParty;
-    private Playlist mPlaylist;
-    private List<SaveCallback> mPlaylistUpdateCallbacks;
 
-    public Party() {}
+    private final Playlist mPlaylist;
+    private final List<SaveCallback> mPlaylistUpdateCallbacks;
+
+    public Party() {
+        mPlaylist = new Playlist();
+        mPlaylistUpdateCallbacks = new ArrayList<>();
+    }
 
     /**
      * Initializes the party object and sets up live queries
      */
     private void initialize() {
-        mPlaylist = new Playlist(getString(CACHED_PLAYLIST_KEY));
-        mPlaylistUpdateCallbacks = new ArrayList<>();
+        mPlaylist.updateFromCache(getString(CACHED_PLAYLIST_KEY));
 
         // Set up live query
         ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
