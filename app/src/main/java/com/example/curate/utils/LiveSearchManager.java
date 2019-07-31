@@ -9,7 +9,7 @@ import java.util.List;
 
 public class LiveSearchManager {
     // The minimum time between key presses before a new search request is performed
-    private static final int DEBOUNCE_TIME = 50; // milliseconds
+    private static final int DEBOUNCE_TIME = 0; // milliseconds
 
     /**
      * Interface used for passing search result data to callback functions
@@ -38,22 +38,26 @@ public class LiveSearchManager {
         @Override
         public void run() {
             // Cancel the request if the query has changed in the debounce time
-            if(!query.getQuery().equals(desiredQuery) || isCancelled) {
-                mPendingSearches.remove(this);
-                return;
+            synchronized (mMutex) {
+                if (!query.getQuery().equals(desiredQuery) || isCancelled) {
+                    mPendingSearches.remove(this);
+                    return;
+                }
             }
 
             query.find(e -> {
-                mPendingSearches.remove(this);
+                synchronized (mMutex) {
+                    mPendingSearches.remove(this);
 
-                // Don't run the callback if the search failed or was cancelled
-                if(e != null || isCancelled) return;
+                    // Don't run the callback if the search failed or was cancelled
+                    if (e != null || isCancelled) return;
 
-                // Update the last completed request and run the callback if this request was created
-                // after the last completed one
-                if(mLastCompletedRequest == null || createdTime > mLastCompletedRequest.createdTime) {
-                    mLastCompletedRequest = this;
-                    mSearchCallback.onSearchCompleted(query.getQuery(), query.getResults());
+                    // Update the last completed request and run the callback if this request was created
+                    // after the last completed one
+                    if (mLastCompletedRequest == null || createdTime > mLastCompletedRequest.createdTime) {
+                        mLastCompletedRequest = this;
+                        mSearchCallback.onSearchCompleted(query.getQuery(), query.getResults());
+                    }
                 }
             });
         }
@@ -64,6 +68,7 @@ public class LiveSearchManager {
     private Handler mHandlerThread; // Handler thread for running search requests
     private List<SearchRequest> mPendingSearches; // A list of search requests that have not completed yet
     private SearchCallback mSearchCallback; // Callback to run when a search request completes
+    private final Object mMutex = new Object();
 
     /**
      * @param searchCallback the callback to run when a search request is completed
@@ -78,10 +83,12 @@ public class LiveSearchManager {
      * Cancels all pending searches
      */
     public void cancelPendingSearches() {
-        for(SearchRequest request : mPendingSearches) {
-            request.isCancelled = true;
+        synchronized (mMutex) {
+            for (SearchRequest request : mPendingSearches) {
+                request.isCancelled = true;
+            }
+            mPendingSearches.clear();
         }
-        mPendingSearches.clear();
     }
 
     /**
@@ -89,21 +96,29 @@ public class LiveSearchManager {
      * @param newQuery the new desired query
      */
     public void updateQuery(String newQuery) {
-        desiredQuery = newQuery;
-        SearchRequest request = new SearchRequest(newQuery, System.currentTimeMillis());
-        mPendingSearches.add(request);
-        mHandlerThread.postDelayed(request, DEBOUNCE_TIME);
+        synchronized (mMutex) {
+            desiredQuery = newQuery;
+            SearchRequest request = new SearchRequest(newQuery, System.currentTimeMillis());
+            mPendingSearches.add(request);
+            if (DEBOUNCE_TIME > 0) {
+                mHandlerThread.postDelayed(request, DEBOUNCE_TIME);
+            } else {
+                mHandlerThread.post(request);
+            }
+        }
     }
 
     /**
      * @return true if the live query results are up to date with the desired query
      */
     public boolean isSearchComplete() {
-        if(mLastCompletedRequest == null) return false;
+        synchronized (mMutex) {
+            if (mLastCompletedRequest == null) return false;
 
-        Song.SearchQuery completed = mLastCompletedRequest.query;
+            Song.SearchQuery completed = mLastCompletedRequest.query;
 
-        // Return true if the most recently completed search matches the desired query
-        return desiredQuery.equals(completed.getQuery());
+            // Return true if the most recently completed search matches the desired query
+            return desiredQuery.equals(completed.getQuery());
+        }
     }
 }
