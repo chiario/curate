@@ -376,7 +376,9 @@ public class PlayerService extends JobIntentService {
             return null;
         } else {
             String spotifyId = mPlaylist.get(0).getSong().getSpotifyId();
+            Log.d(TAG, "first " + mPlaylist);
             mPlaylist.remove(0);
+            Log.d(TAG, "second " + mPlaylist);
             return spotifyId;
         }
     }
