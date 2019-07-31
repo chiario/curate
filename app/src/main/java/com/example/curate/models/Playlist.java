@@ -114,7 +114,7 @@ public class Playlist {
         ParseCloud.callFunctionInBackground("addSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
-                    updateEntries(playlist);
+//                    updateEntries(playlist);
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not add song!", e);
@@ -139,7 +139,7 @@ public class Playlist {
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
-                    updateEntries(playlist);
+//                    updateEntries(playlist);
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not remove song!", e);
