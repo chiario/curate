@@ -373,11 +373,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         });
     }
 
-    private float dpToPx(float dip) {
-        Resources r = getResources();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, r.getDisplayMetrics());
-    }
-
     private void animateSearchbar(boolean isExpanding) {
         if(mIsSearchbarExpanded == isExpanding)
             return;
