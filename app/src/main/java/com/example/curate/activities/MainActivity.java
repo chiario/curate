@@ -334,10 +334,10 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
         // Set the maximum values
-        float maxHeight = dpToPx(56f);
+        float maxHeight = getResources().getDimension(R.dimen.max_searchbar_height);
         float maxWidth = displayMetrics.widthPixels;
-        float maxDelta = dpToPx(16f);
-        float maxRadius = dpToPx(24f);
+        float maxDelta = getResources().getDimension(R.dimen.max_searchbar_delta);
+        float maxRadius = getResources().getDimension(R.dimen.max_searchbar_radius);
 
         // Set searchbar corner radius to initial/maximum value
         GradientDrawable searchbarBackground = (GradientDrawable) ContextCompat.getDrawable(
