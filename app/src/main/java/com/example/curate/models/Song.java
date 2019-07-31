@@ -21,7 +21,7 @@ import java.util.List;
 
 @ParseClassName("Song")
 public class Song extends ComparableParseObject {
-
+	private static final String IMAGE_URL_PREFIX = "https://i.scdn.co/image/";
 	public static final String SPOTIFY_ID_KEY = "spotifyId";
 	public static final String TITLE_KEY = "title";
 	public static final String ARTIST_KEY = "artist";
@@ -57,7 +57,11 @@ public class Song extends ComparableParseObject {
 	}
 
 	public String getImageUrl() {
-		return getString(IMAGE_URL_KEY);
+		String url = getString(IMAGE_URL_KEY);
+		if(!url.contains(IMAGE_URL_PREFIX)) {
+			url = IMAGE_URL_PREFIX + url;
+		}
+		return url;
 	}
 
 	@Override
