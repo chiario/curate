@@ -109,6 +109,7 @@ public class Playlist {
             synchronized (mEntryMutex) {
                 if (e == null) {
                     mEntries = playlist;
+                    applyLikes();
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not add song!", e);
@@ -135,6 +136,7 @@ public class Playlist {
             synchronized (mEntryMutex) {
                 if (e == null) {
                     mEntries = playlist;
+                    applyLikes();
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not remove song!", e);
@@ -168,6 +170,7 @@ public class Playlist {
             synchronized (mEntryMutex) {
                 if (e == null) {
                     mEntries = playlist;
+                    applyLikes();
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not get playlist!", e);
@@ -213,14 +216,22 @@ public class Playlist {
                         PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
                                 PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
 
-                        entry.setIsLikedByUser(isEntryLiked(entry));
                         mEntries.add(entry);
                     }
 
+                    applyLikes();
                     mPrevCachedValue = cachedPlaylist;
                 } catch (JSONException e) {
                     Log.e("Playlist.java", "Couldn't parse cached playlist", e);
                 }
+            }
+        }
+    }
+
+    private void applyLikes() {
+        synchronized (mEntryMutex) {
+            for (PlaylistEntry entry : mEntries) {
+                entry.setIsLikedByUser(isEntryLiked(entry));
             }
         }
     }
