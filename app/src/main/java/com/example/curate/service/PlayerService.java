@@ -26,6 +26,7 @@ import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class PlayerService extends JobIntentService {
         super.onCreate();
         mContext = getApplicationContext();
         CLIENT_ID = getString(R.string.clientId);
-        connectSpotifyRemote(); //TODO check installation first
+        connectSpotifyRemote();
         try {
             mCurrentParty = Party.getCurrentParty();
             mPlaylist = mCurrentParty.getPlaylist().getEntries();
@@ -248,8 +249,9 @@ public class PlayerService extends JobIntentService {
         if (playerState.track != null) {
             // Only update the receiver with track details if the remote player has begun a new track
             if (!playerState.track.uri.equals(mCurrSongUri) && playerState.track.name != null) {
+                mCurrSongUri = playerState.track.uri;
                 Log.d(TAG, "Event with new song " + playerState.track.name + " at plackback position " + playerState.playbackPosition / 1000 + " seconds");
-                setCurrentlyPlaying(playerState.track.uri);
+                setCurrentlyPlaying(playerState.track);
                 mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
                 getAlbumArt();
             } else { // If the track hasn't changed, update the receiver with the current playback position
@@ -260,16 +262,53 @@ public class PlayerService extends JobIntentService {
         }
     };
 
+    private void setCurrentlyPlaying(Track track) {
+        String spotifyId = spotifyify(track.uri);
 
-    private void setCurrentlyPlaying(String uri) {
-        mCurrSongUri = uri;
-        mCurrentParty.setCurrentlyPlaying(uri.replace("spotify:track:", ""), e -> {
-            if (e == null) {
-                Log.d(TAG, "Set currently playing success!");
-            } else {
-                Log.e(TAG, "Error setting currently playing song", e);
+        PlaylistEntry entry = getEntryBySpotifyId(spotifyId);
+
+        if (entry == null) {
+            mCurrentParty.setCurrentlyPlayingSong(spotifyId, e-> {
+                if (e == null) {
+                    Log.d(TAG, "Set currently playing success!");
+                } else {
+                    Log.e(TAG, "Error setting currently playing song", e);
+                }
+            });
+        } else {
+            mCurrentParty.setCurrentlyPlayingEntry(entry.getObjectId(), e -> {
+                if (e == null) {
+                    Log.d(TAG, "Set currently playing success!");
+                } else {
+                    Log.e(TAG, "Error setting currently playing song", e);
+                }
+            });
+        }
+    }
+
+    private PlaylistEntry getEntryBySpotifyId(String spotifyId) {
+        List<PlaylistEntry> playlistEntries = mCurrentParty.getPlaylist().getEntries();
+        for (PlaylistEntry entry : playlistEntries) {
+            if (spotifyId.equals(entry.getSong().getSpotifyId())) {
+                return entry;
             }
-        });
+        }
+        return null;
+    }
+
+   /* private Song createNewSong(Track track) {
+        Song song = new Song();
+        song.setSpotifyId(spotifyify(track.uri));
+        song.setTitle(track.name);
+        song.setArtist(track.artist.name);
+        song.setAlbum(track.album.name);
+//        song.setImageUrl(track.album.images[0].url);
+
+        return song;
+    }*/
+
+    private String spotifyify(String uri) {
+        return uri.replace("spotify:track:", "");
     }
 
     // Playback methods

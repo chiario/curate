@@ -55,7 +55,7 @@ public class ServiceUtils {
                 break;
             case ACTION_PLAY:
                 String newSongId = data.getString(SONG_ID_KEY);
-                intent.putExtra(SONG_ID_KEY, newSongId); // TODO - more efficient way to do this??
+                intent.putExtra(SONG_ID_KEY, newSongId);
                 break;
         }
 

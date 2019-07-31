@@ -238,12 +238,9 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             return true;
         });
         miSettings.setOnMenuItemClickListener(menuItem -> {
-            // Retrieve the current mParty's name and location preferences
-            String name = Party.getCurrentParty().getName();
-            boolean locationEnabled = Party.getLocationEnabled();
-            SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance(name, locationEnabled);
-            settingsDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
-            settingsDialogFragment.show(mFragmentManager, "fragment_admin_settings");
+            SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
+            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
+            settings.show(mFragmentManager, "fragment_admin_settings");
             return true;
         });
 

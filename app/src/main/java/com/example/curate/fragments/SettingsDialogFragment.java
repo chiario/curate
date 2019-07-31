@@ -35,7 +35,9 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.tvSongLimitNumber) TextView tvSongLimitNumber;
 
     private String mPartyName;
-    private Boolean mIsLocationEnabled;
+    private boolean mIsLocationEnabled;
+    private int mUserLimit;
+    private int mSongLimit;
     private Toolbar mToolbar;
 
     public SettingsDialogFragment() {
@@ -46,15 +48,11 @@ public class SettingsDialogFragment extends DialogFragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param name the name of the current party.
-     * @param locationEnabled the current party's location enabled setting
      * @return A new instance of fragment SettingsDialogFragment.
      */
-    public static SettingsDialogFragment newInstance(String name, boolean locationEnabled) {
+    public static SettingsDialogFragment newInstance() {
         SettingsDialogFragment fragment = new SettingsDialogFragment();
         Bundle args = new Bundle();
-        args.putString(PARTY_NAME_KEY, name);
-        args.putBoolean(LOCATION_PERMISSIONS_KEY, locationEnabled);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,11 +72,16 @@ public class SettingsDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        // Fetch arguments from bundle
-        mPartyName = getArguments().getString(PARTY_NAME_KEY);
-        mIsLocationEnabled = getArguments().getBoolean(LOCATION_PERMISSIONS_KEY);
+        // Fetch arguments and set views
+        mPartyName = Party.getCurrentParty().getName();
+        mIsLocationEnabled = Party.getLocationEnabled();
+        mUserLimit = Party.getUserLimit();
+        mSongLimit = Party.getSongLimit();
+
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
+        tvUserLimitNumber.setText(mUserLimit);
+        tvSongLimitNumber.setText(mSongLimit);
 
         setToolbar();
     }
@@ -100,7 +103,7 @@ public class SettingsDialogFragment extends DialogFragment {
         boolean newLocationEnabled = switchLocation.isChecked();
         int newUserLimit = Integer.parseInt(tvUserLimitNumber.getText().toString());
         int newSongLimit = Integer.parseInt(tvSongLimitNumber.getText().toString());
-        Party.saveSettings(newLocationEnabled, newName, e -> { //TODO - update this function to take in the new user and song limits
+        Party.saveSettings(newLocationEnabled, newName, newUserLimit, newSongLimit, e -> {
             if(e == null) {
                 if(newLocationEnabled) {
                     ((MainActivity) getActivity()).registerLocationUpdater();

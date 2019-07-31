@@ -163,16 +163,16 @@ public class PlayerFragment extends Fragment {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentParty().getCurrentSong().getSpotifyId());
+        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentSong().getSpotifyId());
         startActivity(Intent.createChooser(intent, "Share this song!"));
     }
 
     // Song update callback methods are only called in client fragment
     private void initializeSongUpdateCallback() {
-        Log.d("BottomPlayerClient", "Initializing song update callback");
+        Log.d(TAG, "Initializing song update callback");
         mCurrentSongUpdatedCallback = e -> {
             if (e == null) {
-                Song currentSong = Party.getCurrentParty().getCurrentSong();
+                Song currentSong = Party.getCurrentSong();
                 if (currentSong != null) {
                     try {
                         currentSong.fetchIfNeeded(); // TODO - work around this fetch; add ParseCloud function??
@@ -185,7 +185,7 @@ public class PlayerFragment extends Fragment {
                     }
                 }
             } else {
-                Log.d("BottomPlayerClient", "Error in song update callback", e);
+                Log.d(TAG, "Error in song update callback", e);
             }
         };
         mParty.registerPlaylistUpdateCallback(mCurrentSongUpdatedCallback);

@@ -274,7 +274,6 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Spotify app is not installed");
             installSpotify();
-            // TODO prompt installation
             return false;
         }
     }

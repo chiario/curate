@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.parse.FunctionCallback;
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -30,6 +29,8 @@ public class Party extends ComparableParseObject {
     private static final String LOCATION_KEY = "location";
     private static final String LOCATION_PERMISSION_KEY = "locationEnabled";
     private static final String CACHED_PLAYLIST_KEY = "cachedPlaylist";
+    private static final String USER_LIMIT_KEY = "userLimit";
+    private static final String SONG_LIMIT_KEY = "songLimit";
 
     private static Party mCurrentParty;
     private Playlist mPlaylist;
@@ -381,25 +382,50 @@ public class Party extends ComparableParseObject {
     }
 
     /**
-     * Calls on the ParseCloud to remove the specified song from the playlist and set it as
-     * currently playing instead.
+     * Calls on the ParseCloud to set the specified song as currently playing.
+     *
      * @param spotifyId the Spotify ID of the song to set as currently playing
-     * @param callback callback to run after the cloud function is executed
-     * @return the party's currently playing song
+     * @param callback to run after the cloud function is executed
      */
-    public void setCurrentlyPlaying(String spotifyId, @Nullable final SaveCallback callback) {
+    public void setCurrentlyPlayingSong(String spotifyId, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(Song.SPOTIFY_ID_KEY, spotifyId);
-        Log.d("Party.java", "Trying song " + spotifyId);
-        ParseCloud.callFunctionInBackground("setCurrentlyPlaying", params, (FunctionCallback<Song>) (song, e) -> {
-            if (e == null) {
-                Log.d("Party.java", "Got song " + song);
-                if (song != null) {
-                    Log.d("Party.java", "got song " + song.getTitle());
-                    mCurrentParty.put(CURRENTLY_PLAYING_KEY, song);
-                }
-            } else {
+
+        ParseCloud.callFunctionInBackground("setCurrentlyPlayingSong", params, (FunctionCallback<Song>) (song, e) -> {
+            if (e != null) {
                 Log.e("Party.java", "Could not set the next song");
+            } else {
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, song);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
+            }
+        });
+    }
+
+    /**
+     * Calls on the ParseCloud to delete the specified song from the playlist and set it as
+     * the currently playing song.
+     *
+     * @param entryId the object ID of the song to set as currently playing
+     * @param callback to run after the cloud function is executed
+     */
+    public void setCurrentlyPlayingEntry(String entryId, @Nullable final SaveCallback callback) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("entryId", entryId);
+
+        ParseCloud.callFunctionInBackground("setCurrentlyPlayingEntry", params, (FunctionCallback<Song>) (song, e) -> {
+            if (e != null) {
+                Log.e("Party.java", "Could not set the next song");
+            } else {
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, song);
+            }
+
+            // Run the callback if it exists
+            if(callback != null) {
+                callback.done(e);
             }
 
             // Run the callback if it exists
@@ -413,7 +439,7 @@ public class Party extends ComparableParseObject {
      * Gets the party's current song.
      * @return the current song
      */
-    public Song getCurrentSong() {
+    public static Song getCurrentSong() {
         return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
     }
 
@@ -428,16 +454,19 @@ public class Party extends ComparableParseObject {
         }
     }
 
+    // Settings methods
     /***
      * Saves all settings for the current party
      * @param locationEnabled whether location is enabled
      * @param partyName name for the party
      * @param callback callback to be called after server response
      */
-    public static void saveSettings(boolean locationEnabled, String partyName, @Nullable final SaveCallback callback) {
+    public static void saveSettings(boolean locationEnabled, String partyName, int userLimit, int songLimit, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(LOCATION_PERMISSION_KEY, locationEnabled);
         params.put(NAME_KEY, partyName);
+        params.put(USER_LIMIT_KEY, userLimit);
+        params.put(SONG_LIMIT_KEY, songLimit);
 
         ParseCloud.callFunctionInBackground("savePartySettings", params, (Party party, ParseException e) -> {
             if (e == null) {
@@ -451,5 +480,13 @@ public class Party extends ComparableParseObject {
                 callback.done(e);
             }
         });
+    }
+
+    public static int getUserLimit() {
+        return mCurrentParty.getInt(USER_LIMIT_KEY);
+    }
+
+    public static int getSongLimit() {
+        return mCurrentParty.getInt(SONG_LIMIT_KEY);
     }
 }
