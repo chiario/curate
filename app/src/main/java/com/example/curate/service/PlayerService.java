@@ -15,7 +15,6 @@ import androidx.core.app.JobIntentService;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
-import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.PlayerApi;
@@ -70,8 +69,6 @@ public class PlayerService extends JobIntentService {
     private String mCurrSongUri;
 
     private Party mCurrentParty;
-    private SaveCallback mPlaylistUpdatedCallback;
-    private List<PlaylistEntry> mPlaylist;
 
 
     // Default constructor
@@ -84,20 +81,8 @@ public class PlayerService extends JobIntentService {
         super.onCreate();
         mContext = getApplicationContext();
         CLIENT_ID = getString(R.string.clientId);
-        connectSpotifyRemote();
-        try {
-            mCurrentParty = Party.getCurrentParty();
-            mPlaylist = mCurrentParty.getPlaylist().getEntries();
-        } catch (Exception e) {
-            Log.e(TAG, "Couldn't get current party and playlist", e);
-        }
-    }
-
-    private void initializePlaylistUpdateCallback() {
         mCurrentParty = Party.getCurrentParty();
-        mPlaylist = mCurrentParty.getPlaylist().getEntries();
-        mPlaylistUpdatedCallback = e -> mPlaylist = mCurrentParty.getPlaylist().getEntries();
-        mCurrentParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+        connectSpotifyRemote();
     }
 
     /**
@@ -110,7 +95,7 @@ public class PlayerService extends JobIntentService {
             mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
             switch (intent.getAction()) {
                 case ACTION_CONNECT:
-                    initializePlaylistUpdateCallback();
+                    // TODO - what to do here?
                     break;
                 case ACTION_PLAY:
                     String newSongId = intent.getStringExtra(SONG_ID_KEY);
@@ -166,7 +151,6 @@ public class PlayerService extends JobIntentService {
     }
 
     private void playRunnable() {
-        Log.d(TAG, "Posting runnable with delay " + mTimeRemaining / 1000);
         runnableHandler.removeCallbacks(songRunnable);
         if (mTimeRemaining > NEXT_SONG_DELAY) {
             runnableHandler.postDelayed(songRunnable, mTimeRemaining - NEXT_SONG_DELAY);
@@ -255,7 +239,6 @@ public class PlayerService extends JobIntentService {
                 mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
                 getAlbumArt();
             } else { // If the track hasn't changed, update the receiver with the current playback position
-                Log.d(TAG, "Event with playback position " + playerState.playbackPosition / 1000 + " seconds");
                 mResultReceiver.send(RESULT_PLAYBACK, bundlePlayback(playerState));
             }
             updateRunnable(playerState.playbackPosition, playerState.track.duration, playerState.isPaused);
@@ -295,17 +278,6 @@ public class PlayerService extends JobIntentService {
         }
         return null;
     }
-
-   /* private Song createNewSong(Track track) {
-        Song song = new Song();
-        song.setSpotifyId(spotifyify(track.uri));
-        song.setTitle(track.name);
-        song.setArtist(track.artist.name);
-        song.setAlbum(track.album.name);
-//        song.setImageUrl(track.album.images[0].url);
-
-        return song;
-    }*/
 
     private String spotifyify(String uri) {
         return uri.replace("spotify:track:", "");
@@ -370,16 +342,14 @@ public class PlayerService extends JobIntentService {
      * @return the spotify ID of the song to be played
      */
     private String retrieveNextSong() {
-        if (mPlaylist == null || mPlaylist.isEmpty()) {
+        if (mCurrentParty.getPlaylist().getEntries() == null || mCurrentParty.getPlaylist().getEntries().isEmpty()) {
             Log.e(TAG, "Playlist is empty!");
             new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Your queue is empty!", Toast.LENGTH_LONG).show());
             return null;
         } else {
-            String spotifyId = mPlaylist.get(0).getSong().getSpotifyId();
-            Log.d(TAG, "first " + mPlaylist);
-            mPlaylist.remove(0);
-            Log.d(TAG, "second " + mPlaylist);
-            return spotifyId;
+            PlaylistEntry entry = mCurrentParty.getPlaylist().getEntries().get(0);
+            mCurrentParty.getPlaylist().removeEntry(entry, null);
+            return entry.getSong().getSpotifyId();
         }
     }
 

@@ -388,6 +388,7 @@ public class Party extends ComparableParseObject {
      * @param callback to run after the cloud function is executed
      */
     public void setCurrentlyPlayingSong(String spotifyId, @Nullable final SaveCallback callback) {
+        Log.d("Party.java", "set song");
         HashMap<String, Object> params = new HashMap<>();
         params.put(Song.SPOTIFY_ID_KEY, spotifyId);
 
@@ -413,6 +414,7 @@ public class Party extends ComparableParseObject {
      * @param callback to run after the cloud function is executed
      */
     public void setCurrentlyPlayingEntry(String entryId, @Nullable final SaveCallback callback) {
+        Log.d("Party.java", "set entry");
         HashMap<String, Object> params = new HashMap<>();
         params.put("entryId", entryId);
 
