@@ -47,7 +47,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     @Override
     public void onPartyObtained() {
         User user = (User) ParseUser.getCurrentUser();
-        if(user.getCurrentScreenName() == null) {
+        if(User.getCurrentScreenName() == null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             EditText etScreenName = new EditText(this);
             builder.setTitle("Set your username")

@@ -2,7 +2,6 @@ package com.example.curate.adapters;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,11 +21,10 @@ import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -218,11 +216,25 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	public void onItemSwipedAdd(RecyclerView.ViewHolder viewHolder) {
 		mIsSwiping = true;
 		SongViewHolder vh = (SongViewHolder) viewHolder;
-		vh.onClickAdd();
+		notifyItemChanged(vh.getAdapterPosition());
+
+		vh.onAdd(e -> mIsSwiping = false);
 	}
 
 	public boolean isSwiping() {
 		return mIsSwiping;
+	}
+
+	private void scrollBack() {
+		LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(rvSearch.getContext()) {
+			private static final float MILLISECONDS_PER_INCH = 100f;
+			@Override
+			protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+				return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
+			}
+		};
+		linearSmoothScroller.setTargetPosition(mSongsInQueue.size());
+		rvSearch.getLayoutManager().startSmoothScroll(linearSmoothScroller);
 	}
 
 	/***
@@ -245,34 +257,28 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickAdd() {
+			onAdd(null);
+		}
+
+		private void onAdd(@Nullable SaveCallback saveCallback) {
 			if(getItemViewType() == TYPE_SONG_IN_QUEUE) return;
 			mMainActivity.updateInteractionTime();
 			if(mIsAdding) return;
 			mIsAdding = true;
-
 			showLoading(true);
+			int position = getAdapterPosition();
 			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
 				mIsAdding = false;
-				mIsSwiping = false;
-
+				if(saveCallback != null) saveCallback.done(e);
+				showLoading(false);
 				if(e == null) {
 					mSongsInAdd.remove(mSong);
-					notifyItemRemoved(getAdapterPosition());
 					mSongsInQueue.add(mSong);
-					notifyItemInserted(mSongsInQueue.size());
+					notifyItemMoved(position, mSongsInQueue.size());
 					updateSections();
-					LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(rvSearch.getContext()) {
-						private static final float MILLISECONDS_PER_INCH = 100f;
-						@Override
-						protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-							return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
-						}
-					};
-					linearSmoothScroller.setTargetPosition(mSongsInQueue.size());
-					rvSearch.getLayoutManager().startSmoothScroll(linearSmoothScroller);
+					scrollBack();
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
-					showLoading(false);
 					Toast.makeText(mContext, "Could not add song", Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -288,6 +294,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			tvArtist.setText(song.getArtist());
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(false);
+			showLoading(mIsAdding);
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
@@ -298,7 +305,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		 * Shows/hides the loading animation for when a song is being added
 		 * @param isLoading if true, show the loading animation; if false, hide it
 		 */
-		private void showLoading(boolean isLoading) {
+		public void showLoading(boolean isLoading) {
 			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
 			ibLike.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
 		}

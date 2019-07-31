@@ -24,8 +24,6 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
-import com.example.curate.models.User;
-import com.parse.ParseException;
 import com.parse.SaveCallback;
 
 import java.util.List;
@@ -39,6 +37,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	private MainActivity mMainActivity;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 	private AsyncListDiffer<PlaylistEntry> mPlaylistDiffer;
+	protected RecyclerView rvQueue;
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -61,6 +60,12 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			}
 		});
 		mPlaylistDiffer.submitList(playlist);
+	}
+
+	@Override
+	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+		rvQueue = recyclerView;
+		super.onAttachedToRecyclerView(recyclerView);
 	}
 
 	@NonNull
@@ -123,7 +128,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
-		private boolean isUpdating;
+		private boolean isLiking;
+		private boolean isRemoving;
 		private PlaylistEntry mEntry;
 
 		public ViewHolder(View itemView) {
@@ -144,16 +150,15 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		}
 
 		private void onClickRemove(@Nullable final SaveCallback saveCallback) {
-			if(isUpdating || pbLoading.getVisibility() == View.VISIBLE) return;
-			isUpdating = true;
-			showLoading(true);
+			if(isRemoving) return;
+			isRemoving = true;
 			// TODO fix mass deleting (crash gracefully?)
 			// TODO swiping then clicking is not working
 			SaveCallback callback = e -> {
 				if(saveCallback != null) {
 					saveCallback.done(e);
 				}
-				isUpdating = false;
+				isRemoving = false;
 				if(e == null) {
 					submitPlaylist(Party.getCurrentParty().getPlaylist());
 				} else {
@@ -161,20 +166,20 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
 				}
 			};
-
 			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, callback);
+			showLoading(true);
 		}
 
 		@OnClick(R.id.ibLike)
 		public void onClickLike(final View v) {
 			mMainActivity.updateInteractionTime();
-			if(isUpdating) return;
-			isUpdating = true;
+			if(isLiking) return;
+			isLiking = true;
 
 			final boolean isLiked = mEntry.isLikedByUser();
 			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
 			final SaveCallback callback = e -> {
-				isUpdating = false;
+				isLiking = false;
 				mIsSwiping = false;
 
 				if (e == null) {
@@ -203,6 +208,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(mEntry.isLikedByUser());
 			ibLike.setSelected(entry.isLikedByUser());
+			showLoading(isRemoving);
 
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(song.getArtist());

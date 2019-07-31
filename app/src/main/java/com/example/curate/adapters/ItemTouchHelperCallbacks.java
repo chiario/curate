@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 public class ItemTouchHelperCallbacks {
 
+	private static final long LOADING_DELAY = 10L;
 	private RecyclerView.Adapter mAdapter;
 
 	private Context mContext;
@@ -39,6 +41,7 @@ public class ItemTouchHelperCallbacks {
 
 	}
 
+	// Callback for delete swipe
 	public ItemTouchHelper.SimpleCallback deleteCallback =
 			new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 		@Override
@@ -56,6 +59,7 @@ public class ItemTouchHelperCallbacks {
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 			((QueueAdapter) mAdapter).onItemSwipedRemove(viewHolder);
+			mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
 		}
 
 		@Override
@@ -63,8 +67,7 @@ public class ItemTouchHelperCallbacks {
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
 
-			if (viewHolder.getAdapterPosition() == NO_POSITION ||
-					((QueueAdapter) mAdapter).isSwiping()) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION) {
 				super.onChildDraw(c, recyclerView, viewHolder,
 						0, dY, actionState, isCurrentlyActive);
 				return;
@@ -163,8 +166,7 @@ public class ItemTouchHelperCallbacks {
 		                        float dY, int actionState, boolean isCurrentlyActive) {
 			if (viewHolder instanceof SearchAdapter.SectionViewHolder ||
 					viewHolder.getItemViewType() == SearchAdapter.TYPE_SONG_IN_QUEUE ||
-					viewHolder.getAdapterPosition() == NO_POSITION ||
-					((SearchAdapter) mAdapter).isSwiping()) {
+					viewHolder.getAdapterPosition() == NO_POSITION) {
 				super.onChildDraw(c, recyclerView, viewHolder,
 						0, dY, actionState, isCurrentlyActive);
 				return;
