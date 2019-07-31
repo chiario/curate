@@ -280,14 +280,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (mIsAdmin) {
-//            mAdminManager.checkSpotifyInstalled();
-        }
-    }
-
     /***
      * Saves currently active fragment
      * @param outState
