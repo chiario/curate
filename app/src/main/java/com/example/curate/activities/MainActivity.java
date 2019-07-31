@@ -57,6 +57,7 @@ import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
+import com.parse.Parse;
 import com.parse.ParseUser;
 
 import butterknife.BindView;
@@ -95,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private LocationCallback mLocationCallback = null;
     private long lastInteractionTime;
     private Handler notificationHandler;
+
+    private User.PartyDeletedListener mPartyDeleteListener;
 
     public AdminPlayerFragment getBottomPlayerFragment() {
         if(!mIsAdmin) return null;
@@ -142,19 +145,33 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     }
 
     private void setPartyDeleteListener() {
-        ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mainActivity -> runOnUiThread(() -> {
+        if(mPartyDeleteListener != null) {
+            ((User) ParseUser.getCurrentUser()).deregisterPartyDeletedListener(mPartyDeleteListener);
+            mPartyDeleteListener = null;
+        }
+
+        mPartyDeleteListener = mainActivity -> runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
             builder
                     .setTitle("Party Deleted")
                     .setMessage("This party has been deleted by the admin.")
                     .setPositiveButton("Return to menu", (dialogInterface, i) -> {
+                        removePartyDeleteListener();
                         Intent intent = new Intent(mainActivity, JoinActivity.class);
                         startActivity(intent);
                         Party.partyDeleted();
+                        finish();
                     });
             builder.setCancelable(false);
             builder.show();
-        }), this);
+        });
+
+        ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mPartyDeleteListener, this);
+    }
+
+    private void removePartyDeleteListener() {
+        ((User) ParseUser.getCurrentUser()).deregisterPartyDeletedListener(mPartyDeleteListener);
+        mPartyDeleteListener = null;
     }
 
     private void initializeFragments(Bundle savedInstanceState) {
@@ -382,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         if (!mIsAdmin) {
             Party.leaveParty(e -> {
                 removeNotifications();
+                removePartyDeleteListener();
                 ((User) ParseUser.getCurrentUser()).setScreenName(null);
                 Intent intent = new Intent(MainActivity.this, JoinActivity.class);
                 startActivity(intent);
