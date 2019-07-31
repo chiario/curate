@@ -24,8 +24,12 @@ import com.example.curate.adapters.DividerItemDecoration;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.models.Party;
+import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.parse.SaveCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -97,10 +101,11 @@ public class QueueFragment extends Fragment {
 	private void initializePlaylistUpdateCallback() {
 		mPlaylistUpdatedCallback = e -> {
 			if(e == null) {
-				mAdapter.submitPlaylist(mParty.getPlaylist());
+				// TODO: make this thread safe
+				List<PlaylistEntry> entries = mParty.getPlaylist().getEntries();
+				mAdapter.submitPlaylist(entries);
 				getActivity().runOnUiThread(() -> {
-					textContainer.setVisibility(
-							mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
+					textContainer.setVisibility(entries.isEmpty() ? View.VISIBLE : View.INVISIBLE);
 				});
 			}
 		};
