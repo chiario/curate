@@ -136,7 +136,6 @@ public class Playlist {
     public void removeEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(ENTRY_ID, entry.getObjectId());
-
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {

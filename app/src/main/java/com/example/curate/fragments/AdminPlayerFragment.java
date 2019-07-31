@@ -28,16 +28,14 @@ import androidx.core.content.ContextCompat;
 import com.example.curate.R;
 import com.example.curate.TrackProgressBar;
 import com.example.curate.service.PlayerResultReceiver;
+import com.example.curate.service.ServiceUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.example.curate.service.ServiceUtils.ACTION_CONNECT;
-import static com.example.curate.service.ServiceUtils.ACTION_PLAY;
 import static com.example.curate.service.ServiceUtils.ACTION_PLAY_PAUSE;
 import static com.example.curate.service.ServiceUtils.ACTION_SKIP;
-import static com.example.curate.service.ServiceUtils.ACTION_UPDATE;
 import static com.example.curate.service.ServiceUtils.ARTIST_KEY;
 import static com.example.curate.service.ServiceUtils.DURATION_KEY;
 import static com.example.curate.service.ServiceUtils.IMAGE_KEY;
@@ -190,9 +188,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     public void onSeekTo(long pos) {
-        Bundle bundle = new Bundle();
-        bundle.putLong(PLAYBACK_POS_KEY, pos);
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_UPDATE, bundle);
+        ServiceUtils.updatePlayer(getContext(), mPlayerResultReceiver, pos);
     }
 
     @OnClick(R.id.ivPrev)
@@ -202,18 +198,16 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
 
     @OnClick(R.id.ivPlayPause)
     void onPlayPause() {
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_PLAY_PAUSE, null);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_PLAY_PAUSE);
     }
 
     @OnClick(R.id.ivNext)
     public void onSkipNext() {
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_SKIP, null);
+        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_SKIP);
     }
 
     public void onPlayNew(String spotifyId) {
-        Bundle bundle = new Bundle();
-        bundle.putString(SONG_ID_KEY, spotifyId);
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_PLAY, bundle);
+        ServiceUtils.playNew(getContext(), mPlayerResultReceiver, spotifyId);
     }
 
     // PlayerService methods
@@ -223,15 +217,11 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     private void setUpService() {
         mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
         mPlayerResultReceiver.setReceiver(this);
-        mPlayerResultReceiver.setmIsSpotifyInstalled(checkSpotifyInstalled());
-
-
-        // This INIT call effectively creates the service by spawning a new worker thread
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_CONNECT, null);
+        checkSpotifyInstalled();
+        ServiceUtils.checkConnection(getContext(), mPlayerResultReceiver);
     }
     /**
-     * Method overwritten from the PlayerResultReceiver.
-     * Receives results from the PlayerService.
+     * Method overwritten from the PlayerResultReceiver to receive results from the PlayerService.
      * @param resultCode determines type of result passed from PlayerService
      * @param resultData data bundle passed from PlayerService
      */
@@ -265,23 +255,20 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
 
-    private boolean checkSpotifyInstalled() {
+    private void checkSpotifyInstalled() {
         PackageManager pm = getContext().getPackageManager();
         try {
             pm.getPackageInfo("com.spotify.music", 0);
             Log.d(TAG, "Spotify app is installed");
-            return true;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Spotify app is not installed");
             installSpotify();
-            return false;
         }
     }
 
     private void installSpotify() {
         final String appPackageName = "com.spotify.music";
         final String referrer = "adjust_campaign=PACKAGE_NAME&adjust_tracker=ndjczk&utm_source=adjust_preinstall";
-
         try {
             Uri uri = Uri.parse("market://details")
                     .buildUpon()
@@ -299,6 +286,9 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         }
     }
 
+    /**
+     * Intent to open Spotify app in order to log in.
+     */
     private void openSpotify() {
         Log.d(TAG, "opening spotify");
         Intent intent = new Intent(Intent.ACTION_VIEW);

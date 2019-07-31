@@ -5,14 +5,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-
 import com.spotify.protocol.types.PlayerState;
 
 import java.io.ByteArrayOutputStream;
 
 public class ServiceUtils {
-
     // Data keys
     public static final String RECEIVER_KEY = "receiver";
     public static final String SONG_ID_KEY = "spotifyId";
@@ -31,6 +28,8 @@ public class ServiceUtils {
     public static final String ACTION_PLAY_PAUSE = "action.PLAY_PAUSE";
 
     // Result keys
+    public static final int RESULT_CONNECTED = 999;
+    public static final int RESULT_DISCONNECTED = 111;
     public static final int RESULT_NEW_SONG = 123;
     public static final int RESULT_PLAY_PAUSE = 456;
     public static final int RESULT_ALBUM_ART = 789;
@@ -44,23 +43,57 @@ public class ServiceUtils {
     /**
      * Convenience method for enqueuing work into this service.
      */
-    public static void enqueuePlayer(Context context, PlayerResultReceiver playerResultReceiver, String ACTION, @Nullable Bundle data) {
+    public static void enqueuePlayer(Context context, PlayerResultReceiver playerResultReceiver,
+                                     String ACTION) {
         Intent intent = new Intent(context, PlayerService.class);
         intent.putExtra(RECEIVER_KEY, playerResultReceiver);
-
-        switch (ACTION) {
-            case ACTION_UPDATE:
-                long seekTo = data.getLong(PLAYBACK_POS_KEY);
-                intent.putExtra(PLAYBACK_POS_KEY, seekTo);
-                break;
-            case ACTION_PLAY:
-                String newSongId = data.getString(SONG_ID_KEY);
-                intent.putExtra(SONG_ID_KEY, newSongId);
-                break;
-        }
-
         intent.setAction(ACTION);
+        // Only enqueue the action in the service if it is a connection action or the Spotify remote
+        // player is already connected
+        if (PlayerResultReceiver.isSpotifyConnected()) {
+            PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+        }
+    }
+
+    /**
+     * Method to check service Spotify remote connection.
+     */
+    public static void checkConnection(Context context, PlayerResultReceiver playerResultReceiver) {
+        Intent intent = new Intent(context, PlayerService.class);
+        intent.putExtra(RECEIVER_KEY, playerResultReceiver);
+        intent.setAction(ACTION_CONNECT);
         PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+    }
+
+    /**
+     * Method to enqueue an update action into this service
+     * @param playbackPos the new playback position in the current song
+     */
+    public static void updatePlayer(Context context, PlayerResultReceiver playerResultReceiver,
+                                    long playbackPos) {
+        Intent intent = new Intent(context, PlayerService.class);
+        intent.putExtra(RECEIVER_KEY, playerResultReceiver);
+        intent.putExtra(PLAYBACK_POS_KEY, playbackPos);
+        intent.setAction(ACTION_UPDATE);
+        // Only enqueue the action in the service if the Spotify remote player is already connected
+        if (PlayerResultReceiver.isSpotifyConnected()) {
+            PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+        }
+    }
+
+    /**
+     * Method to enqueue a play action into this service
+     * @param songId the Spotify ID of the new song
+     */
+    public static void playNew(Context context, PlayerResultReceiver playerResultReceiver, String songId) {
+        Intent intent = new Intent(context, PlayerService.class);
+        intent.putExtra(RECEIVER_KEY, playerResultReceiver);
+        intent.putExtra(SONG_ID_KEY, songId);
+        intent.setAction(ACTION_PLAY);
+        // Only enqueue the action in the service if the Spotify remote player is already connected
+        if (PlayerResultReceiver.isSpotifyConnected()) {
+            PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+        }
     }
 
     public static Bundle bundleTrack(PlayerState playerState) {

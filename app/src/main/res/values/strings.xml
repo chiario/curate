@@ -3,9 +3,10 @@
     <string name="no_search_result">No search results found</string>
     <string name="new_search">Search for a song!</string>
     <string name="search_error">Something went wrong, try again!</string>
-    <string name="default_song_id">7GhIk7Il098yCjg4BQjzvb</string>
+    <string name="default_song_id">6bkMDfyzddlA31dRq3sGPl</string>
     <string name="test_song_id">37ZJ0p5Jm13JPevGcx4SkF</string>
     <string name="test_song_id_2">43eBgYRTmu5BJnCJDBU5Hb</string>
+    <string name="test_song_id_3">7GhIk7Il098yCjg4BQjzvb</string>
     <string name="low_storage_error">Not enough storage!</string>
     <string name="no_camera_permission">Camera permission not given</string>
     <string name="ok">OK</string>
