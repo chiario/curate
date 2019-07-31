@@ -2,7 +2,6 @@ package com.example.curate.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,8 +24,6 @@ import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
-import com.example.curate.utils.ProcessAwaiter;
-import com.parse.ParseException;
 import com.example.curate.utils.EntryListDiffCallback;
 import com.parse.SaveCallback;
 
@@ -42,9 +37,8 @@ import butterknife.OnClick;
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
 	private MainActivity mMainActivity;
-	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 	private List<PlaylistEntry> mEntries;
-	private ProcessAwaiter mProcessAwaiter;
+	private final Playlist mPlaylist;
 	private final Object mMutex = new Object();
 
 	/***
@@ -55,11 +49,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public QueueAdapter(Context context, List<PlaylistEntry> entries, MainActivity mainActivity) {
 		mContext = context;
 		mMainActivity = mainActivity;
-		mIsSwiping = false;
 		mEntries = new ArrayList<>(entries);
-		mProcessAwaiter = new ProcessAwaiter(() -> {
-            submitPlaylist(Party.getCurrentParty().getPlaylist().getEntries());
-        });
+		mPlaylist = Party.getCurrentParty().getPlaylist();
 	}
 
 	@NonNull
@@ -99,8 +90,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		vh.like();
 	}
 
-	public void submitPlaylist(List<PlaylistEntry> newEntries) {
+	public void notifyPlaylistUpdated() {
 		synchronized (mMutex) {
+			List<PlaylistEntry> newEntries = mPlaylist.getEntries();
 			EntryListDiffCallback diffCallback = new EntryListDiffCallback(mEntries, newEntries);
 			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
 
@@ -150,13 +142,11 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			if(isRemoving || isLiking) return;
 			isRemoving = true;
 			showLoading(true);
-			// TODO fix mass deleting (crash gracefully?)
-			// TODO swiping then clicking is not working
+
 			final SaveCallback callback = e -> {
-				isRemoving = true;
-				if(e == null) {
-					submitPlaylist(Party.getCurrentParty().getPlaylist().getEntries());
-				} else {
+				isRemoving = false;
+
+				if(e != null) {
 					showLoading(false);
 					notifyDataSetChanged();
 					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
@@ -172,7 +162,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		public void like() {
 			NotificationHelper.updateInteractionTime();
-			mProcessAwaiter.notifyProcessStarted();
 			if(isRemoving || isLiking) return;
 			isLiking = true;
 
@@ -180,12 +169,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
 			final SaveCallback callback = e -> {
 				isLiking = false;
-				mIsSwiping = false;
-                mProcessAwaiter.notifyProcessCompleted();
 
-                if (e == null) {
-
-				} else {
+                if (e != null) {
 					ibLike.setSelected(isLiked);
 					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
 				}

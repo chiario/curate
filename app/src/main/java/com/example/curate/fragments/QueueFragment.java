@@ -103,7 +103,7 @@ public class QueueFragment extends Fragment {
 			if(e == null) {
 				// TODO: make this thread safe
 				List<PlaylistEntry> entries = mParty.getPlaylist().getEntries();
-				mAdapter.submitPlaylist(entries);
+				mAdapter.notifyPlaylistUpdated();
 				getActivity().runOnUiThread(() -> {
 					textContainer.setVisibility(entries.isEmpty() ? View.VISIBLE : View.INVISIBLE);
 				});
