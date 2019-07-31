@@ -19,15 +19,14 @@ import java.util.List;
 public class Playlist {
     private static final String ENTRY_ID = "entryId";
 
-    private List<PlaylistEntry> mEntries;
-    private List<Like> mLikes;
+    private final List<PlaylistEntry> mEntries;
+    private final List<Like> mLikes;
     private String mPrevCachedValue;
     private final Object mEntryMutex = new Object();
 
-    public Playlist(String cachedPlaylist) {
+    public Playlist() {
         mLikes = updateLikes();
         mEntries = new ArrayList<>();
-        updateFromCache(cachedPlaylist);
     }
 
     /***
@@ -115,8 +114,7 @@ public class Playlist {
         ParseCloud.callFunctionInBackground("addSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
-                    mEntries = playlist;
-                    applyLikes();
+                    updateEntries(playlist);
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not add song!", e);
@@ -142,8 +140,7 @@ public class Playlist {
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
-                    mEntries = playlist;
-                    applyLikes();
+                    updateEntries(playlist);
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not remove song!", e);
@@ -176,8 +173,7 @@ public class Playlist {
         ParseCloud.callFunctionInBackground("getPlaylist", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
-                    mEntries = playlist;
-                    applyLikes();
+                    updateEntries(playlist);
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not get playlist!", e);
@@ -189,6 +185,35 @@ public class Playlist {
                 }
             }
         });
+    }
+
+    public void updateFromCache(String cachedPlaylist) {
+        synchronized (mEntryMutex) {
+            // If the cache hasn't changed don't update the playlist
+            if(mPrevCachedValue != null && mPrevCachedValue.equals(cachedPlaylist)) {
+                return;
+            }
+
+            if(cachedPlaylist != null) {
+                try {
+                    JSONArray playlistJson = new JSONArray(cachedPlaylist);
+                    List<PlaylistEntry> newEntries = new ArrayList<>();
+                    mPrevCachedValue = cachedPlaylist;
+
+                    for (int i = 0; i < playlistJson.length(); i++) {
+                        // Create entry object from JSON
+                        PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
+                                PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+
+                        newEntries.add(entry);
+                    }
+
+                    updateEntries(newEntries);
+                } catch (JSONException e) {
+                    Log.e("Playlist.java", "Couldn't parse cached playlist", e);
+                }
+            }
+        }
     }
 
     /**
@@ -206,32 +231,11 @@ public class Playlist {
         }
     }
 
-    public void updateFromCache(String cachedPlaylist) {
+    private void updateEntries(List<PlaylistEntry> newEntries) {
         synchronized (mEntryMutex) {
-            // If the cache hasn't changed don't update the playlist
-            if(mPrevCachedValue != null && mPrevCachedValue.equals(cachedPlaylist)) {
-                return;
-            }
-
-            if(cachedPlaylist != null) {
-                try {
-                    JSONArray playlistJson = new JSONArray(cachedPlaylist);
-                    mEntries = new ArrayList<>();
-
-                    for (int i = 0; i < playlistJson.length(); i++) {
-                        // Create entry object from JSON
-                        PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
-                                PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
-
-                        mEntries.add(entry);
-                    }
-
-                    applyLikes();
-                    mPrevCachedValue = cachedPlaylist;
-                } catch (JSONException e) {
-                    Log.e("Playlist.java", "Couldn't parse cached playlist", e);
-                }
-            }
+            mEntries.clear();
+            mEntries.addAll(newEntries);
+            applyLikes();
         }
     }
 
