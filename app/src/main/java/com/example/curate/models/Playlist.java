@@ -52,6 +52,7 @@ public class Playlist {
     public void likeEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(ENTRY_ID, entry.getObjectId());
+        entry.setIsLikedByUser(true);
 
         ParseCloud.callFunctionInBackground("likeSong", params, (Like like, ParseException e) -> {
             if (e == null) {
@@ -59,6 +60,9 @@ public class Playlist {
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not like song!", e);
+
+                // Update local version to reflect error
+                entry.setIsLikedByUser(false);
             }
 
             // Run the callback if it exists
@@ -76,13 +80,16 @@ public class Playlist {
     public void unlikeEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(ENTRY_ID, entry.getObjectId());
-
+        entry.setIsLikedByUser(false);
         ParseCloud.callFunctionInBackground("unlikeSong", params, (Like like, ParseException e) -> {
             if (e == null) {
                 mLikes.remove(like);
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not unlike song!", e);
+
+                // Update local version to reflect error
+                entry.setIsLikedByUser(true);
             }
 
             // Run the callback if it exists

@@ -1,9 +1,12 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RotateDrawable;
 import android.os.Handler;
 import android.view.View;
 
@@ -11,13 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.Rotate;
 import com.example.curate.R;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 public class ItemTouchHelperCallbacks {
 
-	private static final long LOADING_DELAY = 10L;
 	private RecyclerView.Adapter mAdapter;
 
 	private Context mContext;
@@ -46,7 +49,7 @@ public class ItemTouchHelperCallbacks {
 			new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return !((QueueAdapter) mAdapter).isSwiping();
+			return true;
 		}
 
 		@Override
@@ -59,34 +62,22 @@ public class ItemTouchHelperCallbacks {
 		@Override
 		public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 			((QueueAdapter) mAdapter).onItemSwipedRemove(viewHolder);
-			mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
 		}
 
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
-
-			if (viewHolder.getAdapterPosition() == NO_POSITION) {
-				super.onChildDraw(c, recyclerView, viewHolder,
-						0, dY, actionState, isCurrentlyActive);
-				return;
-			}
-
 			// Check for positive displacement
 			if(dX > 0) {
 				View itemView = viewHolder.itemView;
-
-				// Draw background
-				background.setColor(mContext.getResources().getColor(R.color.darkBlue));
-				background.setBounds(0, itemView.getTop(),
-						itemView.getLeft() + (int) dX, itemView.getBottom());
-				background.draw(c);
-
 				// Draw icon
 				int width = (itemView.getBottom() - itemView.getTop())/3;
 				mRemove.setBounds(itemView.getLeft() + width, itemView.getTop() + width,
 						itemView.getLeft() + 2 * width, itemView.getBottom() - width);
+				mRemove.draw(c);
+			} else {
+				mRemove.setBounds(0,0,0,0);
 				mRemove.draw(c);
 			}
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -97,7 +88,7 @@ public class ItemTouchHelperCallbacks {
 			new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return !((QueueAdapter) mAdapter).isSwiping();
+			return true;
 		}
 
 		@Override
@@ -117,8 +108,7 @@ public class ItemTouchHelperCallbacks {
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
-			if (viewHolder.getAdapterPosition() == NO_POSITION ||
-					((QueueAdapter) mAdapter).isSwiping()) {
+			if (viewHolder.getAdapterPosition() == NO_POSITION) {
 				super.onChildDraw(c, recyclerView, viewHolder,
 						0, dY, actionState, isCurrentlyActive);
 				return;
@@ -144,7 +134,7 @@ public class ItemTouchHelperCallbacks {
 			new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 		@Override
 		public boolean isItemViewSwipeEnabled() {
-			return !((SearchAdapter) mAdapter).isSwiping();
+			return true;
 		}
 
 		@Override

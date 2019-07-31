@@ -1,6 +1,7 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import com.example.curate.models.Party;
 import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
+import com.parse.ParseException;
 import com.parse.SaveCallback;
 
 import java.util.List;
@@ -35,7 +37,6 @@ import butterknife.OnClick;
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
 	private MainActivity mMainActivity;
-	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 	private AsyncListDiffer<PlaylistEntry> mPlaylistDiffer;
 	protected RecyclerView rvQueue;
 
@@ -47,7 +48,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public QueueAdapter(Context context, List<PlaylistEntry> playlist, MainActivity mainActivity) {
 		mContext = context;
 		mMainActivity = mainActivity;
-		mIsSwiping = false;
 		mPlaylistDiffer = new AsyncListDiffer<>(this, new DiffUtil.ItemCallback<PlaylistEntry>() {
 			@Override
 			public boolean areItemsTheSame(@NonNull PlaylistEntry oldItem, @NonNull PlaylistEntry newItem) {
@@ -87,6 +87,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		PlaylistEntry entry = mPlaylistDiffer.getCurrentList().get(position);
+		Log.d("QueueAdapter", String.format("Binding entry %s at position %d", entry.getSong().getTitle(), position));
 		holder.bindEntry(entry);
 	}
 
@@ -96,20 +97,13 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	}
 
 	public void onItemSwipedRemove(RecyclerView.ViewHolder viewHolder) {
-		if(isSwiping()) return;
-		mIsSwiping = true;
 		ViewHolder vh = (ViewHolder) viewHolder;
-		vh.onClickRemove(e -> mIsSwiping = false);
+		vh.remove();
 	}
 
 	public void onItemSwipedLike(RecyclerView.ViewHolder viewHolder) {
-		mIsSwiping = true;
 		ViewHolder vh = (ViewHolder) viewHolder;
-		vh.onClickLike(vh.ibLike);
-	}
-
-	public boolean isSwiping() {
-		return mIsSwiping;
+		vh.like();
 	}
 
 	public void submitPlaylist(Playlist playlist) {
@@ -128,8 +122,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
-		private boolean isLiking;
-		private boolean isRemoving;
+		boolean isRemoving = false;
+		boolean isLiking = false;
+
 		private PlaylistEntry mEntry;
 
 		public ViewHolder(View itemView) {
@@ -146,51 +141,52 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		@OnClick(R.id.ibDelete)
 		public void onClickRemove() {
-			onClickRemove(null);
+			remove();
 		}
 
-		private void onClickRemove(@Nullable final SaveCallback saveCallback) {
-			if(isRemoving) return;
+		private void remove() {
+			if(isRemoving || isLiking) return;
 			isRemoving = true;
+			showLoading(true);
 			// TODO fix mass deleting (crash gracefully?)
 			// TODO swiping then clicking is not working
-			SaveCallback callback = e -> {
-				if(saveCallback != null) {
-					saveCallback.done(e);
-				}
-				isRemoving = false;
+			final SaveCallback callback = e -> {
+				isRemoving = true;
 				if(e == null) {
+					isRemoving = false;
 					submitPlaylist(Party.getCurrentParty().getPlaylist());
 				} else {
 					showLoading(false);
+					notifyDataSetChanged();
 					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
 				}
 			};
 			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, callback);
-			showLoading(true);
 		}
 
 		@OnClick(R.id.ibLike)
-		public void onClickLike(final View v) {
+		public void onClickLike() {
+			like();
+		}
+
+		public void like() {
 			mMainActivity.updateInteractionTime();
-			if(isLiking) return;
+			if(isRemoving || isLiking) return;
 			isLiking = true;
 
 			final boolean isLiked = mEntry.isLikedByUser();
 			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
 			final SaveCallback callback = e -> {
-				isLiking = false;
-				mIsSwiping = false;
-
 				if (e == null) {
+					isLiking = false;
 					submitPlaylist(Party.getCurrentParty().getPlaylist());
 				} else {
-					v.setSelected(isLiked);
+					ibLike.setSelected(isLiked);
 					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
 				}
 			};
 
-			v.setSelected(!isLiked);
+			ibLike.setSelected(!isLiked);
 			if(isLiked) {
 				Party.getCurrentParty().getPlaylist().unlikeEntry(mEntry, callback);
 			} else {
@@ -203,12 +199,15 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		 * @param entry the PlaylistEntry whose information should be displayed
 		 */
 		private void bindEntry(PlaylistEntry entry) {
+			if(mEntry != null && !mEntry.equals(entry)) {
+				isLiking = false;
+				isRemoving = false;
+			}
 			mEntry = entry;
 			Song song = mEntry.getSong();
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(mEntry.isLikedByUser());
-			ibLike.setSelected(entry.isLikedByUser());
-			showLoading(isRemoving);
+			showLoading(false);
 
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(song.getArtist());
@@ -223,8 +222,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
 					.into(ivAlbum);
-
-			showLoading(false);
 		}
 
 		/**
