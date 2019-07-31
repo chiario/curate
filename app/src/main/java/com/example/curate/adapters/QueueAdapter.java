@@ -27,6 +27,7 @@ import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
+import com.example.curate.utils.ProcessAwaiter;
 import com.parse.ParseException;
 import com.example.curate.utils.EntryListDiffCallback;
 import com.parse.SaveCallback;
@@ -43,8 +44,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	private MainActivity mMainActivity;
 	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 	private List<PlaylistEntry> mEntries;
-	private int latch = 0;
-	private Object mMutex = new Object();
+	private ProcessAwaiter mProcessAwaiter;
+	private final Object mMutex = new Object();
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -56,6 +57,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		mMainActivity = mainActivity;
 		mIsSwiping = false;
 		mEntries = new ArrayList<>(entries);
+		mProcessAwaiter = new ProcessAwaiter(() -> {
+            submitPlaylist(Party.getCurrentParty().getPlaylist().getEntries());
+        });
 	}
 
 	@NonNull
@@ -168,7 +172,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 		public void like() {
 			NotificationHelper.updateInteractionTime();
-			latch++;
+			mProcessAwaiter.notifyProcessStarted();
 			if(isRemoving || isLiking) return;
 			isLiking = true;
 
@@ -177,12 +181,10 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			final SaveCallback callback = e -> {
 				isLiking = false;
 				mIsSwiping = false;
-				latch--;
+                mProcessAwaiter.notifyProcessCompleted();
 
-				if (e == null) {
-					if(latch == 0) {
-						submitPlaylist(Party.getCurrentParty().getPlaylist().getEntries());
-					}
+                if (e == null) {
+
 				} else {
 					ibLike.setSelected(isLiked);
 					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
