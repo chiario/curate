@@ -2,6 +2,7 @@ package com.example.curate.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
@@ -48,16 +49,22 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     public void onPartyObtained() {
         User user = (User) ParseUser.getCurrentUser();
         if(User.getCurrentScreenName() == null) {
+            View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
+            EditText etInput = inputView.findViewById(R.id.etInput);
+            etInput.setHint("Username");
+
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            EditText etScreenName = new EditText(this);
-            builder.setTitle("Set your username")
-                    .setView(etScreenName)
-                    .setPositiveButton("Rock out!", (dialogInterface, i) -> {
-                        user.setScreenName(etScreenName.getText().toString());
-                        switchToMainActivity();
-                    });
+            builder.setTitle("Set your username...")
+                    .setView(inputView);
             builder.setCancelable(false);
-            builder.show();
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
+                dialog.dismiss();
+                user.setScreenName(etInput.getText().toString());
+                switchToMainActivity();
+            });
         } else {
             switchToMainActivity();
         }

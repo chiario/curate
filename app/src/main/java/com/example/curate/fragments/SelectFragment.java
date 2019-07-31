@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -102,24 +103,28 @@ public class SelectFragment extends Fragment {
 
     @OnClick(R.id.btnCreateParty)
     public void onCreateParty() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        EditText etPartyName = new EditText(getContext());
-        builder.setTitle("Give your party a name...")
-                .setView(etPartyName)
-                .setPositiveButton("Create", (dialogInterface, i) -> {
+        View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
 
-                    Party.createParty(etPartyName.getText().toString(), e -> {
-                        if(e == null) {
-                            if (mListener != null) {
-                                mListener.onPartyObtained();
-                            }
-                        } else {
-                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {});
-        builder.show();
+        EditText etInput = inputView.findViewById(R.id.etInput);
+        etInput.setHint("Party name");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Give your party a name...").setView(inputView);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button btnSubmit = inputView.findViewById(R.id.btnSubmit);
+        btnSubmit.setOnClickListener(view -> Party.createParty(etInput.getText().toString(), e -> {
+            dialog.dismiss();
+            if (e == null) {
+                if (mListener != null) {
+
+                    mListener.onPartyObtained();
+                }
+            } else {
+                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }));
     }
 
     @OnClick(R.id.btnJoinParty)

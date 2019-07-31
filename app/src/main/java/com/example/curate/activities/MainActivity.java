@@ -90,8 +90,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private boolean mIsAdmin = false;
     private LocationManager mLocationManager;
     private LocationCallback mLocationCallback = null;
-    private long lastInteractionTime;
-    private Handler notificationHandler;
 
     private User.PartyDeletedListener mPartyDeleteListener;
 
@@ -200,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
-
         MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
 
@@ -306,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
      * @param fragment Fragment to display
      */
     private void display(Fragment fragment) {
-        lastInteractionTime = SystemClock.elapsedRealtime();
+        NotificationHelper.updateInteractionTime();
         if(fragment == null || fragment.equals(mActiveFragment)) return;
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         if(mActiveFragment != null)
@@ -486,5 +483,4 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             }
         }
     }
-
 }
