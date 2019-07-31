@@ -1,5 +1,6 @@
 package com.example.curate.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,8 +28,10 @@ import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
 import com.parse.ParseException;
+import com.example.curate.utils.EntryListDiffCallback;
 import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -38,35 +41,21 @@ import butterknife.OnClick;
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
 	private MainActivity mMainActivity;
-	private AsyncListDiffer<PlaylistEntry> mPlaylistDiffer;
-	protected RecyclerView rvQueue;
+	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
+	private List<PlaylistEntry> mEntries;
+	private int latch = 0;
+	private Object mMutex = new Object();
 
 	/***
 	 * Creates the adapter for holding playlist
 	 * @param context The context the adapter is being created from
-	 * @param playlist The initial playlist to display
+	 * @param entries The initial playlist to display
 	 */
-	public QueueAdapter(Context context, List<PlaylistEntry> playlist, MainActivity mainActivity) {
+	public QueueAdapter(Context context, List<PlaylistEntry> entries, MainActivity mainActivity) {
 		mContext = context;
 		mMainActivity = mainActivity;
-		mPlaylistDiffer = new AsyncListDiffer<>(this, new DiffUtil.ItemCallback<PlaylistEntry>() {
-			@Override
-			public boolean areItemsTheSame(@NonNull PlaylistEntry oldItem, @NonNull PlaylistEntry newItem) {
-				return oldItem.equals(newItem);
-			}
-
-			@Override
-			public boolean areContentsTheSame(@NonNull PlaylistEntry oldItem, @NonNull PlaylistEntry newItem) {
-				return oldItem.contentsEqual(newItem);
-			}
-		});
-		mPlaylistDiffer.submitList(playlist);
-	}
-
-	@Override
-	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-		rvQueue = recyclerView;
-		super.onAttachedToRecyclerView(recyclerView);
+		mIsSwiping = false;
+		mEntries = new ArrayList<>(entries);
 	}
 
 	@NonNull
@@ -87,14 +76,13 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		PlaylistEntry entry = mPlaylistDiffer.getCurrentList().get(position);
-		Log.d("QueueAdapter", String.format("Binding entry %s at position %d", entry.getSong().getTitle(), position));
+		PlaylistEntry entry = mEntries.get(position);
 		holder.bindEntry(entry);
 	}
 
 	@Override
 	public int getItemCount() {
-		return mPlaylistDiffer.getCurrentList().size();
+		return mEntries.size();
 	}
 
 	public void onItemSwipedRemove(RecyclerView.ViewHolder viewHolder) {
@@ -107,8 +95,17 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		vh.like();
 	}
 
-	public void submitPlaylist(Playlist playlist) {
-		mPlaylistDiffer.submitList(playlist.getEntries());
+	public void submitPlaylist(List<PlaylistEntry> newEntries) {
+		synchronized (mMutex) {
+			EntryListDiffCallback diffCallback = new EntryListDiffCallback(mEntries, newEntries);
+			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+			mEntries.clear();
+			mEntries.addAll(newEntries);
+			((Activity) mContext).runOnUiThread(() -> {
+				diffResult.dispatchUpdatesTo(this);
+			});
+		}
 	}
 
 	/***
@@ -154,8 +151,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			final SaveCallback callback = e -> {
 				isRemoving = true;
 				if(e == null) {
-					isRemoving = false;
-					submitPlaylist(Party.getCurrentParty().getPlaylist());
+					submitPlaylist(Party.getCurrentParty().getPlaylist().getEntries());
 				} else {
 					showLoading(false);
 					notifyDataSetChanged();
@@ -165,22 +161,28 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, callback);
 		}
 
-		@OnClick(R.id.ibLike)
-		public void onClickLike() {
-			like();
-		}
+        @OnClick(R.id.ibLike)
+        public void onClickLike() {
+		    like();
+        }
 
 		public void like() {
 			NotificationHelper.updateInteractionTime();
+			latch++;
 			if(isRemoving || isLiking) return;
 			isLiking = true;
 
 			final boolean isLiked = mEntry.isLikedByUser();
 			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
 			final SaveCallback callback = e -> {
+				isLiking = false;
+				mIsSwiping = false;
+				latch--;
+
 				if (e == null) {
-					isLiking = false;
-					submitPlaylist(Party.getCurrentParty().getPlaylist());
+					if(latch == 0) {
+						submitPlaylist(Party.getCurrentParty().getPlaylist().getEntries());
+					}
 				} else {
 					ibLike.setSelected(isLiked);
 					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
