@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private Fragment mActiveFragment;
     private QueueFragment mQueueFragment;
     private SearchFragment mSearchFragment;
-    private Fragment mBottomPlayerFragment;
+    private PlayerFragment mBottomPlayerFragment;
     private ValueAnimator mSearchbarAnimator;
     private boolean mIsSearchbarExpanded = false;
     private boolean mIsAdmin = false;
@@ -268,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             if(hasFocus) {
                 display(mSearchFragment);
                 showKeyboard(view);
+                mBottomPlayerFragment.setExpanded(false);
                 animateSearchbar(true);
             }
         });
