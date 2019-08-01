@@ -33,6 +33,7 @@ public class Party extends ComparableParseObject {
     private static final String CACHED_PLAYLIST_KEY = "cachedPlaylist";
     private static final String USER_LIMIT_KEY = "userLimit";
     private static final String SONG_LIMIT_KEY = "songLimit";
+    private static final String USER_COUNT_KEY = "userCount";
 
     private static Party mCurrentParty;
 
@@ -69,8 +70,13 @@ public class Party extends ComparableParseObject {
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
             handleCurrentlyPlayingUpdate((Song) party.getParseObject(CURRENTLY_PLAYING_KEY));
+            handleUserCountUpdate(party.getNumber(USER_COUNT_KEY));
             handlePlaylistUpdate(party.getDate(PLAYLIST_LAST_UPDATED_KEY), party.getString(CACHED_PLAYLIST_KEY));
         });
+    }
+
+    private void handleUserCountUpdate(Number userCount) {
+        put(USER_COUNT_KEY, userCount);
     }
 
     private void handleCurrentlyPlayingUpdate(Song newCurrentlyPlaying) {
@@ -436,7 +442,7 @@ public class Party extends ComparableParseObject {
     }
 
     public Number getPartyUserCount() {
-        return getNumber("userCount");
+        return getNumber(USER_COUNT_KEY);
     }
 
     // Settings methods
