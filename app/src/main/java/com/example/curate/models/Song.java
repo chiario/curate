@@ -12,6 +12,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.parceler.Parcel;
 import org.parceler.Parcels;
 
@@ -30,6 +32,19 @@ public class Song extends ComparableParseObject {
 
 	public Song() {
 		// Required empty constructor
+	}
+
+	public Song(JSONObject json) {
+		try {
+			setObjectId(json.getString("objectId"));
+			put(SPOTIFY_ID_KEY, json.getString(SPOTIFY_ID_KEY));
+			put(TITLE_KEY, json.getString(TITLE_KEY));
+			put(ARTIST_KEY, json.getString(ARTIST_KEY));
+			put(ALBUM_KEY, json.getString(ALBUM_KEY));
+			put(IMAGE_URL_KEY, json.getString(IMAGE_URL_KEY));
+		} catch (JSONException e) {
+			Log.e("big sad", "error: ", e);
+		}
 	}
 
 	public Song(ParcelableSong song) {

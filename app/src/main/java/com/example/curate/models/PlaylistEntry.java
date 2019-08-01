@@ -10,6 +10,9 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 @ParseClassName("PlaylistEntry")
@@ -24,6 +27,16 @@ public class PlaylistEntry extends ComparableParseObject {
 
     public PlaylistEntry() {
         // Required empty constructor
+    }
+
+    public PlaylistEntry(JSONObject json) {
+        try {
+            setObjectId(json.getString("objectId"));
+            put(ADDED_BY_KEY, json.getString(ADDED_BY_KEY));
+            put(SONG_KEY, new Song(json.getJSONObject(SONG_KEY)));
+        } catch(JSONException e) {
+            Log.e("big sad", "error: ", e);
+        }
     }
 
     public Song getSong() {
@@ -48,6 +61,6 @@ public class PlaylistEntry extends ComparableParseObject {
     }
 
     public String getAddedBy() {
-        return getString("addedBy");
+        return getString(ADDED_BY_KEY);
     }
 }
