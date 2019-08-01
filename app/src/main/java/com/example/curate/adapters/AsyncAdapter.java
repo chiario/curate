@@ -36,7 +36,7 @@ public abstract class AsyncAdapter<T, VH extends RecyclerView.ViewHolder> extend
     private void internalUpdate(final List<T> newList) {
         new Thread(() -> {
 
-            final DiffUtil.DiffResult result = DiffUtil.calculateDiff(getDiffCallback(mDataset, newList));
+            final DiffUtil.DiffResult result = DiffUtil.calculateDiff(getDiffCallback(mDataset, newList), true);
             mHandler.post(() -> {
                 mDataset.clear();
                 mDataset.addAll(newList);
