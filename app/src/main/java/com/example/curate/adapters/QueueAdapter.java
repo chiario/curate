@@ -1,6 +1,5 @@
 package com.example.curate.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,10 +33,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
+public class QueueAdapter extends AsyncAdapter<PlaylistEntry, QueueAdapter.ViewHolder> {
 	private Context mContext;
 	private MainActivity mMainActivity;
-	private List<PlaylistEntry> mEntries;
 	private final Playlist mPlaylist;
 	private final Object mMutex = new Object();
 
@@ -49,8 +47,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public QueueAdapter(Context context, List<PlaylistEntry> entries, MainActivity mainActivity) {
 		mContext = context;
 		mMainActivity = mainActivity;
-		mEntries = new ArrayList<>(entries);
+		mDataset.clear();
+		mDataset.addAll(entries);
 		mPlaylist = Party.getCurrentParty().getPlaylist();
+	}
+
+	@Override
+	DiffUtil.Callback getDiffCallback(List<PlaylistEntry> oldList, List<PlaylistEntry> newList) {
+		return new EntryListDiffCallback(oldList, newList);
 	}
 
 	@NonNull
@@ -71,13 +75,13 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		PlaylistEntry entry = mEntries.get(position);
+		PlaylistEntry entry = mDataset.get(position);
 		holder.bindEntry(entry);
 	}
 
 	@Override
 	public int getItemCount() {
-		return mEntries.size();
+		return mDataset.size();
 	}
 
 	public void onItemSwipedRemove(RecyclerView.ViewHolder viewHolder) {
@@ -93,14 +97,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	public void notifyPlaylistUpdated() {
 		synchronized (mMutex) {
 			List<PlaylistEntry> newEntries = mPlaylist.getEntries();
-			EntryListDiffCallback diffCallback = new EntryListDiffCallback(mEntries, newEntries);
-			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
-
-			mEntries.clear();
-			mEntries.addAll(newEntries);
-			((Activity) mContext).runOnUiThread(() -> {
-				diffResult.dispatchUpdatesTo(this);
-			});
+			update(newEntries);
 		}
 	}
 
