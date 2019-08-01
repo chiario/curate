@@ -26,9 +26,6 @@ import butterknife.OnClick;
 
 
 public class SettingsDialogFragment extends DialogFragment {
-    private static final String PARTY_NAME_KEY = "partyName";
-    private static final String LOCATION_PERMISSIONS_KEY = "locationEnabled";
-
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;

@@ -254,7 +254,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					updateSections();
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
-					Toast.makeText(mContext, "Could not add song", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 			});
 		}
