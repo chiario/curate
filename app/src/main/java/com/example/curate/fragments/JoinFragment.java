@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +72,11 @@ public class JoinFragment extends Fragment {
             mLocationManager.requestPermissions();
         }
 
+        InputFilter[] editFilters = etJoinCode.getFilters();
+        InputFilter[] newFilters = new InputFilter[editFilters.length + 1];
+        System.arraycopy(editFilters, 0, newFilters, 0, editFilters.length);
+        newFilters[editFilters.length] = new InputFilter.AllCaps();
+        etJoinCode.setFilters(newFilters);
 
         return mRootView;
     }
@@ -157,7 +163,7 @@ public class JoinFragment extends Fragment {
 
     @OnClick(R.id.btnJoin)
     public void onJoinParty() {
-        String joinCode = etJoinCode.getText().toString();
+        String joinCode = etJoinCode.getText().toString().toLowerCase();
         joinParty(joinCode);
     }
 
