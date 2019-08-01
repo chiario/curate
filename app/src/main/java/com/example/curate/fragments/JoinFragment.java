@@ -4,20 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
 import com.example.curate.adapters.PartyAdapter;
@@ -38,6 +38,7 @@ public class JoinFragment extends Fragment {
 
     @BindView(R.id.rvNearby) RecyclerView rvNearby;
     @BindView(R.id.etJoinCode) EditText etJoinCode;
+    @BindView(R.id.tvMessage) TextView tvMessage;
 
 
     private SelectFragment.OnOptionSelected mListener;
@@ -64,6 +65,8 @@ public class JoinFragment extends Fragment {
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_join, container, false);
         ButterKnife.bind(this, mRootView);
+
+        tvMessage.setVisibility(View.GONE);
 
         mLocationManager = new LocationManager(this);
         if(mLocationManager.hasNecessaryPermissions()) {
@@ -113,7 +116,9 @@ public class JoinFragment extends Fragment {
     private void getNearbyParties() {
         mLocationManager.getCurrentLocation(location -> {
             if(location == null) {
-                Toast.makeText(getContext(), "Could not get nearby parties!", Toast.LENGTH_SHORT).show();
+                tvMessage.setPadding(0,16, 0, 0); //TODO - style this better!
+                tvMessage.setText("No nearby parties!");
+                tvMessage.setVisibility(View.VISIBLE);
                 return;
             }
 
@@ -123,7 +128,8 @@ public class JoinFragment extends Fragment {
                 if(e == null) {
                     displayNearbyParties(parties);
                 } else {
-                    Toast.makeText(getContext(), "Could not get nearby parties!", Toast.LENGTH_SHORT).show();
+                    tvMessage.setText("No nearby parties!");
+                    tvMessage.setVisibility(View.VISIBLE);
                 }
             });
         });
