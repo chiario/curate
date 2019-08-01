@@ -107,7 +107,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
-		@BindView(R.id.pbLoading) ProgressBar pbLoading;
 
 		boolean isRemoving = false;
 		boolean isLiking = false;
@@ -134,7 +133,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		private void remove() {
 			if(isRemoving || isLiking) return;
 			isRemoving = true;
-			showLoading(true);
 
 			final int index = mDataset.indexOf(mEntry);
 			if (index >= 0) {
@@ -146,7 +144,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 				isRemoving = false;
 
 				if(e != null) {
-					showLoading(false);
 					notifyPlaylistUpdated();
 					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
 				}
@@ -196,7 +193,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			Song song = mEntry.getSong();
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(mEntry.isLikedByUser());
-			showLoading(false);
 
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(song.getArtist());
@@ -211,16 +207,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
 					.into(ivAlbum);
-		}
-
-		/**
-		 * Shows/hides the loading animation for when a entry is being removed
-		 * @param isLoading if true, show the loading animation; if false, hide it
-		 */
-		public void showLoading(boolean isLoading) {
-			if(!Party.getCurrentParty().isCurrentUserAdmin()) return;
-			pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-			ibRemove.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
 		}
 	}
 }
