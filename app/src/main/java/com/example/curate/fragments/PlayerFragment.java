@@ -178,8 +178,10 @@ public class PlayerFragment extends Fragment {
                         currentSong.fetchIfNeeded(); // TODO - work around this fetch; add ParseCloud function??
                         mTrackName = currentSong.getTitle();
                         mArtistName = currentSong.getArtist();
-                        updateText();
-                        Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
+                        getActivity().runOnUiThread(() -> {
+                            updateText();
+                            Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
+                        });
                     } catch (ParseException e1) {
                         e1.printStackTrace();
                     }
