@@ -19,6 +19,7 @@ import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.adapters.DividerItemDecoration;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
+import com.example.curate.adapters.NonPredictiveLinearLayoutManager;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
@@ -82,12 +83,7 @@ public class QueueFragment extends Fragment {
 			new ItemTouchHelper(callbacks.deleteCallback).attachToRecyclerView(rvQueue);
 
 		rvQueue.setAdapter(mAdapter);
-		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()) {
-			@Override
-			public boolean supportsPredictiveItemAnimations() {
-				return false;
-			}
-		});
+		rvQueue.setLayoutManager(new NonPredictiveLinearLayoutManager(getContext()));
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 		initializePlaylistUpdateCallback();
 	}

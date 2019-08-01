@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 /**
  * A linear layout manager that always support animations even when using notifyDataSetChanged()
  */
-public class AnimatedLinearLayoutManager extends LinearLayoutManager {
-    public AnimatedLinearLayoutManager(Context context) {
+public class NonPredictiveLinearLayoutManager extends LinearLayoutManager {
+    public NonPredictiveLinearLayoutManager(Context context) {
         super(context);
     }
 
@@ -16,6 +16,6 @@ public class AnimatedLinearLayoutManager extends LinearLayoutManager {
      */
     @Override
     public boolean supportsPredictiveItemAnimations() {
-        return true;
+        return false;
     }
 }
