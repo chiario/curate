@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class Playlist {
     private final List<PlaylistEntry> mEntries;
     private final List<Like> mLikes;
     private String mPrevCachedValue;
+    private Date mPrevCachedTime;
     private final Object mEntryMutex = new Object();
     private final List<SaveCallback> mUpdateCallbacks;
 
@@ -190,10 +192,14 @@ public class Playlist {
         });
     }
 
-    public void updateFromCache(@NonNull String cachedPlaylist) {
+    public void updateFromCache(@NonNull Date timestamp, @NonNull String cachedPlaylist) {
         synchronized (mEntryMutex) {
             // If the cache hasn't changed don't update the playlist
             if(mPrevCachedValue != null && mPrevCachedValue.equals(cachedPlaylist)) {
+                return;
+            }
+
+            if(mPrevCachedTime != null && timestamp.before(mPrevCachedTime)) {
                 return;
             }
 
@@ -201,6 +207,7 @@ public class Playlist {
                 JSONArray playlistJson = new JSONArray(cachedPlaylist);
                 List<PlaylistEntry> newEntries = new ArrayList<>();
                 mPrevCachedValue = cachedPlaylist;
+                mPrevCachedTime = timestamp;
 
                 for (int i = 0; i < playlistJson.length(); i++) {
                     // Create entry object from JSON

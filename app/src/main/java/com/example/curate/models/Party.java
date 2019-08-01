@@ -17,6 +17,7 @@ import com.parse.livequery.SubscriptionHandling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class Party extends ComparableParseObject {
     private static final String ADMIN_KEY = "admin";
     private static final String JOIN_CODE_KEY = "joinCode";
     private static final String CURRENTLY_PLAYING_KEY = "currPlaying";
+    private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
     private static final String NAME_KEY = "name";
     private static final String LOCATION_KEY = "location";
     private static final String LOCATION_PERMISSION_KEY = "locationEnabled";
@@ -47,8 +49,9 @@ public class Party extends ComparableParseObject {
      */
     private void initialize() {
         String cachedPlaylist = getString(CACHED_PLAYLIST_KEY);
-        if(cachedPlaylist != null) {
-            mPlaylist.updateFromCache(cachedPlaylist);
+        Date cachedTime = getDate(CACHED_PLAYLIST_KEY);
+        if(cachedPlaylist != null && cachedTime != null) {
+            mPlaylist.updateFromCache(cachedTime, cachedPlaylist);
         }
 
         initializeLiveQuery();
@@ -60,13 +63,13 @@ public class Party extends ComparableParseObject {
         ParseQuery<Party> parseQuery = ParseQuery.getQuery(Party.class);
         parseQuery.include(CURRENTLY_PLAYING_KEY);
         parseQuery.whereEqualTo("objectId", getObjectId());
-        parseQuery.selectKeys(Arrays.asList(CACHED_PLAYLIST_KEY, CURRENTLY_PLAYING_KEY));
+        parseQuery.selectKeys(Arrays.asList(CACHED_PLAYLIST_KEY, CURRENTLY_PLAYING_KEY, PLAYLIST_LAST_UPDATED_KEY));
         SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
             handleCurrentlyPlayingUpdate((Song) party.getParseObject(CURRENTLY_PLAYING_KEY));
-            handlePlaylistUpdate(party.getString(CACHED_PLAYLIST_KEY));
+            handlePlaylistUpdate(party.getDate(PLAYLIST_LAST_UPDATED_KEY), party.getString(CACHED_PLAYLIST_KEY));
         });
     }
 
@@ -94,9 +97,9 @@ public class Party extends ComparableParseObject {
         }
     }
 
-    private void handlePlaylistUpdate(String newCachedPlaylist) {
-        if(newCachedPlaylist != null) {
-            mPlaylist.updateFromCache(newCachedPlaylist);
+    private void handlePlaylistUpdate(Date timestamp, String newCachedPlaylist) {
+        if(newCachedPlaylist != null && timestamp != null) {
+            mPlaylist.updateFromCache(timestamp, newCachedPlaylist);
         }
     }
 
