@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -23,20 +22,20 @@ import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
-import com.example.curate.utils.EntryListDiffCallback;
 import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class QueueAdapter extends AsyncAdapter<PlaylistEntry, QueueAdapter.ViewHolder> {
+public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
 	private Context mContext;
 	private MainActivity mMainActivity;
 	private final Playlist mPlaylist;
-	private final Object mMutex = new Object();
+	private List<PlaylistEntry> mDataset;
 
 	/***
 	 * Creates the adapter for holding playlist
@@ -46,14 +45,8 @@ public class QueueAdapter extends AsyncAdapter<PlaylistEntry, QueueAdapter.ViewH
 	public QueueAdapter(Context context, List<PlaylistEntry> entries, MainActivity mainActivity) {
 		mContext = context;
 		mMainActivity = mainActivity;
-		mDataset.clear();
-		mDataset.addAll(entries);
+		mDataset = new ArrayList<>(entries);
 		mPlaylist = Party.getCurrentParty().getPlaylist();
-	}
-
-	@Override
-	DiffUtil.Callback getDiffCallback(List<PlaylistEntry> oldList, List<PlaylistEntry> newList) {
-		return new EntryListDiffCallback(oldList, newList);
 	}
 
 	@NonNull
@@ -94,10 +87,14 @@ public class QueueAdapter extends AsyncAdapter<PlaylistEntry, QueueAdapter.ViewH
 	}
 
 	public void notifyPlaylistUpdated() {
-		synchronized (mMutex) {
-			List<PlaylistEntry> newEntries = mPlaylist.getEntries();
-			update(newEntries);
-		}
+		mDataset.clear();
+		mDataset.addAll(mPlaylist.getEntries());
+		notifyDataSetChanged();
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return mDataset.get(position).getObjectId().hashCode();
 	}
 
 	/***
@@ -139,12 +136,10 @@ public class QueueAdapter extends AsyncAdapter<PlaylistEntry, QueueAdapter.ViewH
 			isRemoving = true;
 			showLoading(true);
 
-			if(!hasPendingUpdates()) {
-				final int index = mDataset.indexOf(mEntry);
-				if (index >= 0) {
-					mDataset.remove(index);
-					notifyItemRemoved(index);
-				}
+			final int index = mDataset.indexOf(mEntry);
+			if (index >= 0) {
+				mDataset.remove(index);
+				notifyItemRemoved(index);
 			}
 
 			final SaveCallback callback = e -> {

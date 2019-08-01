@@ -74,6 +74,7 @@ public class QueueFragment extends Fragment {
 		textContainer.setVisibility(mParty.getPlaylist().isEmpty() ? View.VISIBLE : View.INVISIBLE);
 
 		mAdapter = new QueueAdapter(getContext(), mParty.getPlaylist().getEntries(), (MainActivity) getActivity());
+		mAdapter.setHasStableIds(true);
 
 		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
 		new ItemTouchHelper(callbacks.likeCallback).attachToRecyclerView(rvQueue);
@@ -103,8 +104,8 @@ public class QueueFragment extends Fragment {
 			if(e == null) {
 				// TODO: make this thread safe
 				List<PlaylistEntry> entries = mParty.getPlaylist().getEntries();
-				mAdapter.notifyPlaylistUpdated();
 				getActivity().runOnUiThread(() -> {
+					mAdapter.notifyPlaylistUpdated();
 					textContainer.setVisibility(entries.isEmpty() ? View.VISIBLE : View.INVISIBLE);
 				});
 			}
