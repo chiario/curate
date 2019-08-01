@@ -310,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             ft.hide(mActiveFragment);
         ft.show(fragment);
         if(fragment.equals(mSearchFragment)) {
+            mSearchFragment.clear();
             ft.addToBackStack(fragment.getTag());
         }
         ft.commit();

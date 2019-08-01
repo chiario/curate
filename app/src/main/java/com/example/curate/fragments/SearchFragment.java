@@ -127,24 +127,28 @@ public class SearchFragment extends Fragment {
 		rvSearch.setAdapter(mAdapter);
 		rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 
-		mLiveSearchManager = new LiveSearchManager((query, results) -> {
+		mLiveSearchManager = new LiveSearchManager(this::handleSearchDisplay);
+	}
+
+	private void handleSearchDisplay(String query, List<Song> results) {
+		if(query.isEmpty()) {
 			mAdapter.clear();
-			if(query.isEmpty()) {
-				showSearchDescription(null);
-				showText(getString(R.string.new_search));
-			} else if(results.isEmpty()) {
-				showSearchDescription(null);
-				showText(getString(R.string.no_search_result));
-			} else {
-				showSearchDescription(query);
-				hideText();
-				mAdapter.addAll(results);
-			}
-		});
+			showSearchDescription(null);
+			showText(getString(R.string.new_search));
+		} else if(results.isEmpty()) {
+			mAdapter.clear();
+			showSearchDescription(null);
+			showText(getString(R.string.no_search_result));
+		} else {
+			showSearchDescription(query);
+			hideText();
+			mAdapter.addAll(results);
+		}
 	}
 
 	public void clear() {
 		mAdapter.clear();
+		handleSearchDisplay("", null);
 	}
 
 	/***
@@ -157,8 +161,8 @@ public class SearchFragment extends Fragment {
 		search.setQuery(searchText).setLimit(15).find(e -> {
 			progressBar.setVisibility(View.GONE);
 			if(e == null) {
-				mAdapter.clear();
 				if(search.getResults().isEmpty()) {
+					mAdapter.clear();
 					showSearchDescription(null);
 					showText(getString(R.string.no_search_result));
 				} else {
