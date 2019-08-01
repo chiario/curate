@@ -51,10 +51,10 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
         if(User.getCurrentScreenName() == null) {
             View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
             EditText etInput = inputView.findViewById(R.id.etInput);
-            etInput.setHint("Username");
+            etInput.setHint("Name");
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Set your username...")
+            builder.setTitle("Set your name...")
                     .setView(inputView);
             builder.setCancelable(false);
             AlertDialog dialog = builder.create();

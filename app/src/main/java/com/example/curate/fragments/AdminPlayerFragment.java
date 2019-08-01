@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.curate.R;
 import com.example.curate.TrackProgressBar;
+import com.example.curate.models.Party;
 import com.example.curate.service.PlayerResultReceiver;
 import com.example.curate.service.ServiceUtils;
 
@@ -62,10 +63,12 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     @BindView(R.id.ivPrev) ImageView mSkipPrevButton;
     @BindView(R.id.ivNext) ImageView mSkipNextButton;
     @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
-    @BindView(R.id.ibShare) ImageButton ibShare;
+
 
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
+
+    private Party mParty;
 
     private TrackProgressBar mTrackProgressBar;
     private Drawable mSeekbarThumbDrawable;
@@ -85,6 +88,8 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bottom_player_admin, container, false);
         ButterKnife.bind(this, view);
+
+        mParty = Party.getCurrentParty();
 
         initFonts();
         setProgressBar();

@@ -163,7 +163,7 @@ public class PlayerFragment extends Fragment {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + mParty.getCurrentSong().getSpotifyId());
+        intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentParty().getCurrentSong().getSpotifyId());
         startActivity(Intent.createChooser(intent, "Share this song!"));
     }
 
