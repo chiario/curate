@@ -188,13 +188,13 @@ public class PlayerFragment extends Fragment {
                 Log.d(TAG, "Error in song update callback", e);
             }
         };
-        mParty.registerPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
+        mParty.registerCurrentlyPlayingUpdateCallback(mCurrentSongUpdatedCallback);
         mCurrentSongUpdatedCallback.done(null);
     }
 
     private void removeSongUpdateCallback() {
         if (mParty != null) {
-            mParty.deregisterPlaylistUpdateCallback(mCurrentSongUpdatedCallback);
+            mParty.deregisterCurrentlyPlayingUpdateCallback(mCurrentSongUpdatedCallback);
         }
     }
 }

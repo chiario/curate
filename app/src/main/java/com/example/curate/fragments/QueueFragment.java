@@ -1,14 +1,12 @@
 package com.example.curate.fragments;
 
 
-import android.graphics.Point;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,16 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
-import com.example.curate.adapters.AnimatedLinearLayoutManager;
 import com.example.curate.adapters.DividerItemDecoration;
 import com.example.curate.adapters.ItemTouchHelperCallbacks;
 import com.example.curate.adapters.QueueAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
-import com.example.curate.models.Song;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -95,7 +90,7 @@ public class QueueFragment extends Fragment {
 	public void onDestroy() {
 		super.onDestroy();
 		// Deregister the callback when this fragment is destroyed
-		mParty.deregisterPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+		mParty.getPlaylist().deregisterUpdateCallback(mPlaylistUpdatedCallback);
 	}
 
 	private void initializePlaylistUpdateCallback() {
@@ -109,6 +104,6 @@ public class QueueFragment extends Fragment {
 				});
 			}
 		};
-		mParty.registerPlaylistUpdateCallback(mPlaylistUpdatedCallback);
+		mParty.getPlaylist().registerUpdateCallback(mPlaylistUpdatedCallback);
 	}
 }

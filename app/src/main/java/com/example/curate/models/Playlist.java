@@ -2,6 +2,7 @@ package com.example.curate.models;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.parse.ParseCloud;
@@ -23,10 +24,13 @@ public class Playlist {
     private final List<Like> mLikes;
     private String mPrevCachedValue;
     private final Object mEntryMutex = new Object();
+    private final List<SaveCallback> mUpdateCallbacks;
+
 
     public Playlist() {
         mLikes = updateLikes();
         mEntries = new ArrayList<>();
+        mUpdateCallbacks = new ArrayList<>();
     }
 
     /***
@@ -186,31 +190,29 @@ public class Playlist {
         });
     }
 
-    public void updateFromCache(String cachedPlaylist) {
+    public void updateFromCache(@NonNull String cachedPlaylist) {
         synchronized (mEntryMutex) {
             // If the cache hasn't changed don't update the playlist
             if(mPrevCachedValue != null && mPrevCachedValue.equals(cachedPlaylist)) {
                 return;
             }
 
-            if(cachedPlaylist != null) {
-                try {
-                    JSONArray playlistJson = new JSONArray(cachedPlaylist);
-                    List<PlaylistEntry> newEntries = new ArrayList<>();
-                    mPrevCachedValue = cachedPlaylist;
+            try {
+                JSONArray playlistJson = new JSONArray(cachedPlaylist);
+                List<PlaylistEntry> newEntries = new ArrayList<>();
+                mPrevCachedValue = cachedPlaylist;
 
-                    for (int i = 0; i < playlistJson.length(); i++) {
-                        // Create entry object from JSON
-                        PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
-                                PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+                for (int i = 0; i < playlistJson.length(); i++) {
+                    // Create entry object from JSON
+                    PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
+                            PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
 
-                        newEntries.add(entry);
-                    }
-
-                    updateEntries(newEntries);
-                } catch (JSONException e) {
-                    Log.e("Playlist.java", "Couldn't parse cached playlist", e);
+                    newEntries.add(entry);
                 }
+
+                updateEntries(newEntries);
+            } catch (JSONException e) {
+                Log.e("Playlist.java", "Couldn't parse cached playlist", e);
             }
         }
     }
@@ -236,6 +238,10 @@ public class Playlist {
             mEntries.addAll(newEntries);
             applyLikes();
         }
+
+        for(SaveCallback callback : mUpdateCallbacks) {
+            callback.done(null);
+        }
     }
 
     private void applyLikes() {
@@ -257,6 +263,22 @@ public class Playlist {
         synchronized (mEntryMutex) {
             return mEntries.isEmpty();
         }
+    }
+
+    /**
+     * Registers a new callback that is called when the playlist changes
+     * @param callback
+     */
+    public void registerUpdateCallback(SaveCallback callback) {
+        mUpdateCallbacks.add(callback);
+    }
+
+    /**
+     * Deregisters a callback that was added to free up memory
+     * @param callback
+     */
+    public void deregisterUpdateCallback(SaveCallback callback) {
+        mUpdateCallbacks.remove(callback);
     }
 
 }

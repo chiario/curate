@@ -35,19 +35,26 @@ public class Party extends ComparableParseObject {
     private static Party mCurrentParty;
 
     private final Playlist mPlaylist;
-    private final List<SaveCallback> mPlaylistUpdateCallbacks;
+    private final List<SaveCallback> mCurrentlyPlayingUpdateCallbacks;
 
     public Party() {
         mPlaylist = new Playlist();
-        mPlaylistUpdateCallbacks = new ArrayList<>();
+        mCurrentlyPlayingUpdateCallbacks = new ArrayList<>();
     }
 
     /**
      * Initializes the party object and sets up live queries
      */
     private void initialize() {
-        mPlaylist.updateFromCache(getString(CACHED_PLAYLIST_KEY));
+        String cachedPlaylist = getString(CACHED_PLAYLIST_KEY);
+        if(cachedPlaylist != null) {
+            mPlaylist.updateFromCache(cachedPlaylist);
+        }
 
+        initializeLiveQuery();
+    }
+
+    private void initializeLiveQuery() {
         // Set up live query
         ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
         ParseQuery<Party> parseQuery = ParseQuery.getQuery(Party.class);
@@ -58,17 +65,39 @@ public class Party extends ComparableParseObject {
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
-            Song currentlyPlaying = (Song) party.getParseObject(CURRENTLY_PLAYING_KEY);
-            if(currentlyPlaying != null) {
-                mCurrentParty.put(CURRENTLY_PLAYING_KEY, currentlyPlaying);
-            }
-
-            mPlaylist.updateFromCache(party.getString(CACHED_PLAYLIST_KEY));
-
-            for(SaveCallback callback : mPlaylistUpdateCallbacks) {
-                callback.done(null);
-            }
+            handleCurrentlyPlayingUpdate((Song) party.getParseObject(CURRENTLY_PLAYING_KEY));
+            handlePlaylistUpdate(party.getString(CACHED_PLAYLIST_KEY));
         });
+    }
+
+    private void handleCurrentlyPlayingUpdate(Song newCurrentlyPlaying) {
+        if(newCurrentlyPlaying != null) {
+            Song oldCurrentlyPlaying = (Song) get(CURRENTLY_PLAYING_KEY);
+
+            try {
+                newCurrentlyPlaying.fetchIfNeeded();
+                if(oldCurrentlyPlaying != null)
+                    oldCurrentlyPlaying.fetchIfNeeded();
+            } catch (ParseException e) {
+                Log.e("Party.java", "Couldn't fetch current song data");
+            }
+
+            // Check if the currently playing song changed
+            if(oldCurrentlyPlaying == null || !oldCurrentlyPlaying.equals(newCurrentlyPlaying)) {
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, newCurrentlyPlaying);
+
+                // Run callbacks
+                for(SaveCallback callback : mCurrentlyPlayingUpdateCallbacks) {
+                    callback.done(null);
+                }
+            }
+        }
+    }
+
+    private void handlePlaylistUpdate(String newCachedPlaylist) {
+        if(newCachedPlaylist != null) {
+            mPlaylist.updateFromCache(newCachedPlaylist);
+        }
     }
 
 
@@ -372,19 +401,19 @@ public class Party extends ComparableParseObject {
     }
 
     /**
-     * Registers a new callback that is called when the party's playlist changes
+     * Registers a new callback that is called when the party's current song changes
      * @param callback
      */
-    public void registerPlaylistUpdateCallback(SaveCallback callback) {
-        mPlaylistUpdateCallbacks.add(callback);
+    public void registerCurrentlyPlayingUpdateCallback(SaveCallback callback) {
+        mCurrentlyPlayingUpdateCallbacks.add(callback);
     }
 
     /**
      * Deregisters a callback that was added to free up memory
      * @param callback
      */
-    public void deregisterPlaylistUpdateCallback(SaveCallback callback) {
-        mPlaylistUpdateCallbacks.remove(callback);
+    public void deregisterCurrentlyPlayingUpdateCallback(SaveCallback callback) {
+        mCurrentlyPlayingUpdateCallbacks.remove(callback);
     }
 
     /**
