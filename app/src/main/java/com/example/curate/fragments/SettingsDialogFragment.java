@@ -82,8 +82,8 @@ public class SettingsDialogFragment extends DialogFragment {
 
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
-        tvUserLimitNumber.setText(mUserLimit);
-        tvSongLimitNumber.setText(mSongLimit);
+        tvUserLimitNumber.setText(Integer.toString(mUserLimit));
+        tvSongLimitNumber.setText(Integer.toString(mSongLimit));
 
         setToolbar();
     }
