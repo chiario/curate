@@ -458,7 +458,7 @@ public class Party extends ComparableParseObject {
         // First check if the settings have changed
         boolean hasLocationChanged = locationEnabled != mCurrentParty.getLocationEnabled();
         boolean hasNameChanged = !partyName.equals(mCurrentParty.getName());
-        boolean hasUserLimitChanged = userLimit != mCurrentParty.getUserLimit();
+        boolean hasUserLimitChanged = userLimit != mCurrentParty.getUserLimit() && userLimit != 0;
         boolean hasSongLimitChanged = songLimit != mCurrentParty.getSongLimit();
 
         HashMap<String, Object> params = new HashMap<>();

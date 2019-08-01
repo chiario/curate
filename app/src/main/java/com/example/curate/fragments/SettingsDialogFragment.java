@@ -107,6 +107,9 @@ public class SettingsDialogFragment extends DialogFragment {
         boolean isLocationDisabled = (!newLocationEnabled && mCurrentParty.getLocationEnabled());
         int newUserLimit = Integer.parseInt(tvUserLimitNumber.getText().toString());
         int newSongLimit = Integer.parseInt(tvSongLimitNumber.getText().toString());
+        if (newUserLimit == 0) {
+            Toast.makeText(getContext(), "You can't set the user limit to zero!", Toast.LENGTH_LONG).show();
+        }
         mCurrentParty.saveSettings(newLocationEnabled, newName, newUserLimit, newSongLimit, e -> {
             if(e == null) {
                 if (isLocationEnabled) {

@@ -184,16 +184,17 @@ public class PlayerService extends JobIntentService {
         public void onFailure(Throwable error) {
             mIsSpotifyConnected = false;
             // Notify the receiver that the Spotify remote player is disconnected
-            mResultReceiver.send(RESULT_DISCONNECTED, null);
-
-            if (error instanceof NotLoggedInException) {
-                Log.e(TAG, "User is not logged in to Spotify.");
-                mResultReceiver.send(RESULT_OPEN_SPOTIFY, null);
-            } else if (error instanceof UserNotAuthorizedException) {
-                Log.d(TAG, "User is not authorized.", error);
-            } else if (error instanceof CouldNotFindSpotifyApp) {
-                Log.e(TAG, "User does not have Spotify app installed on device.");
-                mResultReceiver.send(RESULT_INSTALL_SPOTIFY, null);
+            if (mResultReceiver != null) {
+                mResultReceiver.send(RESULT_DISCONNECTED, null);
+                if (error instanceof NotLoggedInException) {
+                    Log.e(TAG, "User is not logged in to Spotify.");
+                    mResultReceiver.send(RESULT_OPEN_SPOTIFY, null);
+                } else if (error instanceof UserNotAuthorizedException) {
+                    Log.d(TAG, "User is not authorized.", error);
+                } else if (error instanceof CouldNotFindSpotifyApp) {
+                    Log.e(TAG, "User does not have Spotify app installed on device.");
+                    mResultReceiver.send(RESULT_INSTALL_SPOTIFY, null);
+                }
             }
         }
     };
