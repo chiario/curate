@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.parse.ParseCloud;
 import com.parse.ParseDecoder;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
 import org.json.JSONArray;
@@ -215,8 +216,10 @@ public class Playlist {
                 for (int i = 0; i < playlistJson.length(); i++) {
                     // Create entry object from JSON
                     Log.d("TimerPlaylist", "C-JSON-" + i + " "+ (SystemClock.elapsedRealtime() - time));
-                    PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
-                            PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+//                    PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
+//                            PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
+
+                    PlaylistEntry entry = new PlaylistEntry(playlistJson.getJSONObject(i));
 
                     newEntries.add(entry);
                     Log.d("TimerPlaylist", "C-" + i + " "+ (SystemClock.elapsedRealtime() - time));
@@ -229,6 +232,8 @@ public class Playlist {
                 Log.e("Playlist.java", "Couldn't parse cached playlist", e);
             }
             Log.d("TimerPlaylist", "Done updating cache " + (SystemClock.elapsedRealtime() - time));
+
+            new PlaylistEntry();
         }
     }
 
