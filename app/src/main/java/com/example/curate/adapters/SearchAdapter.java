@@ -156,7 +156,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 * @param list Songs to add to the adapter
 	 */
 	public void addAll(List<Song> list) {
-		clear();
 		if(mSongsInAdd == null || mSongsInQueue == null || list == null) return;
 		for(Song s : list) {
 			if(Party.getCurrentParty().getPlaylist().contains(s)) {

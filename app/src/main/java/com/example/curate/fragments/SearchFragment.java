@@ -131,12 +131,11 @@ public class SearchFragment extends Fragment {
 	}
 
 	private void handleSearchDisplay(String query, List<Song> results) {
+		mAdapter.clear();
 		if(query.isEmpty()) {
-			mAdapter.clear();
 			showSearchDescription(null);
 			showText(getString(R.string.new_search));
 		} else if(results.isEmpty()) {
-			mAdapter.clear();
 			showSearchDescription(null);
 			showText(getString(R.string.no_search_result));
 		} else {
@@ -168,6 +167,7 @@ public class SearchFragment extends Fragment {
 				} else {
 					showSearchDescription(searchText);
 					hideText();
+					mAdapter.clear();
 					mAdapter.addAll(search.getResults());
 				}
 			} else {
