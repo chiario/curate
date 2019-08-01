@@ -81,7 +81,12 @@ public class QueueFragment extends Fragment {
 			new ItemTouchHelper(callbacks.deleteCallback).attachToRecyclerView(rvQueue);
 
 		rvQueue.setAdapter(mAdapter);
-		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()));
+		rvQueue.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public boolean supportsPredictiveItemAnimations() {
+				return false;
+			}
+		});
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 		initializePlaylistUpdateCallback();
 	}
