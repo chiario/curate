@@ -243,17 +243,25 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			mIsAdding = true;
 			showLoading(true);
 
-			int position = getAdapterPosition();
+			int adapterPosition = getAdapterPosition();
+
+			int inAddPosition = mSongsInAdd.indexOf(mSong);
+			mSongsInAdd.remove(inAddPosition);
+			int inQueuePosition = mSongsInQueue.size();
+			mSongsInQueue.add(mSong);
+			notifyItemMoved(adapterPosition, inQueuePosition + 1);
+			updateSections();
+
 			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
 				mIsAdding = false;
 				showLoading(false);
 				if(e == null) {
-					mSongsInAdd.remove(mSong);
-					mSongsInQueue.add(mSong);
-					notifyItemMoved(position, mSongsInQueue.size());
-					updateSections();
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
+					mSongsInQueue.remove(inQueuePosition);
+					mSongsInAdd.add(inAddPosition, mSong);
+					notifyItemMoved(getAdapterPosition(), inAddPosition);
+					updateSections();
 					Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 			});
