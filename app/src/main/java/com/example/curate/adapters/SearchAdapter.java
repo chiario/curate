@@ -1,6 +1,8 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -236,8 +238,11 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		}
 
 		private void onAdd() {
+			long time = SystemClock.elapsedRealtime();
 			if(getItemViewType() == TYPE_SONG_IN_QUEUE || mIsAdding) return;
 			NotificationHelper.updateInteractionTime();
+
+			Log.d("TimerAdd", "A " + (SystemClock.elapsedRealtime() - time));
 
 			mIsAdding = true;
 			showLoading(true);
@@ -248,10 +253,13 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			mSongsInAdd.remove(inAddPosition);
 			int inQueuePosition = mSongsInQueue.size();
 			mSongsInQueue.add(mSong);
+			Log.d("TimerAdd", "B " + (SystemClock.elapsedRealtime() - time));
 			notifyItemMoved(adapterPosition, inQueuePosition + 1);
+			Log.d("TimerAdd", "C " + (SystemClock.elapsedRealtime() - time));
 			updateSections();
-
+			Log.d("TimerAdd", "D " + (SystemClock.elapsedRealtime() - time));
 			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
+				Log.d("TimerAdd", "F " + (SystemClock.elapsedRealtime() - time));
 				mIsAdding = false;
 				showLoading(false);
 				if(e == null) {
@@ -263,7 +271,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					updateSections();
 					Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
+				Log.d("TimerAdd", "G " + (SystemClock.elapsedRealtime() - time));
 			});
+			Log.d("TimerAdd", "E " + (SystemClock.elapsedRealtime() - time));
 		}
 
 		/**

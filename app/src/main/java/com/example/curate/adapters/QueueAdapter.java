@@ -1,6 +1,8 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,9 +89,11 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	}
 
 	public void notifyPlaylistUpdated() {
+		long time = SystemClock.elapsedRealtime();
 		mDataset.clear();
 		mDataset.addAll(mPlaylist.getEntries());
 		notifyDataSetChanged();
+		Log.d("QueueAdapter", "Done notifying: " + (SystemClock.elapsedRealtime() - time));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.example.curate.models;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -194,6 +195,7 @@ public class Playlist {
 
     public void updateFromCache(@NonNull Date timestamp, @NonNull String cachedPlaylist) {
         synchronized (mEntryMutex) {
+            long time = SystemClock.elapsedRealtime();
             // If the cache hasn't changed don't update the playlist
             if(mPrevCachedValue != null && mPrevCachedValue.equals(cachedPlaylist)) {
                 return;
@@ -202,25 +204,31 @@ public class Playlist {
             if(mPrevCachedTime != null && timestamp.before(mPrevCachedTime)) {
                 return;
             }
-
+            Log.d("TimerPlaylist", "A " + (SystemClock.elapsedRealtime() - time));
             try {
                 JSONArray playlistJson = new JSONArray(cachedPlaylist);
                 List<PlaylistEntry> newEntries = new ArrayList<>();
                 mPrevCachedValue = cachedPlaylist;
                 mPrevCachedTime = timestamp;
+                Log.d("TimerPlaylist", "B " + (SystemClock.elapsedRealtime() - time));
 
                 for (int i = 0; i < playlistJson.length(); i++) {
                     // Create entry object from JSON
+                    Log.d("TimerPlaylist", "C-JSON-" + i + " "+ (SystemClock.elapsedRealtime() - time));
                     PlaylistEntry entry = PlaylistEntry.fromJSON(playlistJson.getJSONObject(i),
                             PlaylistEntry.class.getSimpleName(), ParseDecoder.get());
 
                     newEntries.add(entry);
+                    Log.d("TimerPlaylist", "C-" + i + " "+ (SystemClock.elapsedRealtime() - time));
                 }
 
+                Log.d("TimerPlaylist", "D " + (SystemClock.elapsedRealtime() - time));
                 updateEntries(newEntries);
+                Log.d("TimerPlaylist", "E " + (SystemClock.elapsedRealtime() - time));
             } catch (JSONException e) {
                 Log.e("Playlist.java", "Couldn't parse cached playlist", e);
             }
+            Log.d("TimerPlaylist", "Done updating cache " + (SystemClock.elapsedRealtime() - time));
         }
     }
 
