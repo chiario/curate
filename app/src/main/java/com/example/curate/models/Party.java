@@ -49,7 +49,7 @@ public class Party extends ComparableParseObject {
      */
     private void initialize() {
         String cachedPlaylist = getString(CACHED_PLAYLIST_KEY);
-        Date cachedTime = getDate(CACHED_PLAYLIST_KEY);
+        Date cachedTime = getDate(PLAYLIST_LAST_UPDATED_KEY);
         if(cachedPlaylist != null && cachedTime != null) {
             mPlaylist.updateFromCache(cachedTime, cachedPlaylist);
         }
@@ -435,15 +435,8 @@ public class Party extends ComparableParseObject {
         return (Song) mCurrentParty.getParseObject(CURRENTLY_PLAYING_KEY);
     }
 
-    public int getPartyUserCount() {
-        HashMap<String, Object> params = new HashMap<>();
-        try {
-            return ParseCloud.callFunction("getPartyUserCount", params);
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-            return -1;
-        }
+    public Number getPartyUserCount() {
+        return getNumber("userCount");
     }
 
     // Settings methods
