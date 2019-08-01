@@ -26,7 +26,6 @@ import com.example.curate.utils.NotificationHelper;
 import com.example.curate.utils.EntryListDiffCallback;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -140,12 +139,20 @@ public class QueueAdapter extends AsyncAdapter<PlaylistEntry, QueueAdapter.ViewH
 			isRemoving = true;
 			showLoading(true);
 
+			if(!hasPendingUpdates()) {
+				final int index = mDataset.indexOf(mEntry);
+				if (index >= 0) {
+					mDataset.remove(index);
+					notifyItemRemoved(index);
+				}
+			}
+
 			final SaveCallback callback = e -> {
 				isRemoving = false;
 
 				if(e != null) {
 					showLoading(false);
-					notifyDataSetChanged();
+					notifyPlaylistUpdated();
 					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
 				}
 			};
