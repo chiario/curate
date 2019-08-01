@@ -44,27 +44,20 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	private List<Song> mSongsInAdd;
 	private boolean mSectionQueue = false;
 	private boolean mSectionAdd = false;
-	private MainActivity mMainActivity;
-	private RecyclerView rvSearch;
-
-	private boolean mIsSwiping; // Used to ensure only one item can be swiped at a time
 
 	@Override
 	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-		rvSearch = recyclerView;
 		super.onAttachedToRecyclerView(recyclerView);
 	}
 
 	/***
 	 * Creates the adapter for holding songs
 	 * @param context The context the adapter is being created from
-	 * @param songs The initial list of songs to display
 	 */
-	public SearchAdapter(Context context, List<Song> songs, MainActivity mainActivity) {
+	public SearchAdapter(Context context) {
 		mContext = context;
 		mSongsInAdd = new ArrayList<>();
 		mSongsInQueue = new ArrayList<>();
-		mMainActivity = mainActivity;
 	}
 
 	@NonNull
@@ -163,6 +156,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 * @param list Songs to add to the adapter
 	 */
 	public void addAll(List<Song> list) {
+		clear();
 		if(mSongsInAdd == null || mSongsInQueue == null || list == null) return;
 		for(Song s : list) {
 			if(Party.getCurrentParty().getPlaylist().contains(s)) {
@@ -213,15 +207,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	public void onItemSwipedAdd(RecyclerView.ViewHolder viewHolder) {
-		mIsSwiping = true;
 		SongViewHolder vh = (SongViewHolder) viewHolder;
 		notifyItemChanged(vh.getAdapterPosition());
-
-		vh.onAdd(e -> mIsSwiping = false);
-	}
-
-	public boolean isSwiping() {
-		return mIsSwiping;
+		vh.onAdd();
 	}
 
 	/***
@@ -233,6 +221,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.pbLoading) ProgressBar pbLoading;
+
 		private Song mSong;
 
 		private boolean mIsAdding = false; // Used to ensure the item can't be added multiple times
@@ -244,19 +233,19 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		@OnClick({R.id.clContainer, R.id.ibLike})
 		public void onClickAdd() {
-			onAdd(null);
+			onAdd();
 		}
 
-		private void onAdd(@Nullable SaveCallback saveCallback) {
-			if(getItemViewType() == TYPE_SONG_IN_QUEUE) return;
+		private void onAdd() {
+			if(getItemViewType() == TYPE_SONG_IN_QUEUE || mIsAdding) return;
 			NotificationHelper.updateInteractionTime();
-			if(mIsAdding) return;
+
 			mIsAdding = true;
 			showLoading(true);
+
 			int position = getAdapterPosition();
 			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
 				mIsAdding = false;
-				if(saveCallback != null) saveCallback.done(e);
 				showLoading(false);
 				if(e == null) {
 					mSongsInAdd.remove(mSong);

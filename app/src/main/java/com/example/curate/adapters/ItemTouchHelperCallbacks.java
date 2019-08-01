@@ -1,23 +1,16 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RotateDrawable;
-import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.load.resource.bitmap.Rotate;
 import com.example.curate.R;
-
-import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 public class ItemTouchHelperCallbacks {
 
@@ -72,17 +65,17 @@ public class ItemTouchHelperCallbacks {
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
-
+			View itemView = viewHolder.itemView;
+			if(!isCurrentlyActive) {
+				clearBackground(itemView, c);
+			}
 			// Check for positive displacement
-			if(dX > 0) {
-				View itemView = viewHolder.itemView;
+			else if(dX > 0) {
+
 				// Draw icon on left side
 				int width = (itemView.getBottom() - itemView.getTop())/3;
 				mRemove.setBounds(itemView.getLeft() + width, itemView.getTop() + width,
 						itemView.getLeft() + 2 * width, itemView.getBottom() - width);
-				mRemove.draw(c);
-			} else {
-				mRemove.setBounds(0,0,0,0);
 				mRemove.draw(c);
 			}
 
@@ -117,7 +110,7 @@ public class ItemTouchHelperCallbacks {
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
 		                        float dY, int actionState, boolean isCurrentlyActive) {
 
-			drawOnRight(viewHolder, dX, c, mLike);
+			drawOnRight(viewHolder, dX, c, mLike, isCurrentlyActive);
 
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 		}
@@ -147,6 +140,8 @@ public class ItemTouchHelperCallbacks {
 			mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
 		}
 
+
+
 		@Override
 		public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
 		                        @NonNull RecyclerView.ViewHolder viewHolder, float dX,
@@ -160,7 +155,7 @@ public class ItemTouchHelperCallbacks {
 				return;
 			}
 
-			drawOnRight(viewHolder, dX, c, mAdd);
+			drawOnRight(viewHolder, dX, c, mAdd, isCurrentlyActive);
 
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 		}
@@ -174,11 +169,13 @@ public class ItemTouchHelperCallbacks {
 	 * @param dX - the x displacement of the viewholder
 	 * @param c - the canvas to draw on
 	 * @param icon - the icon to draw
+	 * @param isCurrentlyActive - whether the viewholder is active
 	 */
-	private void drawOnRight(RecyclerView.ViewHolder viewHolder, float dX, Canvas c, Drawable icon) {
+	private void drawOnRight(RecyclerView.ViewHolder viewHolder, float dX, Canvas c, Drawable icon, boolean isCurrentlyActive) {
 		View itemView = viewHolder.itemView;
-
-		if(dX < 0) {
+		if(!isCurrentlyActive) {
+			clearBackground(itemView, c);
+		} else if(dX < 0) {
 			// Draw background
 			background.setColor(mContext.getResources().getColor(R.color.colorAccent));
 			background.setBounds(itemView.getRight(), itemView.getTop(),
@@ -191,8 +188,15 @@ public class ItemTouchHelperCallbacks {
 					itemView.getRight() - width,itemView.getBottom() - width);
 			icon.draw(c);
 		} else {
+			background.setColor(mContext.getResources().getColor(R.color.darkGray));
 			background.setBounds(0,0,0,0);
 			background.draw(c);
 		}
+	}
+
+	private void clearBackground(View itemView, Canvas c) {
+		background.setColor(mContext.getResources().getColor(R.color.transparent));
+		background.setBounds(itemView.getLeft(),itemView.getTop(),itemView.getRight(),itemView.getBottom());
+		background.draw(c);
 	}
 }

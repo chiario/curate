@@ -45,7 +45,6 @@ import butterknife.ButterKnife;
 public class SearchFragment extends Fragment {
 
 	private static final String TAG = "SearchFragment";
-	private static final String SONGS_KEY = "Songs";
 
 	@BindView(R.id.rvSearch) RecyclerView rvSearch;
 	@BindView(R.id.progressBar) ProgressBar progressBar;
@@ -53,7 +52,6 @@ public class SearchFragment extends Fragment {
 	@BindView(R.id.tvError) TextView tvError;
 	@BindView(R.id.tvDescription) TextView tvDescription;
 
-	List<Song> mSongs;
 	SearchAdapter mAdapter;
 	LiveSearchManager mLiveSearchManager;
 
@@ -105,12 +103,6 @@ public class SearchFragment extends Fragment {
 		// Inflate the layout for this fragment
 		View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-		if(savedInstanceState != null) {
-			onRestoreInstanceState(savedInstanceState);
-		} else {
-			mSongs = new ArrayList<>();
-		}
-
 		return view;
 	}
 
@@ -125,7 +117,7 @@ public class SearchFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		// Create the mAdapter, along with onClick listener for the "add" button
-		mAdapter = new SearchAdapter(getContext(), mSongs, (MainActivity) getActivity());
+		mAdapter = new SearchAdapter(getContext());
 
 		// Attach Swipe listeners
 		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());
@@ -146,7 +138,6 @@ public class SearchFragment extends Fragment {
 			} else {
 				showSearchDescription(query);
 				hideText();
-				mSongs = results;
 				mAdapter.addAll(results);
 			}
 		});
@@ -154,18 +145,6 @@ public class SearchFragment extends Fragment {
 
 	public void clear() {
 		mAdapter.clear();
-	}
-
-	public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-		Parcelable listParcelable = savedInstanceState.getParcelable(SONGS_KEY);
-		mSongs = Song.retrieveSongsFromParcel(listParcelable);
-	}
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-
-		outState.putParcelable(SONGS_KEY, Song.createParcelFromSongs(mSongs));
 	}
 
 	/***
@@ -185,7 +164,6 @@ public class SearchFragment extends Fragment {
 				} else {
 					showSearchDescription(searchText);
 					hideText();
-					mSongs = search.getResults();
 					mAdapter.addAll(search.getResults());
 				}
 			} else {
