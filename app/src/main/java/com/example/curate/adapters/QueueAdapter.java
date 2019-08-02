@@ -89,11 +89,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 	}
 
 	public void notifyPlaylistUpdated() {
-		long time = SystemClock.elapsedRealtime();
 		mDataset.clear();
 		mDataset.addAll(mPlaylist.getEntries());
 		notifyDataSetChanged();
-		Log.d("QueueAdapter", "Done notifying: " + (SystemClock.elapsedRealtime() - time));
 	}
 
 	@Override
