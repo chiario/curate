@@ -1,4 +1,4 @@
-package com.example.curate;
+package com.example.curate.utils;
 
 import android.os.Handler;
 import android.widget.SeekBar;

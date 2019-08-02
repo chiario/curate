@@ -26,33 +26,33 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.example.curate.R;
-import com.example.curate.TrackProgressBar;
 import com.example.curate.models.Party;
 import com.example.curate.service.PlayerResultReceiver;
+import com.example.curate.utils.TrackProgressBar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.example.curate.service.ServiceUtils.ACTION_PLAY_PAUSE;
-import static com.example.curate.service.ServiceUtils.ACTION_SKIP;
-import static com.example.curate.service.ServiceUtils.ARTIST_KEY;
-import static com.example.curate.service.ServiceUtils.DURATION_KEY;
-import static com.example.curate.service.ServiceUtils.IMAGE_KEY;
-import static com.example.curate.service.ServiceUtils.PAUSED_KEY;
-import static com.example.curate.service.ServiceUtils.PLAYBACK_POS_KEY;
-import static com.example.curate.service.ServiceUtils.RESULT_ALBUM_ART;
-import static com.example.curate.service.ServiceUtils.RESULT_INSTALL_SPOTIFY;
-import static com.example.curate.service.ServiceUtils.RESULT_NEW_SONG;
-import static com.example.curate.service.ServiceUtils.RESULT_OPEN_SPOTIFY;
-import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
-import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
-import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
-import static com.example.curate.service.ServiceUtils.TITLE_KEY;
-import static com.example.curate.service.ServiceUtils.checkConnection;
-import static com.example.curate.service.ServiceUtils.enqueuePlayer;
-import static com.example.curate.service.ServiceUtils.playNew;
-import static com.example.curate.service.ServiceUtils.updatePlayer;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY_PAUSE;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_SKIP;
+import static com.example.curate.service.PlayerResultReceiver.ARTIST_KEY;
+import static com.example.curate.service.PlayerResultReceiver.DURATION_KEY;
+import static com.example.curate.service.PlayerResultReceiver.IMAGE_KEY;
+import static com.example.curate.service.PlayerResultReceiver.PAUSED_KEY;
+import static com.example.curate.service.PlayerResultReceiver.PLAYBACK_POS_KEY;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_ALBUM_ART;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_INSTALL_SPOTIFY;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_NEW_SONG;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_OPEN_SPOTIFY;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAYBACK;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAY_PAUSE;
+import static com.example.curate.service.PlayerResultReceiver.SONG_ID_KEY;
+import static com.example.curate.service.PlayerResultReceiver.TITLE_KEY;
+import static com.example.curate.service.PlayerResultReceiver.checkConnection;
+import static com.example.curate.service.PlayerResultReceiver.enqueuePlayer;
+import static com.example.curate.service.PlayerResultReceiver.playNew;
+import static com.example.curate.service.PlayerResultReceiver.updatePlayer;
 
 public class AdminPlayerFragment extends PlayerFragment implements PlayerResultReceiver.Receiver {
     private static final String TAG = "AdminPlayerFragment";
@@ -189,7 +189,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     public void onSeekTo(long pos) {
-        updatePlayer(getContext(), mPlayerResultReceiver, pos);
+        updatePlayer(getContext(), pos);
     }
 
     @OnClick(R.id.ivPrev)
@@ -199,16 +199,16 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
 
     @OnClick(R.id.ivPlayPause)
     void onPlayPause() {
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_PLAY_PAUSE);
+        enqueuePlayer(getContext(), ACTION_PLAY_PAUSE);
     }
 
     @OnClick(R.id.ivNext)
     public void onSkipNext() {
-        enqueuePlayer(getContext(), mPlayerResultReceiver, ACTION_SKIP);
+        enqueuePlayer(getContext(), ACTION_SKIP);
     }
 
     public void onPlayNew(String spotifyId) {
-        playNew(getContext(), mPlayerResultReceiver, spotifyId);
+        playNew(getContext(), spotifyId);
     }
 
     // PlayerService methods
@@ -216,10 +216,10 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
      * Sets this fragment as a PlayerService receiver and enqueues an action to connect Spotify remote
      */
     private void setUpService() {
-        mPlayerResultReceiver = new PlayerResultReceiver(new Handler());
-        mPlayerResultReceiver.setReceiver(this);
+        PlayerResultReceiver playerResultReceiver = new PlayerResultReceiver(new Handler());
+        playerResultReceiver.setReceiver(this);
         checkSpotifyInstalled();
-        checkConnection(getContext(), mPlayerResultReceiver);
+        checkConnection(getContext());
     }
     /**
      * Method overwritten from the PlayerResultReceiver to receive results from the PlayerService.

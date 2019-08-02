@@ -29,26 +29,26 @@ import com.spotify.protocol.types.Track;
 
 import java.util.List;
 
-import static com.example.curate.service.ServiceUtils.ACTION_CONNECT;
-import static com.example.curate.service.ServiceUtils.ACTION_PLAY;
-import static com.example.curate.service.ServiceUtils.ACTION_PLAY_PAUSE;
-import static com.example.curate.service.ServiceUtils.ACTION_SKIP;
-import static com.example.curate.service.ServiceUtils.ACTION_UPDATE;
-import static com.example.curate.service.ServiceUtils.PAUSED_KEY;
-import static com.example.curate.service.ServiceUtils.PLAYBACK_POS_KEY;
-import static com.example.curate.service.ServiceUtils.RECEIVER_KEY;
-import static com.example.curate.service.ServiceUtils.RESULT_ALBUM_ART;
-import static com.example.curate.service.ServiceUtils.RESULT_CONNECTED;
-import static com.example.curate.service.ServiceUtils.RESULT_DISCONNECTED;
-import static com.example.curate.service.ServiceUtils.RESULT_INSTALL_SPOTIFY;
-import static com.example.curate.service.ServiceUtils.RESULT_NEW_SONG;
-import static com.example.curate.service.ServiceUtils.RESULT_OPEN_SPOTIFY;
-import static com.example.curate.service.ServiceUtils.RESULT_PLAYBACK;
-import static com.example.curate.service.ServiceUtils.RESULT_PLAY_PAUSE;
-import static com.example.curate.service.ServiceUtils.SONG_ID_KEY;
-import static com.example.curate.service.ServiceUtils.bundleBitmap;
-import static com.example.curate.service.ServiceUtils.bundlePlayback;
-import static com.example.curate.service.ServiceUtils.bundleTrack;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_CONNECT;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY_PAUSE;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_SKIP;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_UPDATE;
+import static com.example.curate.service.PlayerResultReceiver.PAUSED_KEY;
+import static com.example.curate.service.PlayerResultReceiver.PLAYBACK_POS_KEY;
+import static com.example.curate.service.PlayerResultReceiver.RECEIVER_KEY;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_ALBUM_ART;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_CONNECTED;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_DISCONNECTED;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_INSTALL_SPOTIFY;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_NEW_SONG;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_OPEN_SPOTIFY;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAYBACK;
+import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAY_PAUSE;
+import static com.example.curate.service.PlayerResultReceiver.SONG_ID_KEY;
+import static com.example.curate.service.PlayerResultReceiver.bundleBitmap;
+import static com.example.curate.service.PlayerResultReceiver.bundlePlayback;
+import static com.example.curate.service.PlayerResultReceiver.bundleTrack;
 
 public class PlayerService extends JobIntentService {
     private static final String TAG = "PlayerService";
