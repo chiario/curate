@@ -15,6 +15,8 @@ import com.example.curate.R;
 import com.example.curate.fragments.SelectFragment;
 import com.example.curate.models.Party;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -59,6 +61,9 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 
 		holder.tvTitle.setText(party.getName());
 		holder.tvJoinCode.setText(String.format("Join Code: %s", party.getJoinCode()));
+		holder.tvUserLimit.setText(party.getUserLimit() != 0
+				? String.format("%d/%d", party.getPartyUserCount().intValue(), party.getUserLimit())
+				: "");
 	}
 
 	@Override
@@ -73,6 +78,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 		@BindView(R.id.btnJoin) Button btnJoin;
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvJoinCode) TextView tvJoinCode;
+		@BindView(R.id.tvUserLimit) TextView tvUserLimit;
 
 		public ViewHolder(View itemView) {
 			super(itemView);

@@ -1,8 +1,6 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +11,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.curate.R;
-import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
-import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +39,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	private Context mContext;
 	private List<Song> mSongsInQueue;
 	private List<Song> mSongsInAdd;
-	private boolean mSectionQueue = false;
-	private boolean mSectionAdd = false;
+	private boolean mIsSectionQueueEnabled = false;
+	private boolean mIsSectionAddEnabled = false;
 
 	@Override
 	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -123,7 +118,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 * @return - The number of displayd section headers
 	 */
 	private int getSectionCount() {
-		return (mSectionAdd ? 1 : 0) + (mSectionQueue ? 1 : 0);
+		return (mIsSectionAddEnabled ? 1 : 0) + (mIsSectionQueueEnabled ? 1 : 0);
 	}
 
 	/**
@@ -141,7 +136,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 * @return the position in the mSongsInQueue list
 	 */
 	private int getQueuePosition(int position) {
-		return position - (mSectionQueue ? 1 : 0);
+		return position - (mIsSectionQueueEnabled ? 1 : 0);
 	}
 
 	/**
@@ -175,25 +170,25 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 */
 	private void updateSections() {
 		if(mSongsInQueue.size() == 0) {
-			if(mSectionQueue) {
-				mSectionQueue = false;
+			if(mIsSectionQueueEnabled) {
+				mIsSectionQueueEnabled = false;
 				notifyItemRemoved(0);
 			}
 		} else {
-			if(!mSectionQueue) {
-				mSectionQueue = true;
+			if(!mIsSectionQueueEnabled) {
+				mIsSectionQueueEnabled = true;
 				notifyItemInserted(0);
 			}
 		}
 
 		if(mSongsInAdd.size() == 0) {
-			if(mSectionAdd) {
-				mSectionAdd = false;
+			if(mIsSectionAddEnabled) {
+				mIsSectionAddEnabled = false;
 				notifyItemRemoved(getItemCount());
 			}
 		} else {
-			if(!mSectionAdd) {
-				mSectionAdd = true;
+			if(!mIsSectionAddEnabled) {
+				mIsSectionAddEnabled = true;
 				notifyItemInserted(mSongsInQueue.size());
 			}
 		}
@@ -202,8 +197,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	public void clear() {
 		mSongsInAdd.clear();
 		mSongsInQueue.clear();
-		mSectionAdd = false;
-		mSectionQueue = false;
+		mIsSectionAddEnabled = false;
+		mIsSectionQueueEnabled = false;
 		notifyDataSetChanged();
 	}
 

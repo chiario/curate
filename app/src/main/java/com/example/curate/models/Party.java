@@ -484,7 +484,7 @@ public class Party extends ComparableParseObject {
     }
 
     public int getUserLimit() {
-        return mCurrentParty.getInt(USER_LIMIT_KEY);
+        return getInt(USER_LIMIT_KEY);
     }
 
     public int getSongLimit() {
