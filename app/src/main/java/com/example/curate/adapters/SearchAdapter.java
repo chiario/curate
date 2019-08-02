@@ -243,6 +243,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			mIsAdding = true;
 			showLoading(true);
 
+			// Move song to "in queue" section
 			int adapterPosition = getAdapterPosition();
 			int inAddPosition = mSongsInAdd.indexOf(mSong);
 			mSongsInAdd.remove(inAddPosition);
@@ -250,15 +251,18 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			mSongsInQueue.add(mSong);
 			notifyItemMoved(adapterPosition, inQueuePosition + 1);
 			updateSections();
+
+			// Add song to server
 			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
 				mIsAdding = false;
 				showLoading(false);
 				if(e == null) {
 					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
 				} else {
+					// On song add failure, move song back to add
 					mSongsInQueue.remove(inQueuePosition);
 					mSongsInAdd.add(inAddPosition, mSong);
-					notifyItemMoved(getAdapterPosition(), inAddPosition);
+					notifyDataSetChanged();
 					updateSections();
 					Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
