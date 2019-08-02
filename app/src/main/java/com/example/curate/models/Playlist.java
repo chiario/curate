@@ -64,6 +64,8 @@ public class Playlist {
         ParseCloud.callFunctionInBackground("likeSong", params, (Like like, ParseException e) -> {
             if (e == null) {
                 mLikes.add(like);
+                applyLikes();
+                notifySubscribers();
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not like song!", e);
@@ -248,6 +250,10 @@ public class Playlist {
             applyLikes();
         }
 
+        notifySubscribers();
+    }
+
+    private void notifySubscribers() {
         for(SaveCallback callback : mUpdateCallbacks) {
             callback.done(null);
         }

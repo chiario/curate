@@ -90,7 +90,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 	public void notifyPlaylistUpdated() {
 		mDataset.clear();
-		mDataset.addAll(mPlaylist.getEntries());
+		List<PlaylistEntry> entries = mPlaylist.getEntries();
+		mDataset.addAll(entries);
 		notifyDataSetChanged();
 	}
 
@@ -167,8 +168,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
 			final SaveCallback callback = e -> {
 				isLiking = false;
-
-                if (e != null) {
+				if(e == null) {
+					ibLike.setSelected(!isLiked);
+				} else {
 					ibLike.setSelected(isLiked);
 					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
 				}
@@ -187,6 +189,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		 * @param entry the PlaylistEntry whose information should be displayed
 		 */
 		private void bindEntry(PlaylistEntry entry) {
+			Log.d("Queue", "Binding " + entry.getSong().getTitle());
 			if(mEntry != null && !mEntry.equals(entry)) {
 				isLiking = false;
 				isRemoving = false;

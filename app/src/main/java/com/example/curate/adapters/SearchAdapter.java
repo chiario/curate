@@ -273,7 +273,6 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			mSong = song;
 			tvArtist.setText(song.getArtist());
 			tvTitle.setText(song.getTitle());
-			ibLike.setSelected(false);
 			showLoading(mIsAdding);
 			Glide.with(mContext)
 					.load(song.getImageUrl())
