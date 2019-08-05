@@ -129,8 +129,9 @@
         android:layout_marginEnd="8dp"
         android:background="@color/transparent"
         android:padding="8dp"
+        android:tint="@color/white_90"
         app:layout_constraintBottom_toBottomOf="@+id/tvArtist"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvTitle"
-        app:srcCompat="@android:drawable/ic_menu_share"/>
+        app:srcCompat="@drawable/ic_share" />
 </androidx.constraintlayout.widget.ConstraintLayout>
