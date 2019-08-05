@@ -406,13 +406,13 @@ public class Party extends ComparableParseObject {
      * Calls on the ParseCloud to delete the specified song from the playlist and set it as
      * the currently playing song.
      *
-     * @param entryId the object ID of the song to set as currently playing
+     * @param entry the entry to set as currently playing
      * @param callback to run after the cloud function is executed
      */
-    public void setCurrentlyPlayingEntry(String entryId, @Nullable final SaveCallback callback) {
+    public void setCurrentlyPlayingEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         Log.d("Party.java", "set entry");
         HashMap<String, Object> params = new HashMap<>();
-        params.put("entryId", entryId);
+        params.put(Song.SPOTIFY_ID_KEY, entry.getSong().getSpotifyId());
 
         ParseCloud.callFunctionInBackground("setCurrentlyPlayingEntry", params, (FunctionCallback<Song>) (song, e) -> {
             if (e != null) {

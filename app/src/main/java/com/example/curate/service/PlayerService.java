@@ -276,7 +276,7 @@ public class PlayerService extends JobIntentService {
                 }
             });
         } else {
-            mCurrentParty.setCurrentlyPlayingEntry(entry.getObjectId(), e -> { // TODO - this isn't working
+            mCurrentParty.setCurrentlyPlayingEntry(entry, e -> { // TODO - this isn't working
                 if (e != null) {
                     Log.e(TAG, "Error setting currently playing entry", e);
                 }

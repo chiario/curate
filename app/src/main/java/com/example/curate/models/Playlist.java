@@ -58,7 +58,7 @@ public class Playlist {
      */
     public void likeEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put(ENTRY_ID, entry.getObjectId());
+        params.put(Song.SPOTIFY_ID_KEY, entry.getSong().getSpotifyId());
         entry.setIsLikedByUser(true);
 
         ParseCloud.callFunctionInBackground("likeSong", params, (Like like, ParseException e) -> {
@@ -88,7 +88,7 @@ public class Playlist {
      */
     public void unlikeEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put(ENTRY_ID, entry.getObjectId());
+        params.put(Song.SPOTIFY_ID_KEY, entry.getSong().getSpotifyId());
         entry.setIsLikedByUser(false);
         ParseCloud.callFunctionInBackground("unlikeSong", params, (Like like, ParseException e) -> {
             if (e == null) {
@@ -145,7 +145,7 @@ public class Playlist {
      */
     public void removeEntry(PlaylistEntry entry, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put(ENTRY_ID, entry.getObjectId());
+        params.put(Song.SPOTIFY_ID_KEY, entry.getSong().getSpotifyId());
         ParseCloud.callFunctionInBackground("removeSong", params, (List<PlaylistEntry> playlist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
