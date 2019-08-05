@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,10 +53,11 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
             View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
             EditText etInput = inputView.findViewById(R.id.etInput);
             etInput.setHint("Name");
+            TextView tvTitle = inputView.findViewById(R.id.tvTitle);
+            tvTitle.setText("Set your name...");
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Set your name...")
-                    .setView(inputView);
+            builder.setView(inputView);
             builder.setCancelable(false);
             AlertDialog dialog = builder.create();
             dialog.show();

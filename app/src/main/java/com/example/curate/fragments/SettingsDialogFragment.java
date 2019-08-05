@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -133,22 +134,28 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void buildAlertDialog(String type, TextView textView) {
-        EditText etLimit = new EditText(getContext());
-        etLimit.setText(textView.getText().toString());
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setView(etLimit)
-                .setTitle(String.format("Set a new %s limit...", type))
-                .setPositiveButton("OK", (dialogInterface, i) -> {
-                    String newLimit = etLimit.getText().toString();
-                    try {
-                        Integer.parseInt(newLimit);
-                        textView.setText(newLimit);
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(getContext(), "Please input a number", Toast.LENGTH_LONG).show();
-                    }
-                })
-                .show();
+        View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
+        EditText etInput = inputView.findViewById(R.id.etInput);
+        etInput.setText(textView.getText().toString());
+        TextView tvTitle = inputView.findViewById(R.id.tvTitle);
+        tvTitle.setText(String.format("Set a new %s limit...", type));
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(inputView);
+        builder.setCancelable(false);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
+            dialog.dismiss();
+            String newLimit = etInput.getText().toString();
+            try {
+                Integer.parseInt(newLimit);
+                textView.setText(newLimit);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Please input a number", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

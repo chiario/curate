@@ -4,14 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="32dp">
+    android:padding="32dp"
+    android:theme="@style/Curate.AlertDialog">
 
     <EditText
         android:id="@+id/etInput"
         style="@style/Curate.EditText.Submit"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_gravity="center"
+        android:backgroundTint="#33FFFFFF"
         android:ellipsize="start"
         android:gravity="center|start"
         android:importantForAutofill="no"
@@ -20,17 +22,28 @@
         android:textAllCaps="true"
         android:textColor="@color/white"
         android:textColorHint="@color/white_70"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSubmit"
         app:layout_constraintEnd_toStartOf="@+id/btnSubmit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/btnSubmit" />
 
     <Button
         android:id="@+id/btnSubmit"
         style="@style/Curate.Button.Medium.Submit"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Submit"
-        app:layout_constraintBottom_toBottomOf="@+id/etInput"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/etInput" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        style="@style/Curate.TextView.Title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="@+id/btnSubmit"
+        app:layout_constraintStart_toStartOf="@+id/etInput"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

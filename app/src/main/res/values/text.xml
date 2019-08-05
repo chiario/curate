@@ -43,8 +43,9 @@
         <item name="android:textSize">18dp</item>
     </style>
 
-    <style name="Curate.EditText.Submit" parent="Widget.AppCompat.EditText">
+    <style name="Curate.EditText.Submit" parent="Curate.EditText">
         <item name="android:background">@drawable/bg_edittext_submit</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
 </resources>

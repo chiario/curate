@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -107,9 +108,11 @@ public class SelectFragment extends Fragment {
 
         EditText etInput = inputView.findViewById(R.id.etInput);
         etInput.setHint("Party name");
+        TextView tvTitle = inputView.findViewById(R.id.tvTitle);
+        tvTitle.setText("Give your party a name...");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Give your party a name...").setView(inputView);
+        builder.setView(inputView);
         AlertDialog dialog = builder.create();
         dialog.show();
 
