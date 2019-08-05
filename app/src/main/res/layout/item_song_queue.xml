@@ -64,8 +64,9 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ibDelete"
+            app:layout_constraintEnd_toStartOf="@+id/tvScore"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.692"
             app:srcCompat="@drawable/selector_like" />
 
         <ImageButton
@@ -78,6 +79,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close" />
+
+        <TextView
+            android:id="@+id/tvScore"
+            style="@style/Curate.TextView.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="0"
+            app:layout_constraintBottom_toBottomOf="@+id/ibLike"
+            app:layout_constraintEnd_toStartOf="@+id/ibDelete"
+            app:layout_constraintTop_toTopOf="@+id/ibLike" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

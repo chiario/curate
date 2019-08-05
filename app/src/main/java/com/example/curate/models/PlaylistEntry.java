@@ -2,18 +2,10 @@ package com.example.curate.models;
 
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
 import com.parse.ParseClassName;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
 
 @ParseClassName("PlaylistEntry")
 public class PlaylistEntry extends ComparableParseObject {
@@ -34,6 +26,7 @@ public class PlaylistEntry extends ComparableParseObject {
             setObjectId(json.getString("objectId"));
             put(ADDED_BY_KEY, json.getString(ADDED_BY_KEY));
             put(SONG_KEY, new Song(json.getJSONObject(SONG_KEY)));
+            put(SCORE_KEY, json.getInt(SCORE_KEY));
         } catch(JSONException e) {
             Log.e("big sad", "error: ", e);
         }

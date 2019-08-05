@@ -1,14 +1,12 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -110,6 +108,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.ibLike) ImageButton ibLike;
 		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
+		@BindView(R.id.tvScore) TextView tvScore;
 
 		boolean isRemoving = false;
 		boolean isLiking = false;
@@ -198,6 +197,12 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			Song song = mEntry.getSong();
 			tvTitle.setText(song.getTitle());
 			ibLike.setSelected(mEntry.isLikedByUser());
+			try {
+				tvScore.setText(String.format("%s", mEntry.getScore().intValue()));
+			} catch (NullPointerException e) {
+				Log.e("QueueAdapter", "Entry has no score");
+				tvScore.setText("0");
+			}
 
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(song.getArtist());
