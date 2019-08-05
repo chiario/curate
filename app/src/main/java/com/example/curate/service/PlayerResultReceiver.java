@@ -29,6 +29,7 @@ public class PlayerResultReceiver extends ResultReceiver {
     public static final String ACTION_CONNECT = "action.CONNECT";
     public static final String ACTION_SKIP = "action.SKIP";
     public static final String ACTION_PLAY_PAUSE = "action.PLAY_PAUSE";
+    public static final String ACTION_DISCONNECT = "action.DISCONNECT";
 
     // Result keys
     public static final int RESULT_CONNECTED = 999;

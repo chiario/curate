@@ -30,6 +30,7 @@ import com.spotify.protocol.types.Track;
 import java.util.List;
 
 import static com.example.curate.service.PlayerResultReceiver.ACTION_CONNECT;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_DISCONNECT;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY_PAUSE;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_SKIP;
@@ -116,7 +117,9 @@ public class PlayerService extends JobIntentService {
                     long seekPosition = intent.getLongExtra(PLAYBACK_POS_KEY, 0);
                     seekTo(seekPosition);
                     break;
-
+                case ACTION_DISCONNECT:
+                    disconnectSpotify();
+                    break;
             }
         }
     }
@@ -211,6 +214,12 @@ public class PlayerService extends JobIntentService {
                 .setRedirectUri(REDIRECT_URI)
                 .showAuthView(true)
                 .build(), mConnectionListener);
+    }
+
+    private void disconnectSpotify() {
+        if (mIsSpotifyConnected) {
+            SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+        }
     }
 
     private void onSubscribeToPlayerState() {

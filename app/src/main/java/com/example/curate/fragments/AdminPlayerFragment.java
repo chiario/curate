@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -34,6 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.example.curate.service.PlayerResultReceiver.ACTION_DISCONNECT;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY_PAUSE;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_SKIP;
 import static com.example.curate.service.PlayerResultReceiver.ARTIST_KEY;
@@ -297,5 +299,9 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         intent.putExtra(Intent.EXTRA_REFERRER,
                 Uri.parse("android-app://" + getContext().getPackageName()));
         startActivity(intent);
+    }
+
+    public static void disconnect(Context context) {
+        PlayerResultReceiver.enqueuePlayer(context, ACTION_DISCONNECT);
     }
 }

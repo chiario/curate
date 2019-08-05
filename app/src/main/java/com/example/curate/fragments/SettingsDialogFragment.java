@@ -75,7 +75,7 @@ public class SettingsDialogFragment extends DialogFragment {
         mPartyName = mCurrentParty.getName();
         mIsLocationEnabled = mCurrentParty.getLocationEnabled();
         mUserLimit = mCurrentParty.getUserLimit();
-        mSongLimit = mCurrentParty.getSongLimit();
+//        mSongLimit = mCurrentParty.getSongLimit();
 
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);

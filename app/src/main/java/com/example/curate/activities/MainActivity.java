@@ -3,23 +3,15 @@ package com.example.curate.activities;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,8 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -58,7 +48,6 @@ import com.example.curate.utils.ReverseInterpolator;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
-import com.parse.Parse;
 import com.parse.ParseUser;
 
 import butterknife.BindView;
@@ -422,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     @Override
     public void onDeleteQueue() {
+        AdminPlayerFragment.disconnect(this);
         mCurrentParty.deleteParty(e -> {
             ((User) ParseUser.getCurrentUser()).setScreenName(null);
             Intent intent = new Intent(MainActivity.this, JoinActivity.class);

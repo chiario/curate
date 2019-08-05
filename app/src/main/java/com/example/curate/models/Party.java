@@ -458,13 +458,14 @@ public class Party extends ComparableParseObject {
         boolean hasLocationChanged = locationEnabled != mCurrentParty.getLocationEnabled();
         boolean hasNameChanged = !partyName.equals(mCurrentParty.getName());
         boolean hasUserLimitChanged = userLimit != mCurrentParty.getUserLimit() && userLimit != 0;
-        boolean hasSongLimitChanged = songLimit != mCurrentParty.getSongLimit();
+//        boolean hasSongLimitChanged = songLimit != mCurrentParty.getSongLimit();
 
         HashMap<String, Object> params = new HashMap<>();
         params.put(LOCATION_PERMISSION_KEY, hasLocationChanged ? locationEnabled : null);
         params.put(NAME_KEY, hasNameChanged ? partyName : null);
         params.put(USER_LIMIT_KEY, hasUserLimitChanged ? userLimit : null);
-        params.put(SONG_LIMIT_KEY, hasSongLimitChanged ? songLimit : null);
+//        params.put(SONG_LIMIT_KEY, hasSongLimitChanged ? songLimit : null);
+        params.put(SONG_LIMIT_KEY, null); // TODO - undo this change after demo
         ParseCloud.callFunctionInBackground("savePartySettings", params,
                 (Party party, ParseException e) -> {
             if (e == null) {
@@ -487,7 +488,7 @@ public class Party extends ComparableParseObject {
         return getInt(USER_LIMIT_KEY);
     }
 
-    public int getSongLimit() {
+    /*public int getSongLimit() {
         return mCurrentParty.getInt(SONG_LIMIT_KEY);
-    }
+    }*/
 }
