@@ -143,7 +143,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(inputView);
-        builder.setCancelable(false);
+        builder.setCancelable(true);
         AlertDialog dialog = builder.create();
         dialog.show();
 
