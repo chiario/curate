@@ -56,7 +56,7 @@
         <item name="android:background">@null</item>
     </style>
 
-    <style name="Curate.AlertDialog" parent="Theme.AppCompat.Dialog.Alert">
+    <style name="Curate.AlertDialog">
         <item name="android:background">@color/transparent</item>
     </style>
 
