@@ -108,25 +108,6 @@ public class InfoDialogFragment extends DialogFragment {
 
 
     private void onExitQueue() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View layoutView = getLayoutInflater().inflate(R.layout.fragment_confirm_exit, null);
-        builder.setView(layoutView);
-        AlertDialog dialog = builder.create();
-        ((TextView) layoutView.findViewById(R.id.tvTitle)).setText(mIsAdmin ? "Delete this party?" : "Leave this party?");
-        ((TextView) layoutView.findViewById(R.id.tvMessage)).setText(mIsAdmin
-                ? "You won't be able to undo this action!"
-                : "You can rejoin with the code " + tvJoinCode.getText().toString());
-        Button btnExit = layoutView.findViewById(R.id.btnExit);
-        btnExit.setText(mIsAdmin ? "Delete" : "Leave");
-        btnExit.setOnClickListener(view -> {
-            if (mIsAdmin) {
-                mListener.onDeleteQueue();
-            } else {
-                mListener.onLeaveQueue();
-            }
-            dialog.dismiss();
-        });
-        layoutView.findViewById(R.id.btnCancel).setOnClickListener(view -> dialog.dismiss());
-        dialog.show();
+
     }
 }

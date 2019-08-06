@@ -58,7 +58,7 @@ import com.parse.ParseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements InfoDialogFragment.OnDeleteListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String KEY_QUEUE_FRAGMENT = "queue";
     private static final String KEY_SEARCH_FRAGMENT = "search";
@@ -228,6 +228,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
         MenuItem miInfo = menu.findItem(R.id.miInfo);
         MenuItem miSettings = menu.findItem(R.id.miSettings);
+        MenuItem miLeave = menu.findItem(R.id.miLeave);
+        MenuItem miDelete = menu.findItem(R.id.miDelete);
 
         if (miSearchView != null) {
             initializeSearch();
@@ -252,9 +254,28 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
             return true;
         });
 
+        // Set leave option onClick callback
+        miLeave.setOnMenuItemClickListener(menuItem -> {
+            leaveQueue();
+            return true;
+        });
+
+        miDelete.setOnMenuItemClickListener(menuItem -> {
+            deleteQueue();
+            return true;
+        });
+
         // Only show settings for admin
         miSettings.setVisible(mIsAdmin);
         miSettings.setEnabled(mIsAdmin);
+
+        // Show delete for admin
+        miDelete.setVisible(mIsAdmin);
+        miDelete.setEnabled(mIsAdmin);
+
+        // Show leave for clients
+        miLeave.setVisible(!mIsAdmin);
+        miLeave.setEnabled(!mIsAdmin);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -435,33 +456,52 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         mSearchFragment.updateLiveSearch(query);
     }
 
+    private void leaveQueue() {
+        showExitDialog("Leave this party?", "You can rejoin with the code " + Party.getCurrentParty().getJoinCode(),
+                "Leave", view -> {
+                    mIsLeavingQueue = true;
+                    mCurrentParty.leaveParty(e -> {
+                        if(e != null) {
+                            mIsLeavingQueue = false;
+                        } else {
+                            NotificationHelper.removeNotifications(MainActivity.this);
+                            removePartyDeleteListener();
+                            ((User) ParseUser.getCurrentUser()).setScreenName(null);
+                            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                });
+    }
 
-    @Override
-    public void onLeaveQueue() {
-        mIsLeavingQueue = true;
-        mCurrentParty.leaveParty(e -> {
-            if(e != null) {
-                mIsLeavingQueue = false;
-            } else {
-                NotificationHelper.removeNotifications(MainActivity.this);
-                removePartyDeleteListener();
-                ((User) ParseUser.getCurrentUser()).setScreenName(null);
-                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                startActivity(intent);
-                finish();
-            }
+    private void deleteQueue() {
+        showExitDialog("Delete this party?", "You won't be able to undo this action!", "Delete", view -> {
+                AdminPlayerFragment.disconnect(MainActivity.this);
+                mCurrentParty.deleteParty(e -> {
+                    ((User) ParseUser.getCurrentUser()).setScreenName(null);
+                    Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                    startActivity(intent);
+                    finish();
+            });
         });
     }
 
-    @Override
-    public void onDeleteQueue() {
-        AdminPlayerFragment.disconnect(this);
-        mCurrentParty.deleteParty(e -> {
-            ((User) ParseUser.getCurrentUser()).setScreenName(null);
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
+    private void showExitDialog(String title, String message, String exitText, View.OnClickListener onClickListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View layoutView = getLayoutInflater().inflate(R.layout.fragment_confirm_exit, null);
+        builder.setView(layoutView);
+        AlertDialog dialog = builder.create();
+        ((TextView) layoutView.findViewById(R.id.tvTitle)).setText(title);
+        ((TextView) layoutView.findViewById(R.id.tvMessage)).setText(message);
+        Button btnExit = layoutView.findViewById(R.id.btnExit);
+        btnExit.setText(exitText);
+        btnExit.setOnClickListener(view -> {
+            onClickListener.onClick(view);
+            dialog.dismiss();
         });
+        layoutView.findViewById(R.id.btnCancel).setOnClickListener(view -> dialog.dismiss());
+        dialog.show();
     }
 
     public void registerLocationUpdater() {

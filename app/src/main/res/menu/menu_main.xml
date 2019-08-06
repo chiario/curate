@@ -11,6 +11,12 @@
         android:id="@+id/miSettings"
         android:title="Settings"
         app:showAsAction="collapseActionView"/>
+    <item android:id="@+id/miLeave"
+        android:title="Leave"
+        app:showAsAction="collapseActionView"/>
+    <item android:id="@+id/miDelete"
+        android:title="Delete"
+        app:showAsAction="collapseActionView"/>
     <item
         android:id="@+id/miBack"
         android:icon="@drawable/ic_cancel"
