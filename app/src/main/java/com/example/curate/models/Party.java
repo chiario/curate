@@ -468,11 +468,9 @@ public class Party extends ComparableParseObject {
     public void saveSettings(Settings settings,
                              @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = Settings.getSettingsParams(settings, mSettings);
-
         ParseCloud.callFunctionInBackground("savePartySettings", params,
                 (Boolean result, ParseException e) -> {
             if (e == null) {
-                Log.d("Party.java", "Setting settings to " + settings.getName());
                 mSettings = settings;
                 /*mCurrentParty.put(NAME_KEY, partyName);
                 mCurrentParty.put(LOCATION_PERMISSION_KEY, locationEnabled);

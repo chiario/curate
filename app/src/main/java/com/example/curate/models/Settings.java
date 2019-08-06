@@ -57,9 +57,8 @@ public class Settings {
      * @param newSettings the newest Settings object
      * @return the parameters for the ParseCloud function
      */
-    static HashMap<String, Object> getSettingsParams(Settings oldSettings, Settings newSettings) {
+    static HashMap<String, Object> getSettingsParams(Settings newSettings, Settings oldSettings) {
         HashMap<String, Object> params = new HashMap<>();
-
         // First check if the settings have changed
         boolean isLocationChanged = newSettings.getLocationEnabled() != oldSettings.getLocationEnabled();
         boolean isNameChanged = !newSettings.getName().equals(oldSettings.getName());
@@ -73,7 +72,6 @@ public class Settings {
         params.put(USER_LIMIT_KEY, isUserLimitChanged ? newSettings.getUserLimit() : null);
 //        params.put(SONG_LIMIT_KEY, isSongLimitChanged ? newSettings.getSongLimit() : null);
         params.put(SONG_LIMIT_KEY, null); // TODO - undo this change once song limit is implemented fully
-
         return params;
     }
 }

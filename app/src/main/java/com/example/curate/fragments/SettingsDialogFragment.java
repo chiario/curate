@@ -27,6 +27,7 @@ import butterknife.OnClick;
 
 
 public class SettingsDialogFragment extends DialogFragment {
+    private static final String TAG = "SettingsDialogFragment";
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
