@@ -48,28 +48,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
     @Override
     public void onPartyObtained() {
-        User user = (User) ParseUser.getCurrentUser();
-        if(User.getCurrentScreenName() == null) {
-            View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
-            EditText etInput = inputView.findViewById(R.id.etInput);
-            etInput.setHint("Name");
-            TextView tvTitle = inputView.findViewById(R.id.tvTitle);
-            tvTitle.setText("Set your name...");
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setView(inputView);
-            builder.setCancelable(false);
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
-            inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
-                dialog.dismiss();
-                user.setScreenName(etInput.getText().toString());
-                switchToMainActivity();
-            });
-        } else {
-            switchToMainActivity();
-        }
+        switchToMainActivity();
     }
 
     @Override

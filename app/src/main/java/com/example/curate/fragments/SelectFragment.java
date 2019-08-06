@@ -121,7 +121,6 @@ public class SelectFragment extends Fragment {
             dialog.dismiss();
             if (e == null) {
                 if (mListener != null) {
-
                     mListener.onPartyObtained();
                 }
             } else {

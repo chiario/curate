@@ -75,6 +75,7 @@ public class JoinFragment extends Fragment {
             mLocationManager.requestPermissions();
         }
 
+        // Make join code CAPITALIZED
         InputFilter[] editFilters = etJoinCode.getFilters();
         InputFilter[] newFilters = new InputFilter[editFilters.length + 1];
         System.arraycopy(editFilters, 0, newFilters, 0, editFilters.length);
