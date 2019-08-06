@@ -172,7 +172,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					ibLike.setSelected(!isLiked);
 				} else {
 					ibLike.setSelected(isLiked);
-					Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show();
+					ToastHelper.makeText(mContext, errorMessage);
 				}
 			};
 
