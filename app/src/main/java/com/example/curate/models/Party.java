@@ -27,16 +27,16 @@ public class Party extends ComparableParseObject {
     private static final String JOIN_CODE_KEY = "joinCode";
     private static final String CURRENTLY_PLAYING_KEY = "currPlaying";
     private static final String PLAYLIST_LAST_UPDATED_KEY = "playlistLastUpdatedAt";
-    private static final String NAME_KEY = "name";
+    static final String NAME_KEY = "name";
     private static final String LOCATION_KEY = "location";
-    private static final String LOCATION_PERMISSION_KEY = "locationEnabled";
+    static final String LOCATION_PERMISSION_KEY = "locationEnabled";
     private static final String CACHED_PLAYLIST_KEY = "cachedPlaylist";
-    private static final String USER_LIMIT_KEY = "userLimit";
-    private static final String SONG_LIMIT_KEY = "songLimit";
+    static final String USER_LIMIT_KEY = "userLimit";
+    static final String SONG_LIMIT_KEY = "songLimit";
     private static final String USER_COUNT_KEY = "userCount";
 
     private static Party mCurrentParty;
-
+    private Settings mSettings;
     private final Playlist mPlaylist;
     private final List<SaveCallback> mCurrentlyPlayingUpdateCallbacks;
     private ParseLiveQueryClient mLiveQueryClient;
@@ -55,8 +55,16 @@ public class Party extends ComparableParseObject {
         if(cachedPlaylist != null && cachedTime != null) {
             mPlaylist.updateFromCache(cachedTime, cachedPlaylist);
         }
-
         initializeLiveQuery();
+        initSettings();
+    }
+
+    private void initSettings() {
+        mSettings = new Settings();
+        mSettings.setName(getString(NAME_KEY));
+        mSettings.setLocationEnabled(getBoolean(LOCATION_PERMISSION_KEY));
+        mSettings.setUserLimit(getInt(USER_LIMIT_KEY));
+        mSettings.setSongLimit(getInt(SONG_LIMIT_KEY));
     }
 
     public void initializeLiveQuery() {
@@ -280,14 +288,6 @@ public class Party extends ComparableParseObject {
     }
 
     /**
-     * Get's the party's name
-     * @return the name as a string
-     */
-    public String getName() {
-        return getString(NAME_KEY);
-    }
-
-    /**
      * Gets the party's join code.  Other users can join the party through this code.
      * @return the party's join code
      */
@@ -361,14 +361,6 @@ public class Party extends ComparableParseObject {
                 callback.done(e);
             }
         });
-    }
-
-    /**
-     * Gets the current party's location preferences
-     * @return the boolean value of location enabling
-     */
-    public boolean getLocationEnabled() {
-        return mCurrentParty.getBoolean(LOCATION_PERMISSION_KEY);
     }
 
     // Playlist methods
@@ -470,31 +462,22 @@ public class Party extends ComparableParseObject {
     // Settings methods
     /***
      * Saves all settings for the current party
-     * @param locationEnabled whether location is enabled
-     * @param partyName name for the party
+     * @param settings the new Settings object to be saved
      * @param callback callback to be called after server response
      */
-    public void saveSettings(boolean locationEnabled, String partyName, int userLimit, int songLimit,
+    public void saveSettings(Settings settings,
                              @Nullable final SaveCallback callback) {
-        // First check if the settings have changed
-        boolean hasLocationChanged = locationEnabled != mCurrentParty.getLocationEnabled();
-        boolean hasNameChanged = !partyName.equals(mCurrentParty.getName());
-        boolean hasUserLimitChanged = userLimit != mCurrentParty.getUserLimit() && userLimit != 0;
-//        boolean hasSongLimitChanged = songLimit != mCurrentParty.getSongLimit();
+        HashMap<String, Object> params = Settings.getSettingsParams(settings, mSettings);
 
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(LOCATION_PERMISSION_KEY, hasLocationChanged ? locationEnabled : null);
-        params.put(NAME_KEY, hasNameChanged ? partyName : null);
-        params.put(USER_LIMIT_KEY, hasUserLimitChanged ? userLimit : null);
-//        params.put(SONG_LIMIT_KEY, hasSongLimitChanged ? songLimit : null);
-        params.put(SONG_LIMIT_KEY, null); // TODO - undo this change after demo
         ParseCloud.callFunctionInBackground("savePartySettings", params,
-                (Party party, ParseException e) -> {
+                (Boolean result, ParseException e) -> {
             if (e == null) {
-                mCurrentParty.put(NAME_KEY, partyName);
+                Log.d("Party.java", "Setting settings to " + settings.getName());
+                mSettings = settings;
+                /*mCurrentParty.put(NAME_KEY, partyName);
                 mCurrentParty.put(LOCATION_PERMISSION_KEY, locationEnabled);
                 mCurrentParty.put(USER_LIMIT_KEY, userLimit);
-                mCurrentParty.put(SONG_LIMIT_KEY, songLimit);
+                mCurrentParty.put(SONG_LIMIT_KEY, songLimit);*/
             } else {
                 Log.e("Party.java", "Could not set location permissions!", e);
             }
@@ -506,11 +489,31 @@ public class Party extends ComparableParseObject {
         });
     }
 
-    public int getUserLimit() {
-        return getInt(USER_LIMIT_KEY);
+    public Settings getSettings() {
+        return mSettings;
     }
 
-    /*public int getSongLimit() {
-        return mCurrentParty.getInt(SONG_LIMIT_KEY);
-    }*/
+    /**
+     * Get's the party's name
+     * @return the name as a string
+     */
+    public String getName() {
+        return mSettings.getName();
+    }
+
+    /**
+     * Gets the current party's location preferences
+     * @return the boolean value of location enabling
+     */
+    public boolean getLocationEnabled() {
+        return mSettings.getLocationEnabled();
+    }
+
+    public int getUserLimit() {
+        return mSettings.getUserLimit();
+    }
+
+    public int getSongLimit() {
+        return mSettings.getSongLimit();
+    }
 }

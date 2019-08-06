@@ -19,7 +19,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.curate.models.Settings;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,10 +73,10 @@ public class SettingsDialogFragment extends DialogFragment {
         ButterKnife.bind(this, view);
         mCurrentParty = Party.getCurrentParty();
         // Fetch arguments and set views
-        mPartyName = mCurrentParty.getName();
-        mIsLocationEnabled = mCurrentParty.getLocationEnabled();
-        mUserLimit = mCurrentParty.getUserLimit();
-//        mSongLimit = mCurrentParty.getSongLimit();
+        mPartyName = mCurrentParty.getSettings().getName();
+        mIsLocationEnabled = mCurrentParty.getSettings().getLocationEnabled();
+        mUserLimit = mCurrentParty.getSettings().getUserLimit();
+//        mSongLimit = mCurrentParty.getSettings().getSongLimit();
 
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
@@ -99,16 +99,21 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void onSaveSettings() {
-        String newName = etPartyName.getText().toString();
-        boolean newLocationEnabled = switchLocation.isChecked();
-        boolean isLocationEnabled = (newLocationEnabled && !mCurrentParty.getLocationEnabled());
-        boolean isLocationDisabled = (!newLocationEnabled && mCurrentParty.getLocationEnabled());
-        int newUserLimit = Integer.parseInt(tvUserLimitNumber.getText().toString());
-        int newSongLimit = Integer.parseInt(tvSongLimitNumber.getText().toString());
-        if (newUserLimit == 0) {
+        Settings saveSettings = getNewSettings();
+
+        // TODO - check for location preferences changing somewhere else, maybe a new subscription in the main activity
+        boolean isLocationEnabled = (saveSettings.getLocationEnabled() && !mCurrentParty.getLocationEnabled());
+        boolean isLocationDisabled = (!saveSettings.getLocationEnabled() && mCurrentParty.getLocationEnabled());
+
+        // Alert the user if they set the user limit or song limit to zero
+        if (saveSettings.getUserLimit() == 0) {
             Toast.makeText(getContext(), "You can't set the user limit to zero!", Toast.LENGTH_LONG).show();
         }
-        mCurrentParty.saveSettings(newLocationEnabled, newName, newUserLimit, newSongLimit, e -> {
+        if (saveSettings.getSongLimit() == 0) {
+            Toast.makeText(getContext(), "You can't set the song limit to zero!", Toast.LENGTH_LONG).show();
+        }
+
+        mCurrentParty.saveSettings(saveSettings, e -> {
             if(e == null) {
                 if (isLocationEnabled) {
                     ((MainActivity) getActivity()).registerLocationUpdater();
@@ -120,6 +125,15 @@ public class SettingsDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Could not save settings", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private Settings getNewSettings() {
+        Settings newSettings = new Settings();
+        newSettings.setName(etPartyName.getText().toString());
+        newSettings.setLocationEnabled(switchLocation.isChecked());
+        newSettings.setUserLimit(Integer.parseInt(tvUserLimitNumber.getText().toString()));
+        newSettings.setSongLimit(Integer.parseInt(tvSongLimitNumber.getText().toString()));
+        return newSettings;
     }
 
     @OnClick({R.id.tvUserLimitText, R.id.tvUserLimitNumber})
