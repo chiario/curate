@@ -15,8 +15,6 @@ import com.example.curate.R;
 import com.example.curate.fragments.SelectFragment;
 import com.example.curate.models.Party;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import butterknife.BindView;
@@ -59,9 +57,9 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 		// Todo load selected state and image into ViewHolder
 		Party party = mParties.get(position);
 
-		holder.tvTitle.setText(party.getName());
+		holder.tvTitle.setText(party.getString("name"));
 		holder.tvJoinCode.setText(String.format("Join Code: %s", party.getJoinCode()));
-		holder.tvUserLimit.setText(party.getUserLimit() != 0
+		holder.tvUserLimit.setText(party.getInt("userLimit") != 0
 				? String.format("%d/%d", party.getPartyUserCount().intValue(), party.getUserLimit())
 				: "");
 	}

@@ -15,6 +15,7 @@ import androidx.core.app.JobIntentService;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
+import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.PlayerApi;
@@ -276,20 +277,17 @@ public class PlayerService extends JobIntentService {
      * @param track the Spotify track of the currently playing song
      */
     private void setCurrentlyPlaying(Track track) {
-        String spotifyId = track.uri.replace("spotify:track:", "");;
+        String spotifyId = track.uri.replace("spotify:track:", "");
         PlaylistEntry entry = getEntryBySpotifyId(spotifyId);
+        SaveCallback saveCallback = e -> {
+            if (e != null) {
+                Log.e(TAG, "Error setting currently playing song", e);
+            }
+        };
         if (entry == null) {
-            mCurrentParty.setCurrentlyPlayingSong(spotifyId, e-> {
-                if (e != null) {
-                    Log.e(TAG, "Error setting currently playing song", e);
-                }
-            });
+            mCurrentParty.setCurrentlyPlayingSong(spotifyId, saveCallback);
         } else {
-            mCurrentParty.setCurrentlyPlayingEntry(entry, e -> { // TODO - this isn't working
-                if (e != null) {
-                    Log.e(TAG, "Error setting currently playing entry", e);
-                }
-            });
+            mCurrentParty.setCurrentlyPlayingEntry(entry, saveCallback);
         }
     }
 
