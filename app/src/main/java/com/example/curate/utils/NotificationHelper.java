@@ -35,6 +35,7 @@ public class NotificationHelper {
 		createNotificationChannel(mContext);
 		notificationHandler = new Handler();
 		notificationHandler.post(addSongsNotification);
+		createNotification(mContext);
 	}
 
 	private static void createNotification(Context context) {

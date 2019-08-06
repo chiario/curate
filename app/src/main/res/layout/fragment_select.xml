@@ -14,7 +14,7 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:gravity="center"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.349"
@@ -73,7 +73,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_curate_letter" />
+            app:srcCompat="@drawable/ic_curatelauncher" />
 
         <TextView
             android:id="@+id/tvAppName"
