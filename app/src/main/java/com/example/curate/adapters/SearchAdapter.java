@@ -251,9 +251,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			Party.getCurrentParty().getPlaylist().addEntry(mSong, e -> {
 				mIsAdding = false;
 				showLoading(false);
-				if(e == null) {
-					Toast.makeText(mContext, "Song Added", Toast.LENGTH_SHORT).show();
-				} else {
+				if(e != null) {
 					// On song add failure, move song back to add
 					mSongsInQueue.remove(inQueuePosition);
 					mSongsInAdd.add(inAddPosition, mSong);
