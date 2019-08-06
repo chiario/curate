@@ -39,6 +39,7 @@ public class Party extends ComparableParseObject {
 
     private final Playlist mPlaylist;
     private final List<SaveCallback> mCurrentlyPlayingUpdateCallbacks;
+    private ParseLiveQueryClient mLiveQueryClient;
 
     public Party() {
         mPlaylist = new Playlist();
@@ -58,14 +59,15 @@ public class Party extends ComparableParseObject {
         initializeLiveQuery();
     }
 
-    private void initializeLiveQuery() {
+    public void initializeLiveQuery() {
+        mLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
+
         // Set up live query
-        ParseLiveQueryClient parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient();
         ParseQuery<Party> parseQuery = ParseQuery.getQuery(Party.class);
         parseQuery.include(CURRENTLY_PLAYING_KEY);
         parseQuery.whereEqualTo("objectId", getObjectId());
         parseQuery.selectKeys(Arrays.asList(CACHED_PLAYLIST_KEY, CURRENTLY_PLAYING_KEY, PLAYLIST_LAST_UPDATED_KEY));
-        SubscriptionHandling<Party> handler = parseLiveQueryClient.subscribe(parseQuery);
+        SubscriptionHandling<Party> handler = mLiveQueryClient.subscribe(parseQuery);
 
         // Listen for when the party is updated
         handler.handleEvent(SubscriptionHandling.Event.UPDATE, (query, party) -> {
@@ -73,6 +75,14 @@ public class Party extends ComparableParseObject {
             handleUserCountUpdate(party.getNumber(USER_COUNT_KEY));
             handlePlaylistUpdate(party.getDate(PLAYLIST_LAST_UPDATED_KEY), party.getString(CACHED_PLAYLIST_KEY));
         });
+    }
+
+    public void reconnectToLiveQuery() {
+        mLiveQueryClient.reconnect();
+    }
+
+    public void disconnectFromLiveQuery() {
+        mLiveQueryClient.disconnect();
     }
 
     private void handleUserCountUpdate(Number userCount) {

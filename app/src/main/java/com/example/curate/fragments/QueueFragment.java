@@ -2,6 +2,7 @@ package com.example.curate.fragments;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,6 +87,22 @@ public class QueueFragment extends Fragment {
 		rvQueue.setLayoutManager(new NonPredictiveLinearLayoutManager(getContext()));
 		rvQueue.addItemDecoration(new DividerItemDecoration(rvQueue.getContext(), R.drawable.divider));
 		initializePlaylistUpdateCallback();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		Log.d("queue fragment", "PAUSED");
+		mParty.disconnectFromLiveQuery();
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.d("queue fragment", "RESUMED");
+		mParty.reconnectToLiveQuery();
+
 	}
 
 	@Override
