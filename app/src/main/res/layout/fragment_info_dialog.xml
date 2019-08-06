@@ -73,17 +73,5 @@
         app:layout_constraintTop_toBottomOf="@+id/tvUserCountText"
         app:srcCompat="@color/white_80" />
 
-    <Button
-        android:id="@+id/btnDelete"
-        style="@style/Curate.Button.Medium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Delete Party"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/ivQR"
-        app:layout_constraintStart_toStartOf="@+id/ivQR"
-        app:layout_constraintTop_toBottomOf="@+id/ivQR" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

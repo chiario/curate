@@ -29,7 +29,6 @@ public class InfoDialogFragment extends DialogFragment {
 
     @BindView(R.id.tvName) TextView tvPartyName;
     @BindView(R.id.tvJoinCode) TextView tvJoinCode;
-    @BindView(R.id.btnDelete) Button btnDelete;
     @BindView(R.id.ivQR) ImageView ivQR;
     @BindView(R.id.tvUserCountText) TextView tvUserCount;
 
@@ -72,10 +71,6 @@ public class InfoDialogFragment extends DialogFragment {
         String partyName = getArguments().getString(PARTY_NAME_KEY);
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
 
-        btnDelete.setText(mIsAdmin?"Delete":"Leave");
-        // Set on click listener for delete button
-        btnDelete.setOnClickListener(view1 -> onExitQueue());
-
         // Get QR code
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
@@ -96,10 +91,5 @@ public class InfoDialogFragment extends DialogFragment {
         tvUserCount.setText(count == 1
                 ? count + " person partying :("
                 : count + " people partying");
-    }
-
-
-    private void onExitQueue() {
-
     }
 }
