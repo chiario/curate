@@ -79,7 +79,18 @@ public class Party extends ComparableParseObject {
 
     public void reconnectToLiveQuery() {
         mLiveQueryClient.reconnect();
-        mPlaylist.update(null);
+        HashMap<String, Object> params = new HashMap<>();
+
+        ParseCloud.callFunctionInBackground("getCurrentParty", params, (Party party, ParseException e) -> {
+            if (e == null) {
+                handleCurrentlyPlayingUpdate((Song) party.getParseObject(CURRENTLY_PLAYING_KEY));
+                handleUserCountUpdate(party.getNumber(USER_COUNT_KEY));
+                handlePlaylistUpdate(party.getDate(PLAYLIST_LAST_UPDATED_KEY), party.getString(CACHED_PLAYLIST_KEY));
+            } else {
+                // Log the error if we get one
+                Log.e("Party.java", "Could not get current party!", e);
+            }
+        });
     }
 
     public void disconnectFromLiveQuery() {
