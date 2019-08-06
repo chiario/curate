@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
     private LocationManager mLocationManager;
     private LocationCallback mLocationCallback = null;
 
+    private boolean mIsLeavingQueue = false;
+
     private User.PartyDeletedListener mPartyDeleteListener;
 
     public AdminPlayerFragment getBottomPlayerFragment() {
@@ -136,21 +138,22 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         }
 
         mPartyDeleteListener = mainActivity -> runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
-            AlertDialog dialog = builder.setView(R.layout.fragment_confirm_exit).setCancelable(false).show();
-            Button button = dialog.findViewById(R.id.btnExit);
-            button.setOnClickListener(view -> {
-                removePartyDeleteListener();
-                Intent intent = new Intent(mainActivity, JoinActivity.class);
-                startActivity(intent);
-                Party.partyDeleted();
-                finish();
-            });
-            button.setText("Return to menu");
-            dialog.findViewById(R.id.btnCancel).setVisibility(View.GONE);
-            ((TextView) dialog.findViewById(R.id.tvTitle)).setText("Party Deleted");
-            ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
-
+            if(!mIsLeavingQueue) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+                AlertDialog dialog = builder.setView(R.layout.fragment_confirm_exit).setCancelable(false).show();
+                Button button = dialog.findViewById(R.id.btnExit);
+                button.setOnClickListener(view -> {
+                    removePartyDeleteListener();
+                    Intent intent = new Intent(mainActivity, JoinActivity.class);
+                    startActivity(intent);
+                    Party.partyDeleted();
+                    finish();
+                });
+                button.setText("Return to menu");
+                dialog.findViewById(R.id.btnCancel).setVisibility(View.GONE);
+                ((TextView) dialog.findViewById(R.id.tvTitle)).setText("Party Deleted");
+                ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
+            }
         });
 
         ((User) ParseUser.getCurrentUser()).registerPartyDeletedListener(mPartyDeleteListener, this);
@@ -403,13 +406,18 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
 
     @Override
     public void onLeaveQueue() {
+        mIsLeavingQueue = true;
         mCurrentParty.leaveParty(e -> {
-            NotificationHelper.removeNotifications(MainActivity.this);
-            removePartyDeleteListener();
-            ((User) ParseUser.getCurrentUser()).setScreenName(null);
-            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-            startActivity(intent);
-            finish();
+            if(e != null) {
+                mIsLeavingQueue = false;
+            } else {
+                NotificationHelper.removeNotifications(MainActivity.this);
+                removePartyDeleteListener();
+                ((User) ParseUser.getCurrentUser()).setScreenName(null);
+                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                startActivity(intent);
+                finish();
+            }
         });
     }
 
