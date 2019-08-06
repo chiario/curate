@@ -22,6 +22,7 @@ import com.example.curate.models.Playlist;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
+import com.example.curate.utils.ToastHelper;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
@@ -147,7 +148,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 				if(e != null) {
 					notifyPlaylistUpdated();
-					Toast.makeText(mContext, "Could not remove song", Toast.LENGTH_SHORT).show();
+					ToastHelper.makeText(mContext, "Could not remove song");
 				}
 			};
 			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, callback);

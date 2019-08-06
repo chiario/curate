@@ -18,6 +18,7 @@ import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
+import com.example.curate.utils.ToastHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -257,7 +258,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					mSongsInAdd.add(inAddPosition, mSong);
 					notifyDataSetChanged();
 					updateSections();
-					Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+					ToastHelper.makeText(mContext, e.getMessage());
 				}
 			});
 		}

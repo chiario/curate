@@ -92,6 +92,11 @@ public class PlayerFragment extends Fragment {
         super.onDestroy();
     }
 
+    public float getHeight() {
+        return getResources().getDimension(isExpanded ? R.dimen.bottom_player_client_height_expanded
+                : R.dimen.bottom_player_client_height_collapsed);
+    }
+
     /***
      * Set the bottom players expanded state
      * @param isExpanded The new state to be in

@@ -20,6 +20,7 @@ import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Settings;
+import com.example.curate.utils.ToastHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -108,10 +109,11 @@ public class SettingsDialogFragment extends DialogFragment {
 
         // Alert the user if they set the user limit or song limit to zero
         if (saveSettings.getUserLimit() == 0) {
-            Toast.makeText(getContext(), "You can't set the user limit to zero!", Toast.LENGTH_LONG).show();
+
+            ToastHelper.makeText(getContext(), "You can't set the user limit to zero!");
         }
         if (saveSettings.getSongLimit() == 0) {
-            Toast.makeText(getContext(), "You can't set the song limit to zero!", Toast.LENGTH_LONG).show();
+            ToastHelper.makeText(getContext(), "You can't set the song limit to zero!");
         }
 
         mCurrentParty.saveSettings(saveSettings, e -> {
@@ -123,7 +125,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 }
                 dismiss();
             } else {
-                Toast.makeText(getContext(), "Could not save settings", Toast.LENGTH_SHORT).show();
+                ToastHelper.makeText(getContext(), "Could not save settings");
             }
         });
     }
@@ -169,7 +171,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 Integer.parseInt(newLimit);
                 textView.setText(newLimit);
             } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Please input a number", Toast.LENGTH_LONG).show();
+                ToastHelper.makeText(getContext(), "Please input a number");
             }
         });
     }

@@ -114,6 +114,12 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     @Override
+    public float getHeight() {
+        return getResources().getDimension(isExpanded ? R.dimen.bottom_player_admin_height_expanded
+                : R.dimen.bottom_player_admin_height_collapsed);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
     }

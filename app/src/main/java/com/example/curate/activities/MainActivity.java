@@ -50,6 +50,7 @@ import com.example.curate.models.User;
 import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.NotificationHelper;
 import com.example.curate.utils.ReverseInterpolator;
+import com.example.curate.utils.ToastHelper;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
@@ -123,6 +124,13 @@ public class MainActivity extends AppCompatActivity {
         }
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
+        ToastHelper.setToaster((context, text) -> {
+            Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.BOTTOM, 0, (int) context.getResources().getDimension(R.dimen.toast_margin)
+                    + (int) mBottomPlayerFragment.getHeight());
+            toast.show();
+        });
+
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         initSearchBarAnimations();
@@ -153,11 +161,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
 
         inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
-            Toast toast = Toast.makeText(this, "Time to rock out!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.BOTTOM, 0,
-		            (int) getResources().getDimension(R.dimen.bottom_player_client_height_collapsed)
-				            + (int) getResources().getDimension(R.dimen.toast_margin));
-            toast.show();
+            ToastHelper.makeText(this, "Time to rock out!");
             dialog.dismiss();
             user.setScreenName(etInput.getText().toString());
         });
