@@ -33,13 +33,7 @@ public class InfoDialogFragment extends DialogFragment {
     @BindView(R.id.ivQR) ImageView ivQR;
     @BindView(R.id.tvUserCountText) TextView tvUserCount;
 
-    private OnDeleteListener mListener;
     private static boolean mIsAdmin;
-
-    public interface OnDeleteListener {
-        void onDeleteQueue();
-        void onLeaveQueue();
-    }
 
     public InfoDialogFragment() {
         // Required empty public constructor
@@ -77,8 +71,6 @@ public class InfoDialogFragment extends DialogFragment {
         // Fetch arguments from bundle
         String partyName = getArguments().getString(PARTY_NAME_KEY);
         String joinCode = getArguments().getString(JOIN_CODE_KEY);
-        // Store the listener
-        mListener = (OnDeleteListener) getContext();
 
         btnDelete.setText(mIsAdmin?"Delete":"Leave");
         // Set on click listener for delete button
