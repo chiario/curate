@@ -6,6 +6,8 @@
     <dimen name="bottom_player_admin_height_expanded">140dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
+    <dimen name="toast_margin">8dp</dimen>
+
     <dimen name="max_searchbar_height">56dp</dimen>
     <dimen name="max_searchbar_delta">16dp</dimen>
     <dimen name="max_searchbar_radius">24dp</dimen>

@@ -12,6 +12,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -151,6 +153,11 @@ public class MainActivity extends AppCompatActivity implements InfoDialogFragmen
         dialog.show();
 
         inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
+            Toast toast = Toast.makeText(this, "Time to rock out!", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.BOTTOM, 0,
+		            (int) getResources().getDimension(R.dimen.bottom_player_client_height_collapsed)
+				            + (int) getResources().getDimension(R.dimen.toast_margin));
+            toast.show();
             dialog.dismiss();
             user.setScreenName(etInput.getText().toString());
         });
