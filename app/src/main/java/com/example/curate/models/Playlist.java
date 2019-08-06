@@ -178,11 +178,12 @@ public class Playlist {
     @Deprecated
     public void update(@Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
+        final Date timestamp = new Date();
 
-        ParseCloud.callFunctionInBackground("getPlaylist", params, (List<PlaylistEntry> playlist, ParseException e) -> {
+        ParseCloud.callFunctionInBackground("getCachedPlaylist", params, (String cachedPlaylist, ParseException e) -> {
             synchronized (mEntryMutex) {
                 if (e == null) {
-                    updateEntries(playlist);
+                    updateFromCache(timestamp, cachedPlaylist);
                 } else {
                     // Log the error if we get one
                     Log.e("Party.java", "Could not get playlist!", e);

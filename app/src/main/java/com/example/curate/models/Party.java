@@ -79,6 +79,7 @@ public class Party extends ComparableParseObject {
 
     public void reconnectToLiveQuery() {
         mLiveQueryClient.reconnect();
+        mPlaylist.update(null);
     }
 
     public void disconnectFromLiveQuery() {
