@@ -64,8 +64,7 @@ public class PlayerService extends JobIntentService {
     private static boolean mIsSpotifyConnected;
 
     private long mTimeRemaining;
-    private String mCurrSongUri;
-
+    private String mCurrSongId;
     private Party mCurrentParty;
 
 
@@ -74,16 +73,12 @@ public class PlayerService extends JobIntentService {
         super();
     }
 
-
     // Called each time the service is started in a new thread
     @Override
     public void onCreate() {
         super.onCreate();
         mCurrentParty = Party.getCurrentParty();
-        // Connect to Spotify remote player if needed
-        if (!mIsSpotifyConnected) {
-            connectSpotifyRemote(getApplicationContext(), getString(R.string.clientId));
-        }
+        connectSpotifyRemote(getApplicationContext(), getString(R.string.clientId));
     }
 
     /**
@@ -91,7 +86,7 @@ public class PlayerService extends JobIntentService {
      */
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        Log.d(TAG, "onHandleWork() called with: intent = [" + intent + "]");
+        Log.d(TAG, "Handling work with intent: [" + intent + "]");
         if (intent.getAction() != null) {
             mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
             switch (intent.getAction()) {
@@ -103,13 +98,7 @@ public class PlayerService extends JobIntentService {
                     playNewSong(newSongId);
                     break;
                 case ACTION_SKIP:
-                    pausePlayer();
-                    String nextSongId = retrieveNextSong();
-                    if (nextSongId != null) {
-                        playNewSong(nextSongId);
-                    } else {
-                        pausePlayer();
-                    }
+                    playNext();
                     break;
                 case ACTION_PLAY_PAUSE:
                     playPause();
@@ -128,25 +117,7 @@ public class PlayerService extends JobIntentService {
     // Auto-play fields and methods
 
     final Handler runnableHandler = new Handler();
-    final Runnable songRunnable = () -> {
-        String nextSongId = retrieveNextSong();
-        if (nextSongId != null) {
-            playNewSong(nextSongId);
-        } else {
-            pausePlayer();
-        }
-        //TODO - add some check to ensure new song should start playing??
-    };
-
-    private void updateRunnable(long currPosition, long currDuration, boolean isPaused) {
-        mTimeRemaining = currDuration - currPosition;
-        // Set the runnable according to the new time remaining
-        if (isPaused || mTimeRemaining <= 0) {
-            pauseRunnable();
-        } else {
-            playRunnable();
-        }
-    }
+    final Runnable songRunnable = this::playNext;
 
     private void pauseRunnable() {
         runnableHandler.removeCallbacks(songRunnable);
@@ -160,7 +131,6 @@ public class PlayerService extends JobIntentService {
             Log.d(TAG, "Play runnable called with not enough time remaining"); // This line should never be reached
         }
     }
-
 
     // Spotify PlayerApi methods
 
@@ -180,7 +150,7 @@ public class PlayerService extends JobIntentService {
 
             // Notify the receiver that the Spotify remote player is connected
             mResultReceiver.send(RESULT_CONNECTED, null);
-            onSubscribeToPlayerState();
+            subscribeToPlayerState();
         }
 
         // Called when connection to the Spotify app fails or is lost
@@ -211,10 +181,13 @@ public class PlayerService extends JobIntentService {
      * @param clientId the application Spotify Client ID for the connection
      */
     private void connectSpotifyRemote(Context context, String clientId) {
-        SpotifyAppRemote.connect(context, new ConnectionParams.Builder(clientId)
-                .setRedirectUri(REDIRECT_URI)
-                .showAuthView(true)
-                .build(), mConnectionListener);
+        if (!mIsSpotifyConnected) {
+            Log.d(TAG, "Connecting...");
+            SpotifyAppRemote.connect(context, new ConnectionParams.Builder(clientId)
+                    .setRedirectUri(REDIRECT_URI)
+                    .showAuthView(true)
+                    .build(), mConnectionListener);
+        }
     }
 
     private void disconnectSpotify() {
@@ -223,13 +196,8 @@ public class PlayerService extends JobIntentService {
         }
     }
 
-    private void onSubscribeToPlayerState() {
-        // If there is already a subscription, cancel it and start a new one
-        if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
-            mPlayerStateSubscription.cancel();
-            mPlayerStateSubscription = null;
-        }
-
+    private void subscribeToPlayerState() {
+        checkExistingSubscription();
         mPlayerStateSubscription = (Subscription<PlayerState>) mPlayerApi.subscribeToPlayerState()
                 .setEventCallback(mPlayerStateEventCallback)
                 .setLifecycleCallback(new Subscription.LifecycleCallback() {
@@ -246,6 +214,14 @@ public class PlayerService extends JobIntentService {
                 .setErrorCallback(throwable -> Log.e(TAG, throwable + "Subscribe to PlayerState failed!"));
     }
 
+    private void checkExistingSubscription() {
+        // If there is already a subscription, cancel it and start a new one
+        if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
+            mPlayerStateSubscription.cancel();
+            mPlayerStateSubscription = null;
+        }
+    }
+
     /**
      * Callback for Spotify remote app player state subscription. onEvent is triggered any time
      * the remote app starts a new track, pauses, plays, or seeks to a new playback position.
@@ -253,21 +229,38 @@ public class PlayerService extends JobIntentService {
      */
     private final Subscription.EventCallback<PlayerState> mPlayerStateEventCallback = playerState -> {
         if (playerState.track != null) {
-            if (!playerState.track.uri.equals(mCurrSongUri) && playerState.track.name != null) {
-                // If the remote player has begun a new track update the receiver with track details
-                mCurrSongUri = playerState.track.uri;
+            if (isNewSong(playerState.track)) {
                 Log.d(TAG, "Event with new song " + playerState.track.name
                         + " at plackback position " + playerState.playbackPosition / 1000 + " seconds");
-                setCurrentlyPlaying(playerState.track);
-                mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
-                getAlbumArt();
+                updateCurrentSong(playerState);
+
             } else {
-                // If the track hasn't changed, update the receiver with the current playback position
+                // Update the receiver with the current playback position
                 mResultReceiver.send(RESULT_PLAYBACK, bundlePlayback(playerState));
             }
-            updateRunnable(playerState.playbackPosition, playerState.track.duration, playerState.isPaused);
+            // Update the runnable
+            mTimeRemaining = playerState.track.duration - playerState.playbackPosition;
+            if (playerState.isPaused) {
+                pauseRunnable();
+            } else {
+                playRunnable();
+            }
         }
     };
+
+    private boolean isNewSong(Track track) {
+        return !track.uri.equals("spotify:track:" + mCurrSongId) && track.name != null;
+    }
+
+    private void updateCurrentSong(PlayerState playerState) {
+        // Update locally
+        mCurrSongId = playerState.track.uri.replace("spotify:track:", "");
+        // Update in server
+        setCurrentlyPlaying(playerState.track);
+        // Update the receiver
+        mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
+        loadAlbumArt();
+    }
 
     /**
      * Sets the currently playing song in the Parse server.
@@ -314,7 +307,7 @@ public class PlayerService extends JobIntentService {
     private void checkConnection() {
         if (mIsSpotifyConnected) {
             mResultReceiver.send(RESULT_CONNECTED, null);
-            getCurrentPlayback();
+            getCurrentTrack();
         } else {
             mResultReceiver.send(RESULT_DISCONNECTED, null);
         }
@@ -373,35 +366,40 @@ public class PlayerService extends JobIntentService {
         }
     }
 
-    private void getCurrentPlayback() {
+    private void getCurrentTrack() {
         mPlayerApi.getPlayerState().setResultCallback(playerState -> {
             mResultReceiver.send(RESULT_NEW_SONG, bundleTrack(playerState));
         });
-        getAlbumArt();
+        loadAlbumArt();
     }
 
-    /**
-     * This function retrieves the top song in the current party's cached playlist and deletes it.
-     * If the playlist is empty, it logs an error.
-     *
-     * @return the spotify ID of the song to be played
-     */
-    private String retrieveNextSong() {
-        if (mCurrentParty.getPlaylist().getEntries() == null || mCurrentParty.getPlaylist().getEntries().isEmpty()) {
-            Log.e(TAG, "Playlist is empty!");
-            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "Your queue is empty!", Toast.LENGTH_LONG).show());
-            return null;
+    private void playNext() {
+//        Log.d(TAG, "Playing next song id " + mNextSongId);
+        if (existsNextSong()) {
+            playNewSong(mCurrentParty.getPlaylist().getEntries().get(0).getSong().getSpotifyId());
         } else {
-            PlaylistEntry entry = mCurrentParty.getPlaylist().getEntries().get(0);
-            return entry.getSong().getSpotifyId();
+            alertPlaylistEmpty();
+            pausePlayer();
         }
+    }
+
+    // TODO - what if next song really is the same as the current song?
+    private boolean existsNextSong() {
+        return mCurrentParty.getPlaylist().getEntries() == null
+                || mCurrentParty.getPlaylist().getEntries().isEmpty();
+    }
+
+    private void alertPlaylistEmpty() {
+        Log.e(TAG, "Playlist is empty!");
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(),
+                "Your queue is empty!", Toast.LENGTH_LONG).show());
     }
 
     /**
      * Retrieves the album art bitmap of the currently playing song, converts to a byte array
      * and sends to receiver for loading into views.
      */
-    private void getAlbumArt() {
+    private void loadAlbumArt() {
         mPlayerApi.getPlayerState().setResultCallback(playerState -> {
             mSpotifyAppRemote.getImagesApi()
                     .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
