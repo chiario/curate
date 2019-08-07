@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -169,14 +170,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			final SaveCallback callback = e -> {
 				isLiking = false;
 				if(e == null) {
-					ibLike.setSelected(!isLiked);
+					displayLiked(!isLiked);
 				} else {
-					ibLike.setSelected(isLiked);
+					displayLiked(isLiked);
 					ToastHelper.makeText(mContext, errorMessage);
 				}
 			};
 
-			ibLike.setSelected(!isLiked);
+			displayLiked(!isLiked);
 			if(isLiked) {
 				Party.getCurrentParty().getPlaylist().unlikeEntry(mEntry, callback);
 			} else {
@@ -197,7 +198,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			mEntry = entry;
 			Song song = mEntry.getSong();
 			tvTitle.setText(song.getTitle());
-			ibLike.setSelected(mEntry.isLikedByUser());
+			displayLiked(mEntry.isLikedByUser());
 			try {
 				tvScore.setText(String.format("%s", mEntry.getScore().intValue()));
 			} catch (NullPointerException e) {
@@ -218,6 +219,17 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
 					.into(ivAlbum);
+		}
+
+		private void displayLiked(boolean isLiked) {
+			ibLike.setSelected(isLiked);
+			if(isLiked) {
+				ibLike.setColorFilter(ContextCompat.getColor(mContext, R.color.colorAccent),
+						android.graphics.PorterDuff.Mode.SRC_IN);
+			} else {
+				ibLike.setColorFilter(ContextCompat.getColor(mContext, R.color.white),
+						android.graphics.PorterDuff.Mode.SRC_IN);
+			}
 		}
 	}
 }
