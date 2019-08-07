@@ -1,10 +1,17 @@
 package com.example.curate.fragments;
 
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,12 +22,22 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.palette.graphics.Palette;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
+import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Settings;
 import com.example.curate.utils.ToastHelper;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +50,10 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
     @BindView(R.id.tvSongLimitNumber) TextView tvSongLimitNumber;
+    @BindView(R.id.imageView2) ImageView imageView;
+    @BindView(R.id.ivBackground) ImageView ivBackground;
+    @BindView(R.id.button6) Button button6;
+
 
     private Party mCurrentParty;
     private String mPartyName;
@@ -85,7 +106,68 @@ public class SettingsDialogFragment extends DialogFragment {
         tvUserLimitNumber.setText(Integer.toString(mUserLimit));
         tvSongLimitNumber.setText(Integer.toString(mSongLimit));
 
+        List<PlaylistEntry> entries = Party.getCurrentParty().getPlaylist().getEntries();
+        if(!entries.isEmpty()) {
+            String url = entries.get(0).getSong().getImageUrl();
+            Glide.with(getContext())
+                    .asBitmap()
+                    .load(url)
+                    .listener(new RequestListener<Bitmap>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            setBackgroundColor(resource);
+                            return false;
+                        }
+                    })
+                    .transform(new CircleCrop())
+                    .into(imageView);
+
+        }
+
         setToolbar();
+    }
+
+    @OnClick(R.id.imageView10)
+    public void cancel() {
+        dismiss();
+    }
+    private void setBackgroundColor(Bitmap bitmap) {
+        Palette.from(bitmap).generate(p -> {
+            // Load default colors
+            int backgroundColor = ContextCompat.getColor(getContext(), R.color.colorAccent);
+
+            Palette.Swatch swatch = p.getVibrantSwatch();
+            if(swatch != null) {
+                backgroundColor = swatch.getRgb();
+            }
+
+            ivBackground.setBackgroundColor(backgroundColor);
+
+
+
+            int[][] states = new int[][] {
+                    new int[] { android.R.attr.state_enabled}, // enabled
+                    new int[] {-android.R.attr.state_enabled}, // disabled
+                    new int[] {-android.R.attr.state_checked}, // unchecked
+                    new int[] { android.R.attr.state_pressed}  // pressed
+            };
+
+            int[] colors = new int[] {
+                    backgroundColor,
+                    backgroundColor,
+                    backgroundColor,
+                    backgroundColor
+            };
+
+            ColorStateList myList = new ColorStateList(states, colors);
+
+            button6.setBackgroundTintList(myList);
+        });
     }
 
     private void setToolbar() {
