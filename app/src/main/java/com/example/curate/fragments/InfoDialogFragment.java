@@ -16,6 +16,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.utils.CustomBarcodeEncoder;
@@ -76,11 +78,14 @@ public class InfoDialogFragment extends DialogFragment {
 
         // Get QR code
         try {
-            CustomBarcodeEncoder barcodeEncoder = new CustomBarcodeEncoder();
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             // TODO: Fix hardcoded size?
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 200, 200);
-            Bitmap resized = Bitmap.createBitmap(bitmap, 30, 30, 140, 140);
-            ivQR.setImageBitmap(resized);
+            int side = (int) getResources().getDimension(R.dimen.QR_size);
+            int remove = 10;
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, side, side);
+            Bitmap resized = Bitmap.createBitmap(bitmap, remove, remove, side - 2 * remove, side - 2 * remove);
+            Glide.with(getContext()).load(resized).transform(new RoundedCorners(50)).into(ivQR);
+//            ivQR.setImageBitmap(resized);
         }
         catch (WriterException e) {
             e.printStackTrace();

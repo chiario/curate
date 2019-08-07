@@ -12,5 +12,7 @@
     <dimen name="max_searchbar_delta">16dp</dimen>
     <dimen name="max_searchbar_radius">24dp</dimen>
 
+    <dimen name="QR_size">140dp</dimen>
+
     <integer name="anim_gradient_transition_time">15000</integer>
 </resources>

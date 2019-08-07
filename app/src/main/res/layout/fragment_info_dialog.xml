@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:background="@color/mediumGray"
     android:minWidth="260dp"
-    android:padding="16dp">
+    android:padding="32dp">
 
     <TextView
         android:id="@+id/tvName"
@@ -58,15 +58,11 @@
 
     <ImageView
         android:id="@+id/ivQR"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="@dimen/QR_size"
+        android:layout_height="@dimen/QR_size"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:minWidth="200dp"
         android:minHeight="200dp"
-        android:padding="-8dp"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvJoinCode"
