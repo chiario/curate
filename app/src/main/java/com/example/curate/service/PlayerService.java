@@ -375,7 +375,7 @@ public class PlayerService extends JobIntentService {
 
     private void playNext() {
 //        Log.d(TAG, "Playing next song id " + mNextSongId);
-        if (existsNextSong()) {
+        if (!existsNextSong()) {
             playNewSong(mCurrentParty.getPlaylist().getEntries().get(0).getSong().getSpotifyId());
         } else {
             alertPlaylistEmpty();
