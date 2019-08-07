@@ -1,6 +1,7 @@
 package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +13,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.curate.R;
 import com.example.curate.models.Party;
+import com.example.curate.utils.CustomBarcodeEncoder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -73,10 +76,11 @@ public class InfoDialogFragment extends DialogFragment {
 
         // Get QR code
         try {
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            CustomBarcodeEncoder barcodeEncoder = new CustomBarcodeEncoder();
             // TODO: Fix hardcoded size?
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 300, 300);
-            ivQR.setImageBitmap(bitmap);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, 200, 200);
+            Bitmap resized = Bitmap.createBitmap(bitmap, 30, 30, 140, 140);
+            ivQR.setImageBitmap(resized);
         }
         catch (WriterException e) {
             e.printStackTrace();
@@ -86,7 +90,7 @@ public class InfoDialogFragment extends DialogFragment {
         if (partyName != null) {
             tvPartyName.setText(partyName);
         }
-        tvJoinCode.setText("Join code: " + joinCode.toUpperCase());
+        tvJoinCode.setText(joinCode.toUpperCase());
         int count = Party.getCurrentParty().getPartyUserCount().intValue();
         tvUserCount.setText(count == 1
                 ? count + " person partying :("

@@ -1,12 +1,13 @@
 package com.example.curate.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
@@ -25,6 +26,20 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
+
+        boolean partyDeleted = getIntent().getBooleanExtra(MainActivity.KEY_PARTY_DELETED, false);
+        if(partyDeleted) {
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+            AlertDialog dialog = builder.setView(R.layout.fragment_confirm_exit).setCancelable(false).show();
+            Button button = dialog.findViewById(R.id.btnExit);
+            button.setOnClickListener(view -> {
+                dialog.dismiss();
+            });
+            button.setText("Return to menu");
+            dialog.findViewById(R.id.btnCancel).setVisibility(View.GONE);
+            ((TextView) dialog.findViewById(R.id.tvTitle)).setText("Party Deleted");
+            ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
+        }
 
         mSelectFragment = SelectFragment.newInstance();
         mJoinFragment = JoinFragment.newInstance();

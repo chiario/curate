@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
 
+    protected static final String KEY_PARTY_DELETED = "partyDeleted";
+
     @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
     @BindView(R.id.ablMain) AppBarLayout ablMain;
     @BindView(R.id.tbMain) Toolbar tbMain;
@@ -175,20 +177,12 @@ public class MainActivity extends AppCompatActivity {
 
         mPartyDeleteListener = mainActivity -> runOnUiThread(() -> {
             if(!mIsLeavingQueue) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
-                AlertDialog dialog = builder.setView(R.layout.fragment_confirm_exit).setCancelable(false).show();
-                Button button = dialog.findViewById(R.id.btnExit);
-                button.setOnClickListener(view -> {
-                    removePartyDeleteListener();
-                    Intent intent = new Intent(mainActivity, JoinActivity.class);
-                    startActivity(intent);
-                    Party.partyDeleted();
-                    finish();
-                });
-                button.setText("Return to menu");
-                dialog.findViewById(R.id.btnCancel).setVisibility(View.GONE);
-                ((TextView) dialog.findViewById(R.id.tvTitle)).setText("Party Deleted");
-                ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
+                removePartyDeleteListener();
+                Intent intent = new Intent(mainActivity, JoinActivity.class);
+                intent.putExtra(KEY_PARTY_DELETED, true);
+                startActivity(intent);
+                Party.partyDeleted();
+                finish();
             }
         });
 
