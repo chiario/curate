@@ -1,8 +1,6 @@
-Group Project - README Template
+# Curate
 
-**curate**
-
-Table of Contents
+## Table of Contents
 
 1. Overview
 2. Product Spec
@@ -10,16 +8,14 @@ Table of Contents
 4. Schema
 
 
-Overview
-
-Curate a music list
+## Overview
 
 Description
 
-An app that allows users to collaboratively construct a playlist for an event.
+Curate is a music player app powered by the Spotify API that allows users to collaboratively generate a playlist that is ordered by popularity.
 
 
-App Evaluation
+## App Evaluation
 
 * *Category:* Music
 * *Mobile:*
@@ -29,7 +25,7 @@ App Evaluation
 * *Scope:*
 
 
-Product Spec
+## Product Spec
 
 1. User Stories (Required and Optional)
 
@@ -89,21 +85,54 @@ Product Spec
 * Main --> Search fragment (when Search bar selected)
 * Main --> Queue fragment (when back arrow pressed)
 
-Wireframes
+## Wireframes
 
 ![Image of Wireframe](./wireframe.png)
 
 
-Schema
+## Schema
 
 [This section will be completed in Unit 9]
 
-Models
+## Models
 
 [Add table of models]
 
-Networking
+## Networking
 
 * [Add list of network requests by screen ]
 * [Create basic snippets for each Parse network request]
 * [OPTIONAL: List endpoints if using existing API such as Yelp]
+
+## Video Walkthrough
+
+Here's a walkthrough of implemented user stories:
+
+<img src='demo.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+
+GIF created with [LiceCap](http://www.cockos.com/licecap/).
+
+## Credits
+
+List an 3rd party libraries, icons, graphics, or other assets you used in your app.
+
+- Butterknife
+- Spotify
+
+
+## License
+
+    Copyright 2019 chiario
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
