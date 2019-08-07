@@ -8,23 +8,13 @@
     tools:context=".fragments.SettingsDialogFragment">
 
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:paddingStart="6dp"
-        android:paddingEnd="16dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/selector_remove" />
-
     <ImageView
         android:id="@+id/ivBackground"
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:alpha=".25"
         android:background="@color/colorAccent"
-        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp" />
 
 
@@ -44,7 +34,7 @@
         android:textColorHint="@color/white_60"
         android:textSize="28sp"
         app:layout_constraintBottom_toBottomOf="@+id/ivBackground"
-        app:layout_constraintStart_toEndOf="@+id/imageView2" />
+        app:layout_constraintStart_toEndOf="@+id/ivPartyImage" />
 
     <Switch
         android:id="@+id/switchLocation"
@@ -54,7 +44,7 @@
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/nunito"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView5" />
+        app:layout_constraintTop_toTopOf="@+id/tvLocationText" />
 
     <TextView
         android:id="@+id/tvUserLimitText"
@@ -81,7 +71,7 @@
         android:fontFamily="@font/nunito"
         android:text="0"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageView4"
+        app:layout_constraintStart_toEndOf="@+id/ivUserLimit"
         app:layout_constraintTop_toBottomOf="@+id/tvUserLimitText" />
 
     <TextView
@@ -108,22 +98,22 @@
         android:fontFamily="@font/nunito"
         android:text="0"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageView7"
+        app:layout_constraintStart_toEndOf="@+id/ivSongLimit"
         app:layout_constraintTop_toBottomOf="@+id/tvSongLimitText" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/ivPartyImage"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="16dp"
         android:background="@color/transparent"
         app:layout_constraintBottom_toBottomOf="@+id/etName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView3"
+        app:layout_constraintTop_toTopOf="@+id/tvPartyName"
         app:srcCompat="@color/transparent" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/tvPartyName"
         style="@style/Curate.TextView.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -134,7 +124,7 @@
         app:layout_constraintStart_toStartOf="@+id/etName" />
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/ivUserLimit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -147,7 +137,7 @@
         app:srcCompat="@drawable/ic_outline_person_outline_24px" />
 
     <ImageView
-        android:id="@+id/imageView7"
+        android:id="@+id/ivSongLimit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -160,63 +150,48 @@
         app:srcCompat="@drawable/ic_outline_music_note_24px" />
 
     <ImageView
-        android:id="@+id/imageView8"
+        android:id="@+id/ivLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:tint="@color/white_90"
-        app:layout_constraintBottom_toBottomOf="@+id/textView5"
+        app:layout_constraintBottom_toBottomOf="@+id/tvLocationText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView5"
+        app:layout_constraintTop_toTopOf="@+id/tvLocationText"
         app:srcCompat="@drawable/ic_outline_location_on_24px" />
 
-    <TextView
-        android:id="@+id/textView4"
-        style="@style/Curate.TextView.Primary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:background="@color/transparent"
-        android:fontFamily="@font/nunito"
-        android:text="Party Settings"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/ivBackground"
-        app:layout_constraintStart_toStartOf="@+id/toolbar"
-        app:layout_constraintTop_toTopOf="@+id/ivBackground" />
-
     <ImageView
-        android:id="@+id/imageView10"
+        android:id="@+id/ivClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:background="@color/transparent"
-        android:src="@drawable/ic_close"
         android:tint="@color/white_90"
-        app:layout_constraintBottom_toBottomOf="@+id/textView4"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSave"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView4" />
+        app:layout_constraintTop_toTopOf="@+id/btnSave"
+        app:srcCompat="@drawable/selector_remove" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/btnSave"
         style="@style/Curate.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:text="Save"
-        app:layout_constraintBottom_toBottomOf="@+id/textView4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView4" />
+        app:layout_constraintTop_toTopOf="@+id/ivBackground" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/tvLocationText"
         style="@style/Curate.TextView.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="Location Services"
-        app:layout_constraintStart_toEndOf="@+id/imageView8"
+        app:layout_constraintStart_toEndOf="@+id/ivLocation"
         app:layout_constraintTop_toBottomOf="@+id/tvSongLimitNumber" />
 
 

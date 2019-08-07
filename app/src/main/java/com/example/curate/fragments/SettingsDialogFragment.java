@@ -2,9 +2,6 @@ package com.example.curate.fragments;
 
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +11,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,9 +46,9 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
     @BindView(R.id.tvSongLimitNumber) TextView tvSongLimitNumber;
-    @BindView(R.id.imageView2) ImageView imageView;
+    @BindView(R.id.ivPartyImage) ImageView imageView;
     @BindView(R.id.ivBackground) ImageView ivBackground;
-    @BindView(R.id.button6) Button button6;
+    @BindView(R.id.btnSave) Button button6;
 
 
     private Party mCurrentParty;
@@ -60,7 +56,6 @@ public class SettingsDialogFragment extends DialogFragment {
     private boolean mIsLocationEnabled;
     private int mUserLimit;
     private int mSongLimit;
-    private Toolbar mToolbar;
 
     public SettingsDialogFragment() {
         // Required empty public constructor
@@ -86,7 +81,6 @@ public class SettingsDialogFragment extends DialogFragment {
         // Inflate the layout
         View view = inflater.inflate(R.layout.fragment_settings_dialog, container, false);
         // Set the inflated layout's toolbar before returning
-        mToolbar = view.findViewById(R.id.toolbar);
         return view;
     }
 
@@ -128,14 +122,13 @@ public class SettingsDialogFragment extends DialogFragment {
                     .into(imageView);
 
         }
-
-        setToolbar();
     }
 
-    @OnClick(R.id.imageView10)
+    @OnClick(R.id.ivClose)
     public void cancel() {
         dismiss();
     }
+
     private void setBackgroundColor(Bitmap bitmap) {
         Palette.from(bitmap).generate(p -> {
             // Load default colors
@@ -170,19 +163,8 @@ public class SettingsDialogFragment extends DialogFragment {
         });
     }
 
-    private void setToolbar() {
-        mToolbar.setNavigationOnClickListener(v -> {
-            dismiss();
-        });
-        mToolbar.getNavigationIcon().setTint(ContextCompat.getColor(getContext(), R.color.white));
-        mToolbar.inflateMenu(R.menu.menu_info);
-        mToolbar.setOnMenuItemClickListener(menuItem -> {
-            onSaveSettings();
-            return true;
-        });
-    }
-
-    private void onSaveSettings() {
+    @OnClick(R.id.btnSave)
+    public void onSaveSettings() {
         Settings saveSettings = getNewSettings();
 
         // TODO - check for location preferences changing somewhere else, maybe a new subscription in the main activity
