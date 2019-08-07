@@ -247,7 +247,8 @@ public class MainActivity extends AppCompatActivity {
         // Set setting option onClick callback
         miSettings.setOnMenuItemClickListener(menuItem -> {
             SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
-            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_Fullscreen);
+
+            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_FullscreenDialog);
             settings.show(mFragmentManager, "fragment_admin_settings");
             return true;
         });
