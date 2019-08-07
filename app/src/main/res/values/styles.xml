@@ -67,9 +67,8 @@
         <item name="android:windowBackground">@color/zxing_transparent</item>
         <item name="android:background">@drawable/dialog_background</item>
     </style>
-    <style name="Dialog.Fullscreen" parent="Theme.AppCompat.Dialog">
+    <style name="Curate.FullscreenDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowBackground">@color/mediumGray</item>
-        <item name="android:background">@color/darkGray</item>
     </style>
 </resources>
