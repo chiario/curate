@@ -93,8 +93,9 @@ public class QueueFragment extends Fragment {
 	public void onPause() {
 		super.onPause();
 		Log.d("queue fragment", "PAUSED");
-		mParty.disconnectFromLiveQuery();
-
+		if(!mParty.isCurrentUserAdmin()) {
+			mParty.disconnectFromLiveQuery();
+		}
 	}
 
 	@Override
@@ -102,7 +103,6 @@ public class QueueFragment extends Fragment {
 		super.onResume();
 		Log.d("queue fragment", "RESUMED");
 		mParty.reconnectToLiveQuery();
-
 	}
 
 	@Override
