@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         miSettings.setOnMenuItemClickListener(menuItem -> {
             SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
 
-            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_FullscreenDialog);
+            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
             settings.show(mFragmentManager, "fragment_admin_settings");
             return true;
         });
