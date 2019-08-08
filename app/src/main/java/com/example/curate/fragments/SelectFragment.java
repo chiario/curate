@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
 import com.example.curate.models.Party;
+import com.example.curate.utils.ToastHelper;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseUser;
 
@@ -61,7 +62,7 @@ public class SelectFragment extends Fragment {
             ParseAnonymousUtils.logIn((user, e) -> {
                 if (e != null) {
                     Log.e("JoinActivity", "Anonymous login failed!", e);
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    ToastHelper.makeText(getContext(), e.getMessage());
                     mProgressBar.setVisibility(View.GONE);
                 } else {
                     tryJoinExistingParty();
@@ -124,7 +125,7 @@ public class SelectFragment extends Fragment {
                     mListener.onPartyObtained();
                 }
             } else {
-                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                ToastHelper.makeText(getContext(), e.getMessage());
             }
         }));
     }

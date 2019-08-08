@@ -26,6 +26,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.service.PlayerResultReceiver;
@@ -251,7 +253,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
                 // Decode byte array into bitmap
                 byte[] byteArray = resultData.getByteArray(IMAGE_KEY);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                ivAlbum.setImageBitmap(bitmap);
+                Glide.with(this).load(bitmap).into(ivAlbum);
             } else if (resultCode == RESULT_PLAYBACK) {
                 mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
                 setPausedState(resultData.getBoolean(PAUSED_KEY));

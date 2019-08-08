@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.curate.R;
 import com.example.curate.fragments.SelectFragment;
 import com.example.curate.models.Party;
+import com.example.curate.utils.ToastHelper;
 
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 				if(e == null) {
 					mListener.onPartyObtained();
 				} else {
-					Toast.makeText(mContext, "Could not join that party!", Toast.LENGTH_SHORT).show();
+					ToastHelper.makeText(mContext, "Could not join that party!");
 				}
 			});
 		}

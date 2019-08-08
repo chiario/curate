@@ -21,6 +21,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
@@ -185,7 +186,11 @@ public class PlayerFragment extends Fragment {
                         mArtistName = currentSong.getArtist();
                         getActivity().runOnUiThread(() -> {
                             updateText();
-                            Glide.with(this).load(currentSong.getImageUrl()).into(ivAlbum);
+                            int radius = (int) getResources().getDimension(R.dimen.button_radius);
+                            Log.i("tag", "Radius: " + radius);
+                            Glide.with(this)
+                                    .load(currentSong.getImageUrl())
+                                    .into(ivAlbum);
                         });
                     } catch (ParseException e1) {
                         e1.printStackTrace();

@@ -3,10 +3,12 @@ package com.example.curate.activities;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -15,6 +17,7 @@ import com.example.curate.fragments.JoinFragment;
 import com.example.curate.fragments.SelectFragment;
 import com.example.curate.R;
 import com.example.curate.models.User;
+import com.example.curate.utils.ToastHelper;
 import com.parse.ParseUser;
 
 public class JoinActivity extends AppCompatActivity implements SelectFragment.OnOptionSelected {
@@ -40,6 +43,15 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
             ((TextView) dialog.findViewById(R.id.tvTitle)).setText("Party Deleted");
             ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
         }
+
+        ToastHelper.setToaster((context, text) -> {
+            View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
+            ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
+            Toast toast = new Toast(getApplicationContext());
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
+            toast.show();
+        });
 
         mSelectFragment = SelectFragment.newInstance();
         mJoinFragment = JoinFragment.newInstance();

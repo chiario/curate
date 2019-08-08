@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -129,9 +130,13 @@ public class MainActivity extends AppCompatActivity {
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
         ToastHelper.setToaster((context, text) -> {
-            Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+            View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
+            ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
+            Toast toast = new Toast(getApplicationContext());
             toast.setGravity(Gravity.BOTTOM, 0, (int) context.getResources().getDimension(R.dimen.toast_margin)
                     + (int) mBottomPlayerFragment.getHeight());
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
             toast.show();
         });
 

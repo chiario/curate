@@ -12,8 +12,9 @@ public class ToastHelper {
 		mToaster =  toaster;
 	}
 
-	public static void makeText(Context context, String text) {
-		if(mToaster == null) return;
+	public static boolean makeText(Context context, String text) {
+		if(mToaster == null) return false;
 		mToaster.makeText(context, text);
+		return true;
 	}
 }

@@ -15,6 +15,7 @@ import androidx.core.app.JobIntentService;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
+import com.example.curate.utils.ToastHelper;
 import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -391,8 +392,13 @@ public class PlayerService extends JobIntentService {
 
     private void alertPlaylistEmpty() {
         Log.e(TAG, "Playlist is empty!");
-        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(),
-                "Your queue is empty!", Toast.LENGTH_LONG).show());
+        new Handler(Looper.getMainLooper()).post(() -> {
+                if(!ToastHelper.makeText(getApplicationContext(),"Your queue is empty!")) {
+                    Toast.makeText(getApplicationContext(), "Your queue is empty!",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        );
     }
 
     /**

@@ -23,6 +23,7 @@ import com.example.curate.R;
 import com.example.curate.adapters.PartyAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
+import com.example.curate.utils.ToastHelper;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -159,7 +160,7 @@ public class JoinFragment extends Fragment {
         if(requestCode == BARCODE_READER_REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
             if (result.getContents() == null) {
-                Toast.makeText(getContext(), "No QR Scanned", Toast.LENGTH_LONG).show();
+                ToastHelper.makeText(getContext(), "No QR Scanned");
             } else {
                 joinParty(result.getContents());
             }
@@ -181,7 +182,7 @@ public class JoinFragment extends Fragment {
                     mListener.onPartyObtained();
                 }
             } else {
-                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                ToastHelper.makeText(getContext(), e.getMessage());
             }
         });
     }

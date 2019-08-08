@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
@@ -276,6 +277,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
+					.transform(new RoundedCorners((int) mContext.getResources().getDimension(R.dimen.button_radius)))
 					.into(ivAlbum);
 		}
 
