@@ -38,7 +38,7 @@
         android:textColorHint="@color/white_60"
         android:textSize="28sp"
         app:layout_constraintBottom_toBottomOf="@+id/ivBackground"
-        app:layout_constraintEnd_toStartOf="@+id/imageView11"
+        app:layout_constraintEnd_toStartOf="@+id/ivEdit"
         app:layout_constraintStart_toEndOf="@+id/ivPartyImage" />
 
     <Switch
@@ -50,18 +50,6 @@
         android:fontFamily="@font/nunito"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvLocationText" />
-
-    <Switch
-        android:id="@+id/switchLocation2"
-        style="@style/Curate.TextView.Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:checked="true"
-        android:fontFamily="@font/nunito"
-        app:layout_constraintBottom_toBottomOf="@+id/tvLocationText2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tvLocationText2" />
 
     <TextView
         android:id="@+id/tvUserLimitText"
@@ -183,9 +171,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:tint="@color/white_90"
-        app:layout_constraintBottom_toBottomOf="@+id/tvLocationText2"
+        app:layout_constraintBottom_toBottomOf="@+id/tvExplicitText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tvLocationText2"
+        app:layout_constraintTop_toTopOf="@+id/tvExplicitText"
         app:srcCompat="@drawable/ic_outline_location_on_24px" />
 
     <ImageView
@@ -224,7 +212,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvSongLimitNumber" />
 
     <TextView
-        android:id="@+id/tvLocationText2"
+        android:id="@+id/tvExplicitText"
         style="@style/Curate.TextView.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -234,8 +222,20 @@
         app:layout_constraintStart_toEndOf="@+id/ivLocation2"
         app:layout_constraintTop_toBottomOf="@+id/tvLocationText" />
 
+    <Switch
+        android:id="@+id/switchExplicit"
+        style="@style/Curate.TextView.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:checked="true"
+        android:fontFamily="@font/nunito"
+        app:layout_constraintBottom_toBottomOf="@+id/tvExplicitText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvExplicitText" />
+
     <ImageView
-        android:id="@+id/imageView11"
+        android:id="@+id/ivEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
