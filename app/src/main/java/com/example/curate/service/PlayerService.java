@@ -31,7 +31,7 @@ import com.spotify.protocol.types.Track;
 
 import java.util.List;
 
-import static com.example.curate.service.PlayerResultReceiver.ACTION_CONNECT;
+import static com.example.curate.service.PlayerResultReceiver.ACTION_INIT;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_DISCONNECT;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY;
 import static com.example.curate.service.PlayerResultReceiver.ACTION_PLAY_PAUSE;
@@ -65,8 +65,9 @@ public class PlayerService extends JobIntentService {
     private static boolean mIsSpotifyConnected;
 
     private long mTimeRemaining;
-    private String mCurrSongId;
-    private Party mCurrentParty;
+    private static String mCurrSongId;
+    private static Party mCurrentParty;
+    private static boolean isRepeating;
 
 
     // Default constructor
@@ -77,8 +78,8 @@ public class PlayerService extends JobIntentService {
     // Called each time the service is started in a new thread
     @Override
     public void onCreate() {
+        Log.d(TAG, "Creating...\nCurrent id: " + mCurrSongId + "\nCurrent party: " + mCurrentParty);
         super.onCreate();
-        mCurrentParty = Party.getCurrentParty();
         connectSpotifyRemote(getApplicationContext(), getString(R.string.clientId));
     }
 
@@ -91,8 +92,8 @@ public class PlayerService extends JobIntentService {
         if (intent.getAction() != null) {
             mResultReceiver = intent.getParcelableExtra(RECEIVER_KEY);
             switch (intent.getAction()) {
-                case ACTION_CONNECT:
-                    checkConnection();
+                case ACTION_INIT:
+                    init();
                     break;
                 case ACTION_PLAY:
                     String newSongId = intent.getStringExtra(SONG_ID_KEY);
@@ -109,7 +110,7 @@ public class PlayerService extends JobIntentService {
                     seekTo(seekPosition);
                     break;
                 case ACTION_DISCONNECT:
-                    disconnectSpotify();
+                    disconnect();
                     break;
             }
         }
@@ -191,9 +192,13 @@ public class PlayerService extends JobIntentService {
         }
     }
 
-    private void disconnectSpotify() {
+    private void disconnect() {
+        mCurrentParty = null;
+        mCurrSongId = null;
+        mPlayerStateSubscription = null;
         if (mIsSpotifyConnected) {
             SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+            mIsSpotifyConnected = false;
         }
     }
 
@@ -218,7 +223,7 @@ public class PlayerService extends JobIntentService {
     private void checkExistingSubscription() {
         // If there is already a subscription, cancel it and start a new one
         if (mPlayerStateSubscription != null && !mPlayerStateSubscription.isCanceled()) {
-            mPlayerStateSubscription.cancel();
+//            mPlayerStateSubscription.cancel(); // TODO figure out why it doesn't like this line
             mPlayerStateSubscription = null;
         }
     }
@@ -250,6 +255,11 @@ public class PlayerService extends JobIntentService {
     };
 
     private boolean isNewSong(Track track) {
+        if (isRepeating) {
+            isRepeating = false;
+            Log.d(TAG, "Is repeating " + isRepeating);
+            return true;
+        }
         return !track.uri.equals("spotify:track:" + mCurrSongId) && track.name != null;
     }
 
@@ -305,7 +315,8 @@ public class PlayerService extends JobIntentService {
     /**
      * Notifies the receiver of the connection state
      */
-    private void checkConnection() {
+    private void init() {
+        mCurrentParty = Party.getCurrentParty();
         if (mIsSpotifyConnected) {
             mResultReceiver.send(RESULT_CONNECTED, null);
             getCurrentTrack();
@@ -362,7 +373,12 @@ public class PlayerService extends JobIntentService {
     private void playNewSong(String spotifyId) {
         if (mPlayerApi != null && mSpotifyAppRemote.isConnected()) {
             mPlayerApi.play("spotify:track:" + spotifyId)
-                    .setResultCallback(empty -> Log.d(TAG, "Success playing new song " + spotifyId))
+                    .setResultCallback(empty -> {
+                        Log.d(TAG, "Success playing new song " + spotifyId);
+                        if (spotifyId.equals(mCurrSongId)) {
+                            isRepeating = true;
+                        }
+                    })
                     .setErrorCallback(throwable -> Log.e(TAG, "Error playing new song " + spotifyId, throwable));
         }
     }
@@ -375,7 +391,6 @@ public class PlayerService extends JobIntentService {
     }
 
     private void playNext() {
-//        Log.d(TAG, "Playing next song id " + mNextSongId);
         if (!existsNextSong()) {
             playNewSong(mCurrentParty.getPlaylist().getEntries().get(0).getSong().getSpotifyId());
         } else {
@@ -406,6 +421,7 @@ public class PlayerService extends JobIntentService {
      * and sends to receiver for loading into views.
      */
     private void loadAlbumArt() {
+        Log.d(TAG, "Loading album art from service");
         mPlayerApi.getPlayerState().setResultCallback(playerState -> {
             mSpotifyAppRemote.getImagesApi()
                     .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
