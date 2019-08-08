@@ -18,6 +18,7 @@ import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
     private SearchFragment mSearchFragment;
     private PlayerFragment mBottomPlayerFragment;
 
-    private ValueAnimator mSearchbarAnimator;
     private boolean mIsSearchbarExpanded = false;
 
     private boolean mIsAdmin = false;
@@ -113,6 +113,17 @@ public class MainActivity extends AppCompatActivity {
         if(!mIsAdmin) return null;
         return (AdminPlayerFragment) mBottomPlayerFragment;
     }
+
+    public ToastHelper.Toaster mBottomToaster = (context, text) -> {
+        View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
+        ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.BOTTOM, 0, (int) context.getResources().getDimension(R.dimen.toast_margin)
+                + (int) mBottomPlayerFragment.getHeight());
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        toast.show();
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,17 +154,6 @@ public class MainActivity extends AppCompatActivity {
         }
         mFragmentManager.beginTransaction().replace(R.id.flBottomPlayer, mBottomPlayerFragment).commit();
 
-        ToastHelper.setToaster((context, text) -> {
-            View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
-            ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
-            Toast toast = new Toast(getApplicationContext());
-            toast.setGravity(Gravity.BOTTOM, 0, (int) context.getResources().getDimension(R.dimen.toast_margin)
-                    + (int) mBottomPlayerFragment.getHeight());
-            toast.setDuration(Toast.LENGTH_SHORT);
-            toast.setView(layout);
-            toast.show();
-        });
-
         setSupportActionBar(tbMain);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         initSearchBarAnimations();
@@ -183,11 +183,11 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
-
-        inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
-            ToastHelper.makeText(this, "Time to rock out!");
+        etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
+            ToastHelper.makeText(MainActivity.this, "Time to rock out!", mBottomToaster);
             dialog.dismiss();
             user.setScreenName(etInput.getText().toString());
+            return true;
         });
     }
 
@@ -589,5 +589,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "Location permission was not granted.");
             }
         }
+    }
+
+    public ToastHelper.Toaster getToaster() {
+        return mBottomToaster;
     }
 }

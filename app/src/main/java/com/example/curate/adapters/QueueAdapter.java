@@ -151,7 +151,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 				if(e != null) {
 					notifyPlaylistUpdated();
-					ToastHelper.makeText(mContext, "Could not remove song");
+					ToastHelper.makeText(mContext, "Could not remove song", mMainActivity.getToaster());
 				}
 			};
 			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, callback);
@@ -175,7 +175,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					displayLiked(!isLiked);
 				} else {
 					displayLiked(isLiked);
-					ToastHelper.makeText(mContext, errorMessage);
+					ToastHelper.makeText(mContext, errorMessage, mMainActivity.getToaster());
 				}
 			};
 

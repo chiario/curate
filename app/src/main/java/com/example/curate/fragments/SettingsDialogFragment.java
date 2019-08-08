@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,6 +68,15 @@ public class SettingsDialogFragment extends DialogFragment {
     private Integer mUserLimit;
     private Integer mSongLimit;
 
+    private ToastHelper.Toaster mToaster = (context, text) -> {
+    View layout = getLayoutInflater().inflate(R.layout.toast_main, null);
+        ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
+        Toast toast = new Toast(context);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        toast.show();
+    };
+
     public SettingsDialogFragment() {
         // Required empty public constructor
     }
@@ -108,7 +119,6 @@ public class SettingsDialogFragment extends DialogFragment {
         switchLocation.setChecked(mIsLocationEnabled);
         setLimit(TYPE_USER, mUserLimit);
         setLimit(TYPE_SONG, mSongLimit);
-
 
         Song currentSong = Party.getCurrentParty().getCurrentSong();
         if(currentSong != null) {
@@ -261,7 +271,7 @@ public class SettingsDialogFragment extends DialogFragment {
     @OnClick({R.id.switchUserLimit, R.id.tvUserLimitText, R.id.tvUserLimitNumber})
     void setUserLimit() {
         if (switchUserLimit.isChecked()) {
-            buildAlertDialog(TYPE_USER, tvUserLimitNumber);
+            buildAlertDialog(TYPE_USER);
         } else {
             setLimit(TYPE_USER, 0);
         }
@@ -270,7 +280,7 @@ public class SettingsDialogFragment extends DialogFragment {
     @OnClick({R.id.switchSongLimit, R.id.tvSongLimitText, R.id.tvSongLimitNumber})
     void setSongLimit() {
         if (switchSongLimit.isChecked()) {
-            buildAlertDialog(TYPE_SONG, tvSongLimitNumber);
+            buildAlertDialog(TYPE_SONG);
         } else {
             setLimit(TYPE_SONG, 0);
         }
@@ -289,7 +299,7 @@ public class SettingsDialogFragment extends DialogFragment {
         }
     }
 
-    private void buildAlertDialog(String TYPE, TextView textView) {
+    private void buildAlertDialog(String TYPE) {
         View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
         EditText etInput = inputView.findViewById(R.id.etInput);
         TextView tvTitle = inputView.findViewById(R.id.tvTitle);
@@ -306,8 +316,7 @@ public class SettingsDialogFragment extends DialogFragment {
         builder.setCancelable(false);
         AlertDialog dialog = builder.create();
         dialog.show();
-
-        inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
+        etInput.setOnEditorActionListener((TextView.OnEditorActionListener) (textView, i, keyEvent) -> {
             dialog.dismiss();
             String newLimitAsString = etInput.getText().toString();
             try {
@@ -317,7 +326,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 setLimit(TYPE, currLimit);
                 ToastHelper.makeText(getContext(), "Please input a number");
             }
-
+            return true;
         });
     }
 

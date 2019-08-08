@@ -1,8 +1,10 @@
 package com.example.curate.fragments;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +19,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
+import com.example.curate.activities.JoinActivity;
 import com.example.curate.models.Party;
 import com.example.curate.utils.ToastHelper;
 import com.parse.ParseAnonymousUtils;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
 import butterknife.BindView;
@@ -118,17 +122,19 @@ public class SelectFragment extends Fragment {
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
-        Button btnSubmit = inputView.findViewById(R.id.btnSubmit);
-        btnSubmit.setOnClickListener(view -> Party.createParty(etInput.getText().toString(), e -> {
-            dialog.dismiss();
-            if (e == null) {
-                if (mListener != null) {
-                    mListener.onPartyObtained();
+        etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
+            Party.createParty(etInput.getText().toString(), (ParseException e) -> {
+                dialog.dismiss();
+                if (e == null) {
+                    if (mListener != null) {
+                        mListener.onPartyObtained();
+                    }
+                } else {
+                    ToastHelper.makeText(SelectFragment.this.getContext(), e.getMessage());
                 }
-            } else {
-                ToastHelper.makeText(getContext(), e.getMessage());
-            }
-        }));
+            });
+            return true;
+        });
     }
 
     @OnClick(R.id.btnJoinParty)

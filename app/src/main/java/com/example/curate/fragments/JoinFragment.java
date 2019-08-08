@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
+import com.example.curate.activities.JoinActivity;
 import com.example.curate.adapters.PartyAdapter;
 import com.example.curate.models.Party;
 import com.example.curate.utils.LocationManager;
@@ -138,7 +139,7 @@ public class JoinFragment extends Fragment {
     }
 
     private void displayNearbyParties(List<Party> parties) {
-        mAdapter = new PartyAdapter(getContext(), parties, mListener);
+        mAdapter = new PartyAdapter(getContext(), parties, mListener, (JoinActivity) getActivity());
         rvNearby.setAdapter(mAdapter);
         rvNearby.setLayoutManager(new LinearLayoutManager(getContext()));
 

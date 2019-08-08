@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
+import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
@@ -43,6 +44,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	private List<Song> mSongsInAdd;
 	private boolean mIsSectionQueueEnabled = false;
 	private boolean mIsSectionAddEnabled = false;
+	private MainActivity mMainActivity;
 
 	@Override
 	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -53,10 +55,11 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	 * Creates the adapter for holding songs
 	 * @param context The context the adapter is being created from
 	 */
-	public SearchAdapter(Context context) {
+	public SearchAdapter(Context context, MainActivity mainActivity) {
 		mContext = context;
 		mSongsInAdd = new ArrayList<>();
 		mSongsInQueue = new ArrayList<>();
+		mMainActivity = mainActivity;
 	}
 
 	@NonNull
@@ -259,7 +262,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					mSongsInAdd.add(inAddPosition, mSong);
 					notifyDataSetChanged();
 					updateSections();
-					ToastHelper.makeText(mContext, e.getMessage());
+					ToastHelper.makeText(mContext, e.getMessage(), mMainActivity.getToaster());
 				}
 			});
 		}

@@ -1,6 +1,7 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curate.R;
+import com.example.curate.activities.JoinActivity;
 import com.example.curate.fragments.SelectFragment;
 import com.example.curate.models.Party;
 import com.example.curate.utils.ToastHelper;
@@ -27,6 +29,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 	// Instance variables
 	private Context mContext;
 	private List<Party> mParties;
+	private JoinActivity mJoinActivity;
 	private SelectFragment.OnOptionSelected mListener;
 
 	/***
@@ -34,10 +37,11 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 	 * @param context The context the adapter is being created from
 	 * @param parties The initial list of parties to display
 	 */
-	public PartyAdapter(Context context, List<Party> parties, SelectFragment.OnOptionSelected listener) {
+	public PartyAdapter(Context context, List<Party> parties, SelectFragment.OnOptionSelected listener, JoinActivity joinActivity) {
 		mContext = context;
 		mParties = parties;
 		mListener = listener;
+		mJoinActivity = joinActivity;
 	}
 
 	@NonNull

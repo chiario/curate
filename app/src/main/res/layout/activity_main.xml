@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
@@ -11,8 +11,9 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_gradient_animation"
-        android:fitsSystemWindows="true">
+        android:layout_above="@id/flBottomPlayer"
+        android:fitsSystemWindows="true"
+        tools:mContext=".activities.MainActivity">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/ablMain"
@@ -30,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_marginBottom="0dp"
                 app:contentInsetStart="0dp"
-                app:layout_scrollFlags="scroll|enterAlways"></androidx.appcompat.widget.Toolbar>
+                app:layout_scrollFlags="scroll|enterAlways"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clSearchbar"
@@ -103,7 +104,8 @@
         android:id="@+id/flBottomPlayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:background="@android:color/transparent"
         android:elevation="10dp" />
-</FrameLayout>
+</RelativeLayout>

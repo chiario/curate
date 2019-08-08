@@ -44,15 +44,6 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
             ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
         }
 
-        ToastHelper.setToaster((context, text) -> {
-            View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
-            ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
-            Toast toast = new Toast(getApplicationContext());
-            toast.setDuration(Toast.LENGTH_SHORT);
-            toast.setView(layout);
-            toast.show();
-        });
-
         mSelectFragment = SelectFragment.newInstance();
         mJoinFragment = JoinFragment.newInstance();
         mFragmentManager = getSupportFragmentManager();
