@@ -85,7 +85,6 @@ public class InfoDialogFragment extends DialogFragment {
             Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, side, side);
             Bitmap resized = Bitmap.createBitmap(bitmap, remove, remove, side - 2 * remove, side - 2 * remove);
             Glide.with(getContext()).load(resized).transform(new RoundedCorners(50)).into(ivQR);
-//            ivQR.setImageBitmap(resized);
         }
         catch (WriterException e) {
             e.printStackTrace();

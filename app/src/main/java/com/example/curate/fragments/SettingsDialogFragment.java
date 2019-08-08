@@ -1,11 +1,17 @@
 package com.example.curate.fragments;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -38,6 +44,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
+import butterknife.OnTouch;
 
 
 public class SettingsDialogFragment extends DialogFragment {
@@ -129,6 +137,14 @@ public class SettingsDialogFragment extends DialogFragment {
         dismiss();
     }
 
+    @OnEditorAction(R.id.etName)
+    public boolean onEditorAction(int actionId) {
+        if(actionId == EditorInfo.IME_ACTION_DONE){
+            etPartyName.clearFocus();
+        }
+        return false;
+    }
+
     private void setBackgroundColor(Bitmap bitmap) {
         Palette.from(bitmap).generate(p -> {
             // Load default colors
@@ -212,6 +228,19 @@ public class SettingsDialogFragment extends DialogFragment {
     @OnClick({R.id.tvSongLimitNumber, R.id.tvSongLimitText})
     void setSongLimit() {
         buildAlertDialog("song", tvSongLimitNumber);
+    }
+
+    @OnTouch(R.id.clSettings)
+    void onTouch(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            Rect outRect = new Rect();
+            etPartyName.getGlobalVisibleRect(outRect);
+            if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                etPartyName.clearFocus();
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(etPartyName.getWindowToken(), 0);
+            }
+        }
     }
 
     private void buildAlertDialog(String type, TextView textView) {
