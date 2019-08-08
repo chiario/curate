@@ -27,7 +27,6 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.service.PlayerResultReceiver;
@@ -53,8 +52,8 @@ import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAYBACK;
 import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAY_PAUSE;
 import static com.example.curate.service.PlayerResultReceiver.SONG_ID_KEY;
 import static com.example.curate.service.PlayerResultReceiver.TITLE_KEY;
-import static com.example.curate.service.PlayerResultReceiver.checkConnection;
-import static com.example.curate.service.PlayerResultReceiver.enqueuePlayer;
+import static com.example.curate.service.PlayerResultReceiver.initService;
+import static com.example.curate.service.PlayerResultReceiver.enqueueService;
 import static com.example.curate.service.PlayerResultReceiver.playNew;
 import static com.example.curate.service.PlayerResultReceiver.updatePlayer;
 
@@ -209,12 +208,12 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
 
     @OnClick(R.id.ivPlayPause)
     void onPlayPause() {
-        enqueuePlayer(getContext(), ACTION_PLAY_PAUSE);
+        enqueueService(getContext(), ACTION_PLAY_PAUSE);
     }
 
     @OnClick(R.id.ivNext)
     public void onSkipNext() {
-        enqueuePlayer(getContext(), ACTION_SKIP);
+        enqueueService(getContext(), ACTION_SKIP);
     }
 
     public void onPlayNew(String spotifyId) {
@@ -229,7 +228,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         PlayerResultReceiver playerResultReceiver = new PlayerResultReceiver(new Handler());
         playerResultReceiver.setReceiver(this);
         checkSpotifyInstalled();
-        checkConnection(getContext());
+        initService(getContext());
     }
     /**
      * Method overwritten from the PlayerResultReceiver to receive results from the PlayerService.
@@ -309,7 +308,7 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         startActivity(intent);
     }
 
-    public static void disconnect(Context context) {
-        PlayerResultReceiver.enqueuePlayer(context, ACTION_DISCONNECT);
+    public static void disconnectService(Context context) {
+        PlayerResultReceiver.enqueueService(context, ACTION_DISCONNECT);
     }
 }
