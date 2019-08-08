@@ -39,8 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="@string/placeholder_artist"
-            app:layout_constraintEnd_toStartOf="@+id/ibLike"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintEnd_toStartOf="@+id/tvScore"
             app:layout_constraintStart_toStartOf="@+id/tvTitle"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
@@ -50,10 +49,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="8dp"
             android:text="@string/placeholder_song_name"
-            app:layout_constraintEnd_toStartOf="@+id/ibLike"
+            app:layout_constraintEnd_toStartOf="@+id/tvScore"
             app:layout_constraintStart_toEndOf="@+id/ivAlbum"
             app:layout_constraintTop_toTopOf="@+id/ivAlbum" />
 
@@ -64,7 +63,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvScore"
+            app:layout_constraintEnd_toStartOf="@+id/ibDelete"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/selector_like" />
 
@@ -82,13 +81,15 @@
         <TextView
             android:id="@+id/tvScore"
             style="@style/Curate.TextView.Secondary"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="38dp"
             android:gravity="center"
             android:text="0"
             app:layout_constraintBottom_toBottomOf="@+id/ibLike"
             app:layout_constraintEnd_toStartOf="@+id/ibDelete"
-            app:layout_constraintTop_toTopOf="@+id/ibLike" />
+            app:layout_constraintTop_toTopOf="@+id/ibLike"
+            app:layout_constraintVertical_bias="0.5" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
