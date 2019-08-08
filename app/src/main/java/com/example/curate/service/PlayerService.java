@@ -408,7 +408,7 @@ public class PlayerService extends JobIntentService {
     private void alertPlaylistEmpty() {
         Log.e(TAG, "Playlist is empty!");
         new Handler(Looper.getMainLooper()).post(() -> {
-                if(!ToastHelper.makeText(getApplicationContext(),"Your queue is empty!")) {
+                if(!ToastHelper.makeText(getApplicationContext(),"Your queue is empty!", true)) {
                     Toast.makeText(getApplicationContext(), "Your queue is empty!",
                             Toast.LENGTH_SHORT).show();
                 }

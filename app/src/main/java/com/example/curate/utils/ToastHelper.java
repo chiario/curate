@@ -9,6 +9,8 @@ import android.widget.Toast;
 import com.example.curate.R;
 
 public class ToastHelper {
+	private static Toaster mBottomToaster = null;
+
 	public interface Toaster {
 		void makeText(Context context, String text);
 	}
@@ -20,6 +22,17 @@ public class ToastHelper {
 	public static boolean makeText(Context context, String text, Toaster toaster) {
 		toaster.makeText(context, text);
 		return true;
+	}
+
+	public static boolean makeText(Context context, String text, boolean useBottomToaster) {
+		if(!useBottomToaster) return makeText(context, text);
+		if(mBottomToaster == null) return false;
+		mBottomToaster.makeText(context, text);
+		return true;
+	}
+
+	public static void setBottomToaster(Toaster toaster) {
+		mBottomToaster = toaster;
 	}
 
 	private static Toaster getToaster() {

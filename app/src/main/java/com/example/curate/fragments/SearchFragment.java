@@ -117,7 +117,7 @@ public class SearchFragment extends Fragment {
 		ButterKnife.bind(this, view);
 
 		// Create the mAdapter, along with onClick listener for the "add" button
-		mAdapter = new SearchAdapter(getContext(), (MainActivity) getActivity());
+		mAdapter = new SearchAdapter(getContext());
 
 		// Attach Swipe listeners
 		ItemTouchHelperCallbacks callbacks = new ItemTouchHelperCallbacks(mAdapter, getContext());

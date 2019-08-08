@@ -82,15 +82,24 @@ public class MainActivity extends AppCompatActivity {
 
     protected static final String KEY_PARTY_DELETED = "partyDeleted";
 
-    @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
-    @BindView(R.id.ablMain) AppBarLayout ablMain;
-    @BindView(R.id.tbMain) Toolbar tbMain;
-    @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
-    @BindView(R.id.miSearch) SearchView miSearchView;
-    @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
-    @BindView(R.id.ibBack) ImageButton ibBack;
-    @BindView(R.id.ibOverflow) ImageButton ibOverflow;
-    @BindView(R.id.clSearchbar) ConstraintLayout clSearchbar;
+    @BindView(R.id.flPlaceholder)
+    FrameLayout flPlaceholder;
+    @BindView(R.id.ablMain)
+    AppBarLayout ablMain;
+    @BindView(R.id.tbMain)
+    Toolbar tbMain;
+    @BindView(R.id.flBottomPlayer)
+    FrameLayout flBottomPlayer;
+    @BindView(R.id.miSearch)
+    SearchView miSearchView;
+    @BindView(R.id.ivSearchBackground)
+    ImageView ivSearchBackground;
+    @BindView(R.id.ibBack)
+    ImageButton ibBack;
+    @BindView(R.id.ibOverflow)
+    ImageButton ibOverflow;
+    @BindView(R.id.clSearchbar)
+    ConstraintLayout clSearchbar;
 
     private Party mCurrentParty;
     private FragmentManager mFragmentManager;
@@ -110,20 +119,9 @@ public class MainActivity extends AppCompatActivity {
     private User.PartyDeletedListener mPartyDeleteListener;
 
     public AdminPlayerFragment getBottomPlayerFragment() {
-        if(!mIsAdmin) return null;
+        if (!mIsAdmin) return null;
         return (AdminPlayerFragment) mBottomPlayerFragment;
     }
-
-    public ToastHelper.Toaster mBottomToaster = (context, text) -> {
-        View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
-        ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
-        Toast toast = new Toast(getApplicationContext());
-        toast.setGravity(Gravity.BOTTOM, 0, (int) context.getResources().getDimension(R.dimen.toast_margin)
-                + (int) mBottomPlayerFragment.getHeight());
-        toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(layout);
-        toast.show();
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,11 +134,22 @@ public class MainActivity extends AppCompatActivity {
 
         initializeFragments(savedInstanceState);
 
+        ToastHelper.setBottomToaster((context, text) -> {
+            View layout = getLayoutInflater().inflate(R.layout.toast_main, findViewById(R.id.clToast));
+            ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
+            Toast toast = new Toast(getApplicationContext());
+            toast.setGravity(Gravity.BOTTOM, 0, (int) context.getResources().getDimension(R.dimen.toast_margin)
+                    + (int) mBottomPlayerFragment.getHeight());
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
+            toast.show();
+        });
+
         if (mIsAdmin) {
             mBottomPlayerFragment = AdminPlayerFragment.newInstance();
             // Set up the location manager
             mLocationManager = new LocationManager(this);
-            if(mLocationManager.hasNecessaryPermissions() && mCurrentParty.getLocationEnabled()) {
+            if (mLocationManager.hasNecessaryPermissions() && mCurrentParty.getLocationEnabled()) {
                 registerLocationUpdater();
             } else {
                 mLocationManager.requestPermissions();
@@ -164,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         backgroundAnimation.setExitFadeDuration(getResources().getInteger(R.integer.anim_gradient_transition_time));
         backgroundAnimation.start();
 
-        if(User.getCurrentScreenName() == null) {
+        if (User.getCurrentScreenName() == null) {
             setUserName();
         }
     }
@@ -184,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
         etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
-            ToastHelper.makeText(MainActivity.this, "Time to rock out!", mBottomToaster);
+            ToastHelper.makeText(MainActivity.this, "Time to rock out!", true);
             dialog.dismiss();
             user.setScreenName(etInput.getText().toString());
             return true;
@@ -195,27 +204,27 @@ public class MainActivity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             View v = getCurrentFocus();
-            if ( v instanceof EditText) {
+            if (v instanceof EditText) {
                 Rect outRect = new Rect();
                 v.getGlobalVisibleRect(outRect);
-                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
                     v.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
             }
         }
-        return super.dispatchTouchEvent( event );
+        return super.dispatchTouchEvent(event);
     }
 
     private void setPartyDeleteListener() {
-        if(mPartyDeleteListener != null) {
+        if (mPartyDeleteListener != null) {
             ((User) ParseUser.getCurrentUser()).deregisterPartyDeletedListener(mPartyDeleteListener);
             mPartyDeleteListener = null;
         }
 
         mPartyDeleteListener = mainActivity -> runOnUiThread(() -> {
-            if(!mIsLeavingQueue) {
+            if (!mIsLeavingQueue) {
                 removePartyDeleteListener();
                 Intent intent = new Intent(mainActivity, JoinActivity.class);
                 intent.putExtra(KEY_PARTY_DELETED, true);
@@ -235,23 +244,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeFragments(Bundle savedInstanceState) {
         mFragmentManager = getSupportFragmentManager();
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             mQueueFragment = (QueueFragment) mFragmentManager.getFragment(savedInstanceState, KEY_QUEUE_FRAGMENT);
             mSearchFragment = (SearchFragment) mFragmentManager.getFragment(savedInstanceState, KEY_SEARCH_FRAGMENT);
             mActiveFragment = savedInstanceState.getString(KEY_ACTIVE).equals(KEY_QUEUE_FRAGMENT)
                     ? mQueueFragment : mSearchFragment;
         }
 
-        if(mQueueFragment == null) {
+        if (mQueueFragment == null) {
             mQueueFragment = QueueFragment.newInstance();
             mFragmentManager.beginTransaction().add(R.id.flPlaceholder, mQueueFragment, KEY_QUEUE_FRAGMENT).hide(mQueueFragment).commit();
         }
-        if(mSearchFragment == null) {
+        if (mSearchFragment == null) {
             mSearchFragment = SearchFragment.newInstance();
             mFragmentManager.beginTransaction().add(R.id.flPlaceholder, mSearchFragment, KEY_SEARCH_FRAGMENT).hide(mSearchFragment).commit();
         }
 
-        if(mActiveFragment != null) {
+        if (mActiveFragment != null) {
             display(mActiveFragment);
         } else {
             display(mQueueFragment);
@@ -290,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
         miLeave.setEnabled(!mIsAdmin);
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
-            switch(menuItem.getItemId()) {
+            switch (menuItem.getItemId()) {
                 case R.id.miDelete:
                     deleteQueue();
                     return true;
@@ -321,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up back button onClick
         ibBack.setOnClickListener(view -> {
             onBackPressed();
-            if(miSearchView.hasFocus()) {
+            if (miSearchView.hasFocus()) {
                 miSearchView.clearFocus();
                 hideKeyboard(miSearchView);
             }
@@ -348,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up fragment transition on focus change
         miSearchView.setOnQueryTextFocusChangeListener((view, hasFocus) -> {
-            if(hasFocus) {
+            if (hasFocus) {
                 display(mSearchFragment);
                 showKeyboard(view);
                 mBottomPlayerFragment.setExpanded(false);
@@ -370,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        switch(mActiveFragment.getTag()) {
+        switch (mActiveFragment.getTag()) {
             case KEY_QUEUE_FRAGMENT:
                 break;
             case KEY_SEARCH_FRAGMENT:
@@ -388,12 +397,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void display(Fragment fragment) {
         NotificationHelper.updateInteractionTime();
-        if(fragment == null || fragment.equals(mActiveFragment)) return;
+        if (fragment == null || fragment.equals(mActiveFragment)) return;
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        if(mActiveFragment != null)
+        if (mActiveFragment != null)
             ft.hide(mActiveFragment);
         ft.show(fragment);
-        if(fragment.equals(mSearchFragment)) {
+        if (fragment.equals(mSearchFragment)) {
             mSearchFragment.clear();
             ft.addToBackStack(fragment.getTag());
         }
@@ -431,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void animateSearchbar(boolean isExpanding) {
-        if(mIsSearchbarExpanded == isExpanding)
+        if (mIsSearchbarExpanded == isExpanding)
             return;
         ibBack.setVisibility(isExpanding ? View.VISIBLE : View.GONE);
         mIsSearchbarExpanded = isExpanding;
@@ -491,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 "Leave", view -> {
                     mIsLeavingQueue = true;
                     mCurrentParty.leaveParty(e -> {
-                        if(e != null) {
+                        if (e != null) {
                             mIsLeavingQueue = false;
                         } else {
                             NotificationHelper.removeNotifications(MainActivity.this);
@@ -507,12 +516,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void deleteQueue() {
         showExitDialog("Delete this party?", "You won't be able to undo this action!", "Delete", view -> {
-                AdminPlayerFragment.disconnectService(MainActivity.this);
-                mCurrentParty.deleteParty(e -> {
-                    ((User) ParseUser.getCurrentUser()).setScreenName(null);
-                    Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                    startActivity(intent);
-                    finish();
+            AdminPlayerFragment.disconnectService(MainActivity.this);
+            mCurrentParty.deleteParty(e -> {
+                ((User) ParseUser.getCurrentUser()).setScreenName(null);
+                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                startActivity(intent);
+                finish();
             });
         });
     }
@@ -554,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Force update location at least once
         mLocationManager.getCurrentLocation(location -> {
-            if(location != null) {
+            if (location != null) {
                 Party.getCurrentParty().updatePartyLocation(LocationManager.createGeoPointFromLocation(location), e -> {
                     if (e == null) {
                         Log.d(TAG, "Party location updated!");
@@ -567,10 +576,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deregisterLocationUpdater() {
-        if(mLocationCallback == null) return;
+        if (mLocationCallback == null) return;
         mLocationManager.deregisterLocationUpdateCallback(mLocationCallback);
         mCurrentParty.clearLocation(e -> {
-            if(e == null) {
+            if (e == null) {
                 mLocationCallback = null;
             } else {
                 registerLocationUpdater();
@@ -581,7 +590,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
+        if (requestCode == LocationManager.PERMISSION_REQUEST_CODE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && mCurrentParty.getLocationEnabled()) {
                 // Location permission has been granted, register location updater
                 registerLocationUpdater();
@@ -589,9 +598,5 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "Location permission was not granted.");
             }
         }
-    }
-
-    public ToastHelper.Toaster getToaster() {
-        return mBottomToaster;
     }
 }
