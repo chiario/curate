@@ -37,6 +37,7 @@ import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Settings;
+import com.example.curate.models.Song;
 import com.example.curate.utils.ToastHelper;
 
 import java.util.List;
@@ -108,9 +109,9 @@ public class SettingsDialogFragment extends DialogFragment {
         tvUserLimitNumber.setText(Integer.toString(mUserLimit));
         tvSongLimitNumber.setText(Integer.toString(mSongLimit));
 
-        List<PlaylistEntry> entries = Party.getCurrentParty().getPlaylist().getEntries();
-        if(!entries.isEmpty()) {
-            String url = entries.get(0).getSong().getImageUrl();
+        Song currentSong = Party.getCurrentParty().getCurrentSong();
+        if(currentSong != null) {
+            String url = currentSong.getImageUrl();
             Glide.with(getContext())
                     .asBitmap()
                     .load(url)
