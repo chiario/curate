@@ -13,8 +13,7 @@
     <dimen name="max_searchbar_radius">@dimen/button_radius</dimen>
 
     <dimen name="QR_size">140dp</dimen>
-    <dimen name="button_radius">6dp</dimen>
-    <dimen name="player_radius">12dp</dimen>
+    <dimen name="button_radius">2dp</dimen>
 
     <integer name="anim_gradient_transition_time">15000</integer>
 </resources>
