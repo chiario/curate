@@ -6,7 +6,7 @@
     android:id="@+id/dialogPartyInfoAdmin"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/mediumGray"
+    android:background="@color/dialog_background"
     android:minWidth="260dp"
     android:padding="32dp">
 

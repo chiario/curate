@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(inputView);
         builder.setCancelable(false);
         AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
         inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
@@ -515,6 +516,7 @@ public class MainActivity extends AppCompatActivity {
         View layoutView = getLayoutInflater().inflate(R.layout.fragment_confirm_exit, null);
         builder.setView(layoutView);
         AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         ((TextView) layoutView.findViewById(R.id.tvTitle)).setText(title);
         ((TextView) layoutView.findViewById(R.id.tvMessage)).setText(message);
         Button btnExit = layoutView.findViewById(R.id.btnExit);

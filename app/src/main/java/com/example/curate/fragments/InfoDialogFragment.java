@@ -1,7 +1,9 @@
 package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +66,9 @@ public class InfoDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_info_dialog, container, false);
+        View view = inflater.inflate(R.layout.fragment_info_dialog, container, false);
+        getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        return view;
     }
 
     @Override

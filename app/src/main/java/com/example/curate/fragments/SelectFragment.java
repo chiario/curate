@@ -115,6 +115,7 @@ public class SelectFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setView(inputView);
         AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
         Button btnSubmit = inputView.findViewById(R.id.btnSubmit);

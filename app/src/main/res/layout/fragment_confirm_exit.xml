@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/darkGray"
-    android:backgroundTint="@color/darkGray"
+    android:background="@color/dialog_background"
     android:padding="32dp">
 
     <TextView
