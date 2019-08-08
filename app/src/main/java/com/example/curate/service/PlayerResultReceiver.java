@@ -26,7 +26,7 @@ public class PlayerResultReceiver extends ResultReceiver {
     // Action keys
     public static final String ACTION_PLAY = "action.PLAY";
     public static final String ACTION_UPDATE = "action.UPDATE";
-    public static final String ACTION_CONNECT = "action.CONNECT";
+    public static final String ACTION_INIT = "action.INIT";
     public static final String ACTION_SKIP = "action.SKIP";
     public static final String ACTION_PLAY_PAUSE = "action.PLAY_PAUSE";
     public static final String ACTION_DISCONNECT = "action.DISCONNECT";
@@ -102,7 +102,7 @@ public class PlayerResultReceiver extends ResultReceiver {
     /**
      * Convenience method for enqueuing work into this service.
      */
-    public static void enqueuePlayer(Context context, String ACTION) {
+    public static void enqueueService(Context context, String ACTION) {
         Intent intent = new Intent(context, PlayerService.class);
         intent.putExtra(RECEIVER_KEY, mPlayerResultReceiver);
         intent.setAction(ACTION);
@@ -116,10 +116,10 @@ public class PlayerResultReceiver extends ResultReceiver {
     /**
      * Method to check service Spotify remote connection.
      */
-    public static void checkConnection(Context context) {
+    public static void initService(Context context) {
         Intent intent = new Intent(context, PlayerService.class);
         intent.putExtra(RECEIVER_KEY, mPlayerResultReceiver);
-        intent.setAction(ACTION_CONNECT);
+        intent.setAction(ACTION_INIT);
         PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
     }
 
