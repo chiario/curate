@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -501,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void deleteQueue() {
         showExitDialog("Delete this party?", "You won't be able to undo this action!", "Delete", view -> {
-                AdminPlayerFragment.disconnect(MainActivity.this);
+                AdminPlayerFragment.disconnectService(MainActivity.this);
                 mCurrentParty.deleteParty(e -> {
                     ((User) ParseUser.getCurrentUser()).setScreenName(null);
                     Intent intent = new Intent(MainActivity.this, JoinActivity.class);
