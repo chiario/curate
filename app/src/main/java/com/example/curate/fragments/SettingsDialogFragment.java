@@ -48,6 +48,7 @@ import butterknife.OnTouch;
 public class SettingsDialogFragment extends DialogFragment {
     private static final String TAG = "SettingsDialogFragment";
     @BindView(R.id.switchLocation) Switch switchLocation;
+    @BindView(R.id.switchExplicit) Switch switchExplicit;
     @BindView(R.id.etName) EditText etPartyName;
     @BindView(R.id.tvUserLimitNumber) TextView tvUserLimitNumber;
     @BindView(R.id.tvSongLimitNumber) TextView tvSongLimitNumber;
@@ -160,6 +161,9 @@ public class SettingsDialogFragment extends DialogFragment {
 
             DrawableCompat.setTintList(DrawableCompat.wrap(switchLocation.getThumbDrawable()), switchColorList);
             DrawableCompat.setTintList(DrawableCompat.wrap(switchLocation.getTrackDrawable()), switchColorList);
+
+            DrawableCompat.setTintList(DrawableCompat.wrap(switchExplicit.getThumbDrawable()), switchColorList);
+            DrawableCompat.setTintList(DrawableCompat.wrap(switchExplicit.getTrackDrawable()), switchColorList);
         });
     }
 

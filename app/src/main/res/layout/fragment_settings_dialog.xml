@@ -139,7 +139,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tvUserLimitNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvUserLimitText"
-        app:srcCompat="@drawable/ic_outline_person_outline_24px" />
+        app:srcCompat="@drawable/ic_person" />
 
     <ImageView
         android:id="@+id/ivSongLimit"
@@ -152,7 +152,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tvSongLimitNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvSongLimitText"
-        app:srcCompat="@drawable/ic_outline_music_note_24px" />
+        app:srcCompat="@drawable/ic_music" />
 
     <ImageView
         android:id="@+id/ivLocation"
@@ -163,7 +163,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tvLocationText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvLocationText"
-        app:srcCompat="@drawable/ic_outline_location_on_24px" />
+        app:srcCompat="@drawable/ic_location" />
 
     <ImageView
         android:id="@+id/ivLocation2"
