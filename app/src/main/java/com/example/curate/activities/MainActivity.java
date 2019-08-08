@@ -62,7 +62,6 @@ import com.example.curate.models.Party;
 import com.example.curate.models.User;
 import com.example.curate.utils.LocationManager;
 import com.example.curate.utils.NotificationHelper;
-import com.example.curate.utils.ReverseInterpolator;
 import com.example.curate.utils.ToastHelper;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
@@ -306,7 +305,6 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.miSettings:
                     SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
-
                     settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
                     settings.show(mFragmentManager, "fragment_admin_settings");
                     return true;
