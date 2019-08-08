@@ -174,7 +174,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tvExplicitText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvExplicitText"
-        app:srcCompat="@drawable/ic_outline_location_on_24px" />
+        app:srcCompat="@drawable/ic_explicit" />
 
     <ImageView
         android:id="@+id/ivClose"
