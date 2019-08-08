@@ -1,5 +1,6 @@
 package com.example.curate.activities;
 
+import android.animation.LayoutTransition;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,6 +12,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -20,6 +24,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -27,13 +32,19 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -60,6 +71,7 @@ import com.parse.ParseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.miSearch) SearchView miSearchView;
     @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
     @BindView(R.id.ibBack) ImageButton ibBack;
+    @BindView(R.id.ibOverflow) ImageButton ibOverflow;
+    @BindView(R.id.clSearchbar) ConstraintLayout clSearchbar;
 
     private Party mCurrentParty;
     private FragmentManager mFragmentManager;
@@ -84,8 +98,10 @@ public class MainActivity extends AppCompatActivity {
     private QueueFragment mQueueFragment;
     private SearchFragment mSearchFragment;
     private PlayerFragment mBottomPlayerFragment;
+
     private ValueAnimator mSearchbarAnimator;
     private boolean mIsSearchbarExpanded = false;
+
     private boolean mIsAdmin = false;
     private LocationManager mLocationManager;
     private LocationCallback mLocationCallback = null;
@@ -247,46 +263,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-
-        MenuItem miInfo = menu.findItem(R.id.miInfo);
-        MenuItem miSettings = menu.findItem(R.id.miSettings);
-        MenuItem miLeave = menu.findItem(R.id.miLeave);
-        MenuItem miDelete = menu.findItem(R.id.miDelete);
-
         if (miSearchView != null) {
             initializeSearch();
         }
+        return super.onCreateOptionsMenu(menu);
+    }
 
-        // Set info option onClick callback
-        miInfo.setOnMenuItemClickListener(menuItem -> {
-            // Retrieve the current mParty's name and join code
-            String name = Party.getCurrentParty().getName();
-            String joinCode = Party.getCurrentParty().getJoinCode();
+    @OnClick(R.id.ibOverflow)
+    public void onClickOverflow() {
+        PopupMenu popupMenu = new PopupMenu(MainActivity.this, ibOverflow, Gravity.END, 0, R.style.Curate_MenuPopup);
 
-            InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
-            infoDialogFragment.show(mFragmentManager, "fragment_party_info");
-            return true;
-        });
-
-        // Set setting option onClick callback
-        miSettings.setOnMenuItemClickListener(menuItem -> {
-            SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
-
-            settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
-            settings.show(mFragmentManager, "fragment_admin_settings");
-            return true;
-        });
-
-        // Set leave option onClick callback
-        miLeave.setOnMenuItemClickListener(menuItem -> {
-            leaveQueue();
-            return true;
-        });
-
-        miDelete.setOnMenuItemClickListener(menuItem -> {
-            deleteQueue();
-            return true;
-        });
+        popupMenu.inflate(R.menu.menu_overflow);
+        MenuItem miSettings = popupMenu.getMenu().findItem(R.id.miSettings);
+        MenuItem miLeave = popupMenu.getMenu().findItem(R.id.miLeave);
+        MenuItem miDelete = popupMenu.getMenu().findItem(R.id.miDelete);
 
         // Only show settings for admin
         miSettings.setVisible(mIsAdmin);
@@ -300,7 +290,30 @@ public class MainActivity extends AppCompatActivity {
         miLeave.setVisible(!mIsAdmin);
         miLeave.setEnabled(!mIsAdmin);
 
-        return super.onCreateOptionsMenu(menu);
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            switch(menuItem.getItemId()) {
+                case R.id.miDelete:
+                    deleteQueue();
+                    return true;
+                case R.id.miLeave:
+                    leaveQueue();
+                    return true;
+                case R.id.miInfo:
+                    String name = Party.getCurrentParty().getName();
+                    String joinCode = Party.getCurrentParty().getJoinCode();
+                    InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
+                    infoDialogFragment.show(mFragmentManager, "fragment_party_info");
+                    return true;
+                case R.id.miSettings:
+                    SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
+
+                    settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
+                    settings.show(mFragmentManager, "fragment_admin_settings");
+                    return true;
+            }
+            return false;
+        });
+        popupMenu.show();
     }
 
     /**
@@ -417,27 +430,6 @@ public class MainActivity extends AppCompatActivity {
         params.height = (int) (maxHeight - maxDelta / 1.5f);
         params.width = (int) (maxWidth - maxDelta);
         ivSearchBackground.setLayoutParams(params);
-
-
-        // Set up animator from 1 to 0
-        mSearchbarAnimator = ValueAnimator.ofFloat(1f, 0f);
-        mSearchbarAnimator.setDuration(200);
-
-        // Update listener callback called every "tick"
-        mSearchbarAnimator.addUpdateListener(anim -> {
-            // Set the animated delta and radius (percentage of maximum values)
-            float currentDelta = maxDelta * (Float) anim.getAnimatedValue();
-            float currentRadius = maxRadius * (Float) anim.getAnimatedValue();
-
-            // Set the layout height and width for the searchbar based on current delta
-            ViewGroup.LayoutParams layout = ivSearchBackground.getLayoutParams();
-            layout.height = (int) (maxHeight - currentDelta / 1.5f);
-            layout.width = (int) (maxWidth - currentDelta);
-            ivSearchBackground.setLayoutParams(layout);
-
-            // Set the search bar corner radius based on current radius
-            searchbarBackground.setCornerRadius(currentRadius);
-        });
     }
 
     private void animateSearchbar(boolean isExpanding) {
@@ -445,10 +437,27 @@ public class MainActivity extends AppCompatActivity {
             return;
         ibBack.setVisibility(isExpanding ? View.VISIBLE : View.GONE);
         mIsSearchbarExpanded = isExpanding;
-        mSearchbarAnimator.setInterpolator(isExpanding
-                ? new AccelerateDecelerateInterpolator()
-                : new ReverseInterpolator(new AccelerateDecelerateInterpolator()));
-        mSearchbarAnimator.start();
+
+        // Start transition
+        TransitionManager.beginDelayedTransition(clSearchbar);
+
+        // Get the display metrics for window width
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        // Get the maximum values
+        float maxHeight = getResources().getDimension(R.dimen.max_searchbar_height);
+        float maxWidth = displayMetrics.widthPixels;
+        float maxDelta = getResources().getDimension(R.dimen.max_searchbar_delta);
+        float maxRadius = getResources().getDimension(R.dimen.max_searchbar_radius);
+
+        // Apply changes to layout
+        ((GradientDrawable) ivSearchBackground.getBackground()).setCornerRadius(isExpanding ? maxRadius - maxDelta : maxRadius);
+        ViewGroup.LayoutParams layout = ivSearchBackground.getLayoutParams();
+        layout.height = (int) (isExpanding ? maxHeight : maxHeight - maxDelta);
+        layout.width = (int) (isExpanding ? maxWidth : maxWidth - maxDelta);
+        ivSearchBackground.setLayoutParams(layout);
+
     }
 
     private void hideKeyboard(View view) {

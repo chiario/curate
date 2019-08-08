@@ -60,7 +60,8 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 
 		holder.tvTitle.setText(party.getString("name"));
 		holder.tvJoinCode.setText(String.format("Join Code: %s", party.getJoinCode()));
-		holder.tvUserLimit.setText(party.getInt("userLimit") != 0
+		if(party.getSettings() == null) party.initSettings();
+		holder.tvUserLimit.setText(party.getUserLimit() != 0
 				? String.format("%d/%d", party.getPartyUserCount().intValue(), party.getUserLimit())
 				: "");
 	}

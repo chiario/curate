@@ -59,7 +59,8 @@ public class Party extends ComparableParseObject {
         initSettings();
     }
 
-    private void initSettings() {
+    public void initSettings() {
+        if(mSettings != null) return;
         mSettings = new Settings();
         mSettings.setName(getString(NAME_KEY));
         mSettings.setLocationEnabled(getBoolean(LOCATION_PERMISSION_KEY));

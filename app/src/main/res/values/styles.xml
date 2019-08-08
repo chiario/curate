@@ -9,7 +9,7 @@
         <item name="android:colorControlHighlight">@color/colorAccent</item>
         <item name="editTextStyle">@style/Curate.EditText</item>
         <item name="searchViewStyle">@style/Curate.SearchView</item>
-        <item name="actionOverflowMenuStyle">@style/Curate.MenuPopup</item>
+        <!--<item name="actionOverflowMenuStyle">@style/Curate.MenuPopup</item>-->
         <item name="buttonStyle">@style/Curate.Button</item>
         <item name="android:colorEdgeEffect">@color/colorAccent_70</item>
         <item name="colorSurface">@color/mediumGray</item>
@@ -33,15 +33,16 @@
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginEnd">8dp</item>
         <item name="android:minHeight">56dp</item>
-        <item name="popupTheme">@style/Curate.MenuPopup</item>
+        <item name="android:popupTheme">@style/Curate.MenuPopup</item>
     </style>
 
-    <style name="Curate.MenuPopup" parent="ThemeOverlay.AppCompat.Dark">
+    <style name="Curate.MenuPopup" parent="Widget.AppCompat.PopupMenu">
         <item name="android:minHeight">32dp</item>
         <item name="android:maxHeight">32dp</item>
         <item name="android:padding">0dip</item>
-        <item name="android:dropDownVerticalOffset">0dp</item>
-        <item name="android:background">@color/mediumGray</item>
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:dropDownVerticalOffset">2dp</item>
     </style>
 
     <style name="Curate.SearchView" parent="Widget.AppCompat.SearchView">
