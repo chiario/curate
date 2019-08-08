@@ -168,11 +168,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:background="@color/transparent"
         android:tint="@color/white_90"
         app:layout_constraintBottom_toBottomOf="@+id/btnSave"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnSave"
+        android:padding="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         app:srcCompat="@drawable/selector_remove" />
 
     <Button
