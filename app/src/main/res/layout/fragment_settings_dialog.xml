@@ -139,11 +139,10 @@
     <Switch
         android:id="@+id/switchUserLimit"
         style="@style/Curate.TextView.Title"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/nunito"
         app:layout_constraintBottom_toBottomOf="@+id/tvUserLimitNumber"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvUserLimitText" />
@@ -190,11 +189,10 @@
     <Switch
         android:id="@+id/switchSongLimit"
         style="@style/Curate.TextView.Title"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/nunito"
         app:layout_constraintBottom_toBottomOf="@+id/tvSongLimitNumber"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tvSongLimitText" />

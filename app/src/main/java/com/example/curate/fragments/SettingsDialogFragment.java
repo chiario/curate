@@ -176,17 +176,21 @@ public class SettingsDialogFragment extends DialogFragment {
             }
 
             ColorStateList buttonColorList = createButtonColorList(backgroundColor);
-            ColorStateList switchColorList = createSwitchColorList(backgroundColor);
 
             ivBackground.setBackgroundColor(backgroundColor);
             button6.setBackgroundTintList(buttonColorList);
+            setSwitchTint(switchLocation, backgroundColor);
+            setSwitchTint(switchExplicit, backgroundColor);
+            setSwitchTint(switchUserLimit, backgroundColor);
+            setSwitchTint(switchSongLimit, backgroundColor);
 
-            DrawableCompat.setTintList(DrawableCompat.wrap(switchLocation.getThumbDrawable()), switchColorList);
-            DrawableCompat.setTintList(DrawableCompat.wrap(switchLocation.getTrackDrawable()), switchColorList);
-
-            DrawableCompat.setTintList(DrawableCompat.wrap(switchExplicit.getThumbDrawable()), switchColorList);
-            DrawableCompat.setTintList(DrawableCompat.wrap(switchExplicit.getTrackDrawable()), switchColorList);
         });
+    }
+
+    private void setSwitchTint(Switch switchSettings, int backgroundColor) {
+        ColorStateList switchColorList = createSwitchColorList(backgroundColor);
+        DrawableCompat.setTintList(DrawableCompat.wrap(switchSettings.getThumbDrawable()), switchColorList);
+        DrawableCompat.setTintList(DrawableCompat.wrap(switchSettings.getTrackDrawable()), switchColorList);
     }
 
     private ColorStateList createButtonColorList(int color) {
