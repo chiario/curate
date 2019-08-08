@@ -56,11 +56,12 @@
         <item name="android:background">@null</item>
     </style>
 
-    <style name="Curate.AlertDialog">
+    <style name="Curate.AlertDialog" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:background">@color/transparent</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="Curate.FullscreenDialog">
+    <style name="Curate.AlertDialog.Fullscreen">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowBackground">@color/mediumGray</item>
     </style>
