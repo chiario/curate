@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,8 +20,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.palette.graphics.Palette;
 
@@ -35,12 +34,9 @@ import com.bumptech.glide.request.target.Target;
 import com.example.curate.R;
 import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
-import com.example.curate.models.PlaylistEntry;
 import com.example.curate.models.Settings;
 import com.example.curate.models.Song;
 import com.example.curate.utils.ToastHelper;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -156,28 +152,47 @@ public class SettingsDialogFragment extends DialogFragment {
                 backgroundColor = swatch.getRgb();
             }
 
+            ColorStateList buttonColorList = createButtonColorList(backgroundColor);
+            ColorStateList switchColorList = createSwitchColorList(backgroundColor);
+
             ivBackground.setBackgroundColor(backgroundColor);
+            button6.setBackgroundTintList(buttonColorList);
 
-
-
-            int[][] states = new int[][] {
-                    new int[] { android.R.attr.state_enabled}, // enabled
-                    new int[] {-android.R.attr.state_enabled}, // disabled
-                    new int[] {-android.R.attr.state_checked}, // unchecked
-                    new int[] { android.R.attr.state_pressed}  // pressed
-            };
-
-            int[] colors = new int[] {
-                    backgroundColor,
-                    backgroundColor,
-                    backgroundColor,
-                    backgroundColor
-            };
-
-            ColorStateList myList = new ColorStateList(states, colors);
-
-            button6.setBackgroundTintList(myList);
+            DrawableCompat.setTintList(DrawableCompat.wrap(switchLocation.getThumbDrawable()), switchColorList);
+            DrawableCompat.setTintList(DrawableCompat.wrap(switchLocation.getTrackDrawable()), switchColorList);
         });
+    }
+
+    private ColorStateList createButtonColorList(int color) {
+        int[][] states = new int[][] {
+                new int[] { android.R.attr.state_enabled}, // enabled
+                new int[] {-android.R.attr.state_enabled}, // disabled
+                new int[] {-android.R.attr.state_checked}, // unchecked
+                new int[] { android.R.attr.state_pressed}  // pressed
+        };
+
+        int[] colors = new int[] {
+                color,
+                color,
+                color,
+                color
+        };
+
+        return new ColorStateList(states, colors);
+    }
+
+    private ColorStateList createSwitchColorList(int color) {
+        int[][] states = new int[][] {
+                new int[] {-android.R.attr.state_checked},
+                new int[] {android.R.attr.state_checked},
+        };
+
+        int[] colors = new int[] {
+                ContextCompat.getColor(getContext(), R.color.lightGray),
+                color,
+        };
+
+        return new ColorStateList(states, colors);
     }
 
     @OnClick(R.id.btnSave)
