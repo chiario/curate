@@ -120,13 +120,14 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		public ViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
-			if (Party.getCurrentParty().isCurrentUserAdmin()) {
-				itemView.setOnClickListener(view -> {
-					if (mEntry != null) {
-						mMainActivity.getBottomPlayerFragment().onPlayNew(mEntry.getSong().getSpotifyId());
-					}
-				});
-			}
+			itemView.setOnClickListener(view -> {
+				if (mEntry == null) { return; }
+				if (Party.getCurrentParty().isCurrentUserAdmin()) {
+					mMainActivity.getBottomPlayerFragment().onPlayNew(mEntry.getSong().getSpotifyId());
+				} else {
+					like();
+				}
+			});
 		}
 
 		@OnClick(R.id.ibDelete)
