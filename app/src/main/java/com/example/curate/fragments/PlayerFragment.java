@@ -21,7 +21,6 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
@@ -50,8 +49,8 @@ public class PlayerFragment extends Fragment {
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
 
-    static String mTrackName = "--";
-    static String mArtistName = "--";
+    String mTrackName = "--";
+    String mArtistName = "--";
     boolean isExpanded;
     private Typeface mBoldFont;
     private Typeface mNormalFont;
