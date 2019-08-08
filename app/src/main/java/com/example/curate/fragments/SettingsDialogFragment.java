@@ -55,13 +55,16 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.ivPartyImage) ImageView imageView;
     @BindView(R.id.ivBackground) ImageView ivBackground;
     @BindView(R.id.btnSave) Button button6;
+    @BindView(R.id.switchUserLimit) Switch switchUserLimit;
+    @BindView(R.id.switchSongLimit) Switch switchSongLimit;
 
-
+    private static final String TYPE_USER = "user";
+    private static final String TYPE_SONG = "song";
     private Party mCurrentParty;
     private String mPartyName;
     private boolean mIsLocationEnabled;
-    private int mUserLimit;
-    private int mSongLimit;
+    private Integer mUserLimit;
+    private Integer mSongLimit;
 
     public SettingsDialogFragment() {
         // Required empty public constructor
@@ -99,12 +102,13 @@ public class SettingsDialogFragment extends DialogFragment {
         mPartyName = mCurrentParty.getSettings().getName();
         mIsLocationEnabled = mCurrentParty.getSettings().getLocationEnabled();
         mUserLimit = mCurrentParty.getSettings().getUserLimit();
-//        mSongLimit = mCurrentParty.getSettings().getSongLimit();
+        mSongLimit = mCurrentParty.getSettings().getSongLimit();
 
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
-        tvUserLimitNumber.setText(Integer.toString(mUserLimit));
-        tvSongLimitNumber.setText(Integer.toString(mSongLimit));
+        setLimit(TYPE_USER, mUserLimit);
+        setLimit(TYPE_SONG, mSongLimit);
+
 
         Song currentSong = Party.getCurrentParty().getCurrentSong();
         if(currentSong != null) {
@@ -127,6 +131,24 @@ public class SettingsDialogFragment extends DialogFragment {
                     .transform(new CircleCrop())
                     .into(imageView);
 
+        }
+    }
+
+    private void setLimit(String TYPE, Integer limit) {
+        boolean enabled = limit != 0;
+        switch (TYPE) {
+            case TYPE_USER:
+                switchUserLimit.setChecked(enabled);
+                tvUserLimitNumber.setTextColor(enabled ? getResources().getColor(R.color.white)
+                        : getResources().getColor(R.color.white_60));
+                tvUserLimitNumber.setText(enabled ? Integer.toString(limit) : "None");
+                break;
+            case TYPE_SONG:
+                switchSongLimit.setChecked(enabled);
+                tvSongLimitNumber.setTextColor(enabled ? getResources().getColor(R.color.white)
+                        : getResources().getColor(R.color.white_60));
+                tvSongLimitNumber.setText(enabled ? Integer.toString(limit) : "None");
+                break;
         }
     }
 
@@ -207,15 +229,6 @@ public class SettingsDialogFragment extends DialogFragment {
         boolean isLocationEnabled = (saveSettings.getLocationEnabled() && !mCurrentParty.getLocationEnabled());
         boolean isLocationDisabled = (!saveSettings.getLocationEnabled() && mCurrentParty.getLocationEnabled());
 
-        // Alert the user if they set the user limit or song limit to zero
-        if (saveSettings.getUserLimit() == 0) {
-
-            ToastHelper.makeText(getContext(), "You can't set the user limit to zero!");
-        }
-        if (saveSettings.getSongLimit() == 0) {
-            ToastHelper.makeText(getContext(), "You can't set the song limit to zero!");
-        }
-
         mCurrentParty.saveSettings(saveSettings, e -> {
             if(e == null) {
                 if (isLocationEnabled) {
@@ -234,20 +247,29 @@ public class SettingsDialogFragment extends DialogFragment {
         Settings newSettings = new Settings();
         newSettings.setName(etPartyName.getText().toString());
         newSettings.setLocationEnabled(switchLocation.isChecked());
-        newSettings.setUserLimit(Integer.parseInt(tvUserLimitNumber.getText().toString()));
-        newSettings.setSongLimit(Integer.parseInt(tvSongLimitNumber.getText().toString()));
+        newSettings.setUserLimit(switchUserLimit.isChecked() ?
+                Integer.parseInt(tvUserLimitNumber.getText().toString()) : 0);
+        newSettings.setSongLimit(switchSongLimit.isChecked() ?
+                Integer.parseInt(tvSongLimitNumber.getText().toString()) : 0);
         return newSettings;
     }
 
-    @OnClick({R.id.tvUserLimitText, R.id.tvUserLimitNumber})
+    @OnClick({R.id.switchUserLimit, R.id.tvUserLimitText, R.id.tvUserLimitNumber})
     void setUserLimit() {
-        buildAlertDialog("user", tvUserLimitNumber);
-
+        if (switchUserLimit.isChecked()) {
+            buildAlertDialog(TYPE_USER, tvUserLimitNumber);
+        } else {
+            setLimit(TYPE_USER, 0);
+        }
     }
 
-    @OnClick({R.id.tvSongLimitNumber, R.id.tvSongLimitText})
+    @OnClick({R.id.switchSongLimit, R.id.tvSongLimitText, R.id.tvSongLimitNumber})
     void setSongLimit() {
-        buildAlertDialog("song", tvSongLimitNumber);
+        if (switchSongLimit.isChecked()) {
+            buildAlertDialog(TYPE_SONG, tvSongLimitNumber);
+        } else {
+            setLimit(TYPE_SONG, 0);
+        }
     }
 
     @OnTouch(R.id.clSettings)
@@ -263,30 +285,44 @@ public class SettingsDialogFragment extends DialogFragment {
         }
     }
 
-    private void buildAlertDialog(String type, TextView textView) {
-
+    private void buildAlertDialog(String TYPE, TextView textView) {
         View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
         EditText etInput = inputView.findViewById(R.id.etInput);
-        etInput.setText(textView.getText().toString());
         TextView tvTitle = inputView.findViewById(R.id.tvTitle);
-        tvTitle.setText(String.format("Set a new %s limit...", type));
+
+        Integer currLimit = getCurrentLimit(TYPE);
+        if (currLimit != 0) {
+            etInput.setText(String.format("%s", currLimit));
+        }
+
+        tvTitle.setText(String.format("Set a new %s limit...", TYPE));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(inputView);
-        builder.setCancelable(true);
+        builder.setCancelable(false);
         AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
         inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
             dialog.dismiss();
-            String newLimit = etInput.getText().toString();
+            String newLimitAsString = etInput.getText().toString();
             try {
-                Integer.parseInt(newLimit);
-                textView.setText(newLimit);
+                Integer newLimit = Integer.parseInt(newLimitAsString);
+                setLimit(TYPE, newLimit);
             } catch (NumberFormatException e) {
+                setLimit(TYPE, currLimit);
                 ToastHelper.makeText(getContext(), "Please input a number");
             }
+
         });
+    }
+
+    private Integer getCurrentLimit(String TYPE) {
+        TextView tvLimit = tvUserLimitNumber;
+        if (TYPE.equals(TYPE_SONG)) {
+            tvLimit = tvSongLimitNumber;
+        }
+        String currLimitAsString = tvLimit.getText().toString();
+        return currLimitAsString.equals("None") ? 0 : Integer.parseInt(currLimitAsString);
     }
 }
