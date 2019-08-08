@@ -275,6 +275,7 @@ public class SettingsDialogFragment extends DialogFragment {
         builder.setView(inputView);
         builder.setCancelable(true);
         AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
         inputView.findViewById(R.id.btnSubmit).setOnClickListener(view -> {
