@@ -22,6 +22,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
@@ -50,15 +51,16 @@ import static com.example.curate.service.PlayerResultReceiver.RESULT_NEW_SONG;
 import static com.example.curate.service.PlayerResultReceiver.RESULT_OPEN_SPOTIFY;
 import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAYBACK;
 import static com.example.curate.service.PlayerResultReceiver.RESULT_PLAY_PAUSE;
-import static com.example.curate.service.PlayerResultReceiver.SONG_ID_KEY;
 import static com.example.curate.service.PlayerResultReceiver.TITLE_KEY;
-import static com.example.curate.service.PlayerResultReceiver.initService;
 import static com.example.curate.service.PlayerResultReceiver.enqueueService;
+import static com.example.curate.service.PlayerResultReceiver.initService;
 import static com.example.curate.service.PlayerResultReceiver.playNew;
 import static com.example.curate.service.PlayerResultReceiver.updatePlayer;
 
 public class AdminPlayerFragment extends PlayerFragment implements PlayerResultReceiver.Receiver {
     private static final String TAG = "AdminPlayerFragment";
+    private static final int SPOTIFY_INTENT_CODE = 3;
+
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvArtist) TextView tvArtist;
     @BindView(R.id.ivAlbum) ImageView ivAlbum;
@@ -68,7 +70,6 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     @BindView(R.id.ivPrev) ImageView mSkipPrevButton;
     @BindView(R.id.ivNext) ImageView mSkipNextButton;
     @BindView(R.id.ibExpandCollapse) ImageButton ibExpandCollapse;
-
 
     private ConstraintSet mCollapsed;
     private ConstraintSet mExpanded;
@@ -109,9 +110,11 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        setUpService();
+    public void onStart() {
+        super.onStart();
+        if (isSpotifyInstalled(true)) {
+            connectService();
+        }
     }
 
     @Override
@@ -121,28 +124,23 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public void setExpanded(boolean isExpanded) {
         ViewGroup.LayoutParams params = mPlayerBackground.getLayoutParams();
         this.isExpanded = isExpanded;
         if(isExpanded) {
             mExpanded.applyTo(mPlayerBackground);
-            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_expanded)); //new
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_expanded));
             mPlayerBackground.setLayoutParams(params);
             setVisibility(View.VISIBLE);
-            setSeekbar(true); //new
-            setButtonVisibility(View.VISIBLE);//new
+            setSeekbar(true);
+            setButtonVisibility(View.VISIBLE);
             ibExpandCollapse.setSelected(true);
         } else {
             mCollapsed.applyTo(mPlayerBackground);
-            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_collapsed)); //new
+            params.height = Math.round(getResources().getDimension(R.dimen.bottom_player_admin_height_collapsed));
             setVisibility(View.GONE);
-            setSeekbar(false); //new
-            setButtonVisibility(View.INVISIBLE); //new
+            setSeekbar(false);
+            setButtonVisibility(View.INVISIBLE);
             ibExpandCollapse.setSelected(false);
             mPlayerBackground.setLayoutParams(params);
         }
@@ -181,6 +179,8 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, r.getDisplayMetrics());
     }
 
+    // Methods to update current song details
+
     private void setPausedState(boolean isPaused) {
         if (isPaused) {
             mPlayPauseButton.setImageResource(R.drawable.ic_play);
@@ -196,6 +196,20 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         mArtistName = artistName;
         updateText();
     }
+
+    private void updateSong(Bundle songData) {
+        mTrackProgressBar.setDuration(songData.getLong(DURATION_KEY));
+        mTrackProgressBar.update(songData.getLong(PLAYBACK_POS_KEY));
+        setTrackDetails(songData.getString(TITLE_KEY), songData.getString(ARTIST_KEY));
+        setPausedState(songData.getBoolean(PAUSED_KEY));
+    }
+
+    private void loadAlbumArt(byte[] byteArray) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        Glide.with(this).load(bitmap).into(ivAlbum);
+    }
+
+    // Player functionality methods
 
     public void onSeekTo(long pos) {
         updatePlayer(getContext(), pos);
@@ -221,58 +235,60 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
     }
 
     // PlayerService methods
-    /**
-     * Sets this fragment as a PlayerService receiver and enqueues an action to connect Spotify remote
-     */
-    private void setUpService() {
+
+    private void connectService() {
+        // Sets up receiver so that this fragment can receive results from the service
         PlayerResultReceiver playerResultReceiver = new PlayerResultReceiver(new Handler());
         playerResultReceiver.setReceiver(this);
-        checkSpotifyInstalled();
+        // Initialize the PlayerService
         initService(getContext());
     }
+
+    public static void disconnectService(Context context) {
+        PlayerResultReceiver.enqueueService(context, ACTION_DISCONNECT);
+    }
+
     /**
-     * Method overwritten from the PlayerResultReceiver to receive results from the PlayerService.
-     * @param resultCode determines type of result passed from PlayerService
-     * @param resultData data bundle passed from PlayerService
+     * Method overwritten from the receiver interface to receive results from the PlayerService.
      */
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         Log.d(TAG, "Received result code " + resultCode + " with data " + resultData);
-        if (resultData != null) {
-            if (resultCode == RESULT_PLAY_PAUSE) {
-                setPausedState(resultData.getBoolean(PAUSED_KEY));
-            } else if (resultCode == RESULT_NEW_SONG) {
-                String newSongId = resultData.getString(SONG_ID_KEY);
-                // Update song information
-                mTrackProgressBar.setDuration(resultData.getLong(DURATION_KEY));
-                mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
-                setTrackDetails(resultData.getString(TITLE_KEY), resultData.getString(ARTIST_KEY));
-                setPausedState(resultData.getBoolean(PAUSED_KEY));
-            } else if (resultCode == RESULT_ALBUM_ART) {
-                // Decode byte array into bitmap
-                byte[] byteArray = resultData.getByteArray(IMAGE_KEY);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                Glide.with(this).load(bitmap).into(ivAlbum);
-            } else if (resultCode == RESULT_PLAYBACK) {
-                mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
-                setPausedState(resultData.getBoolean(PAUSED_KEY));
-            }
-        } else if (resultCode == RESULT_INSTALL_SPOTIFY) {
+        if (resultCode == RESULT_INSTALL_SPOTIFY) {
             installSpotify();
         } else if (resultCode == RESULT_OPEN_SPOTIFY) {
             openSpotify();
+        } else if (resultData != null) {
+            switch (resultCode) {
+                case RESULT_PLAY_PAUSE:
+                    setPausedState(resultData.getBoolean(PAUSED_KEY));
+                    break;
+                case RESULT_NEW_SONG:
+                    updateSong(resultData);
+                    break;
+                case RESULT_ALBUM_ART:
+                    loadAlbumArt(resultData.getByteArray(IMAGE_KEY));
+                    break;
+                case RESULT_PLAYBACK:
+                    mTrackProgressBar.update(resultData.getLong(PLAYBACK_POS_KEY));
+                    setPausedState(resultData.getBoolean(PAUSED_KEY));
+                    break;
+            }
         }
     }
 
+    // Spotify methods
 
-    private void checkSpotifyInstalled() {
+    private boolean isSpotifyInstalled(boolean promptInstallation) {
         PackageManager pm = getContext().getPackageManager();
         try {
             pm.getPackageInfo("com.spotify.music", 0);
-            Log.d(TAG, "Spotify app is installed");
+            return true;
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Spotify app is not installed");
-            installSpotify();
+            if (promptInstallation) {
+                installSpotify();
+            }
+            return false;
         }
     }
 
@@ -285,22 +301,29 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
                     .appendQueryParameter("id", appPackageName)
                     .appendQueryParameter("referrer", referrer)
                     .build();
-            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            startActivityForResult(new Intent(Intent.ACTION_VIEW, uri), SPOTIFY_INTENT_CODE);
         } catch (android.content.ActivityNotFoundException ignored) {
             Uri uri = Uri.parse("https://play.google.com/store/apps/details")
                     .buildUpon()
                     .appendQueryParameter("id", appPackageName)
                     .appendQueryParameter("referrer", referrer)
                     .build();
-            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            startActivityForResult(new Intent(Intent.ACTION_VIEW, uri), SPOTIFY_INTENT_CODE);
         }
     }
 
-    /**
-     * Intent to open Spotify app in order to log in.
-     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SPOTIFY_INTENT_CODE) {
+            // Check if Spotify app has been installed but don't start new installation activity
+            if (isSpotifyInstalled(false)) {
+                connectService();
+            }
+        }
+    }
+
     private void openSpotify() {
-        Log.d(TAG, "opening spotify");
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("spotify:track:" + getString(R.string.default_song_id)));
         intent.putExtra(Intent.EXTRA_REFERRER,
@@ -308,7 +331,5 @@ public class AdminPlayerFragment extends PlayerFragment implements PlayerResultR
         startActivity(intent);
     }
 
-    public static void disconnectService(Context context) {
-        PlayerResultReceiver.enqueueService(context, ACTION_DISCONNECT);
-    }
+
 }
