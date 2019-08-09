@@ -212,7 +212,7 @@ public class Party extends ComparableParseObject {
      */
     public static void joinParty(String joinCode, @Nullable final SaveCallback callback) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put(JOIN_CODE_KEY, joinCode);
+        params.put(JOIN_CODE_KEY, joinCode.toLowerCase());
 
         ParseCloud.callFunctionInBackground("joinParty", params, (Party party, ParseException e) -> {
             if (e == null) {
