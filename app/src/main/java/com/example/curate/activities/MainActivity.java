@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
             ToastHelper.makeText(MainActivity.this, "Time to rock out!", true);
             user.setScreenName(input);
         };
-        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Name", "Set your name...");
+        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Name", "Set your name...", false);
         dialog.show(getSupportFragmentManager(), "Input");
     }
 

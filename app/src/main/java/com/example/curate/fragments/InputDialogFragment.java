@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ public class InputDialogFragment extends DialogFragment {
 	private SubmitListener mSubmit;
 	private String mHint;
 	private String mTitle;
+	private boolean mIsNumberInput;
 	private boolean mIsSubmitted = false;
 
 	public InputDialogFragment() {
@@ -37,11 +39,12 @@ public class InputDialogFragment extends DialogFragment {
 		void submit(String input);
 	}
 
-	public static InputDialogFragment newInstance(SubmitListener submitCallback, String hint, String title) {
+	public static InputDialogFragment newInstance(SubmitListener submitCallback, String hint, String title, boolean isNumberInput) {
 		InputDialogFragment inputDialogFragment = new InputDialogFragment();
 		inputDialogFragment.mTitle = title;
 		inputDialogFragment.mHint = hint;
 		inputDialogFragment.mSubmit = submitCallback;
+		inputDialogFragment.mIsNumberInput = isNumberInput;
 		return inputDialogFragment;
 	}
 
@@ -57,6 +60,10 @@ public class InputDialogFragment extends DialogFragment {
 
 		EditText etInput = getView().findViewById(R.id.etInput);
 		etInput.setHint(mHint);
+
+		if(mIsNumberInput) etInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+		else etInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+
 		TextView tvTitle = getView().findViewById(R.id.tvTitle);
 		tvTitle.setText(mTitle);
 		ImageButton ibSubmit = getView().findViewById(R.id.ibSubmit);

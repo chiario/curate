@@ -120,7 +120,7 @@ public class SelectFragment extends Fragment {
                 ToastHelper.makeText(SelectFragment.this.getContext(), e.getMessage());
             }
         });
-        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Party Name", "Give your party a name");
+        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Party Name", "Give your party a name", false);
         dialog.show(getFragmentManager(), "Input");
     }
 
