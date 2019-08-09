@@ -219,7 +219,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			Glide.with(mContext)
 					.load(song.getImageUrl())
 					.placeholder(R.drawable.ic_album_placeholder)
-					.transform(new RoundedCorners((int) mContext.getResources().getDimension(R.dimen.button_radius)))
+					.transform(new RoundedCorners((int) mContext.getResources().getDimension(R.dimen.searchbar_radius)))
 					.into(ivAlbum);
 		}
 

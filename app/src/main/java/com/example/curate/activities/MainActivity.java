@@ -2,6 +2,7 @@ package com.example.curate.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;

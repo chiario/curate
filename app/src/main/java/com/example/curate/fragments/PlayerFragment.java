@@ -185,8 +185,6 @@ public class PlayerFragment extends Fragment {
                         mArtistName = currentSong.getArtist();
                         getActivity().runOnUiThread(() -> {
                             updateText();
-                            int radius = (int) getResources().getDimension(R.dimen.button_radius);
-                            Log.i("tag", "Radius: " + radius);
                             Glide.with(this)
                                     .load(currentSong.getImageUrl())
                                     .into(ivAlbum);

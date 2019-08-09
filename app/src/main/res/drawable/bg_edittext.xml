@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@color/white"/>
-    <corners android:bottomLeftRadius="@dimen/button_radius"
-        android:topLeftRadius="@dimen/button_radius"
-        android:bottomRightRadius="@dimen/button_radius"
-        android:topRightRadius="@dimen/button_radius"/>
+    <corners android:bottomLeftRadius="@dimen/searchbar_radius"
+        android:topLeftRadius="@dimen/searchbar_radius"
+        android:bottomRightRadius="@dimen/searchbar_radius"
+        android:topRightRadius="@dimen/searchbar_radius"/>
     <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp" />
 </shape>

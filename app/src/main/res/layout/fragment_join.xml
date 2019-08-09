@@ -52,7 +52,7 @@
         android:src="@drawable/ic_qr_code"
         android:tint="@color/white_90"
         app:layout_constraintBottom_toBottomOf="@+id/btnJoin"
-        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintDimensionRatio="14:9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnJoin" />
 
