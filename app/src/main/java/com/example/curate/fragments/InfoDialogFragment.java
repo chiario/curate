@@ -85,7 +85,7 @@ public class InfoDialogFragment extends DialogFragment {
             // TODO: Fix hardcoded size?
             int side = (int) getResources().getDimension(R.dimen.QR_size);
             int remove = 10;
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode, BarcodeFormat.QR_CODE, side, side);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(joinCode.toLowerCase(), BarcodeFormat.QR_CODE, side, side);
             Bitmap resized = Bitmap.createBitmap(bitmap, remove, remove, side - 2 * remove, side - 2 * remove);
             Glide.with(getContext()).load(resized).transform(new RoundedCorners(50)).into(ivQR);
         }
