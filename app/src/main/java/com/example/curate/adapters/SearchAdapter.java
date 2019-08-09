@@ -8,7 +8,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.curate.R;
-import com.example.curate.activities.MainActivity;
 import com.example.curate.models.Party;
 import com.example.curate.models.Song;
 import com.example.curate.utils.NotificationHelper;
@@ -260,7 +258,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 					mSongsInAdd.add(inAddPosition, mSong);
 					notifyDataSetChanged();
 					updateSections();
-					ToastHelper.makeText(mContext, e.getMessage(), true);
+					ToastHelper.makeText(mContext, "Could not add song.", true);
 				}
 			});
 		}

@@ -2,12 +2,9 @@ package com.example.curate.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
@@ -18,9 +15,7 @@ import android.os.Handler;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -69,8 +64,6 @@ import com.parse.ParseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -174,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
     private void setUserName() {
         User user = (User) ParseUser.getCurrentUser();
         InputDialogFragment.SubmitListener submit = input -> {
-            ToastHelper.makeText(MainActivity.this, "Time to rock out!", true);
             user.setScreenName(input);
         };
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Name", "Set your name...", false);

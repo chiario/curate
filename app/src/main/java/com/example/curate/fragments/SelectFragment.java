@@ -1,27 +1,17 @@
 package com.example.curate.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
-import com.example.curate.activities.JoinActivity;
 import com.example.curate.models.Party;
 import com.example.curate.utils.ToastHelper;
 import com.parse.ParseAnonymousUtils;
@@ -68,7 +58,7 @@ public class SelectFragment extends Fragment {
             ParseAnonymousUtils.logIn((user, e) -> {
                 if (e != null) {
                     Log.e("JoinActivity", "Anonymous login failed!", e);
-                    ToastHelper.makeText(getContext(), e.getMessage());
+                    ToastHelper.makeText(getContext(), "User error.");
                     mProgressBar.setVisibility(View.GONE);
                 } else {
                     tryJoinExistingParty();
@@ -117,7 +107,7 @@ public class SelectFragment extends Fragment {
                     mListener.onPartyObtained();
                 }
             } else {
-                ToastHelper.makeText(SelectFragment.this.getContext(), e.getMessage());
+                ToastHelper.makeText(SelectFragment.this.getContext(),"Could not create party.");
             }
         });
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Party Name", "Give your party a name", false);

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -151,7 +150,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
 				if(e != null) {
 					notifyPlaylistUpdated();
-					ToastHelper.makeText(mContext, "Could not remove song", true);
+					ToastHelper.makeText(mContext, "Could not remove song.", true);
 				}
 			};
 			Party.getCurrentParty().getPlaylist().removeEntry(mEntry, callback);
@@ -168,7 +167,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			isLiking = true;
 
 			final boolean isLiked = mEntry.isLikedByUser();
-			final String errorMessage = isLiked ? "Couldn't unlike song" : "Couldn't like song";
+			final String errorMessage = isLiked ? "Could not unlike song." : "Could not like song.";
 			final SaveCallback callback = e -> {
 				isLiking = false;
 				if(e == null) {

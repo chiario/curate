@@ -322,7 +322,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 setLimit(TYPE, newLimit);
             } catch (NumberFormatException e) {
                 setLimit(TYPE, currLimit);
-                ToastHelper.makeText(getContext(), "Please input a number");
+                ToastHelper.makeText(getContext(), "Please input a number.");
             }
         };
 

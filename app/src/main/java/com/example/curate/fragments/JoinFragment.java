@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -161,7 +160,7 @@ public class JoinFragment extends Fragment {
         if(requestCode == BARCODE_READER_REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(resultCode, data);
             if (result.getContents() == null) {
-                ToastHelper.makeText(getContext(), "No QR Scanned");
+                ToastHelper.makeText(getContext(), "No QR scanned.");
             } else {
                 joinParty(result.getContents());
             }
@@ -183,7 +182,7 @@ public class JoinFragment extends Fragment {
                     mListener.onPartyObtained();
                 }
             } else {
-                ToastHelper.makeText(getContext(), e.getMessage());
+                ToastHelper.makeText(getContext(), "Could not join party.");
             }
         });
     }
