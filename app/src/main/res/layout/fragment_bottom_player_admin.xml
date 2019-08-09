@@ -6,9 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/bottom_player_admin_height_expanded"
     android:animateLayoutChanges="true"
-    android:background="@color/white_10"
+    android:background="@color/dialog_background"
     android:elevation="10dp">
     <!-- Current Track -->
+
+    <com.github.mmin18.widget.RealtimeBlurView
+        android:id="@+id/blurLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:realtimeBlurRadius="@dimen/blur_radius"
+        app:realtimeOverlayColor="@color/transparent" />
 
     <ImageView
         android:id="@+id/ivAlbum"
