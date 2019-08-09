@@ -192,6 +192,13 @@ public class PlayerFragment extends Fragment {
                     } catch (ParseException e1) {
                         e1.printStackTrace();
                     }
+                } else {
+                    mTrackName = "--";
+                    mArtistName = "--";
+                    getActivity().runOnUiThread(() -> {
+                        updateText();
+                        ivAlbum.setImageDrawable(getResources().getDrawable(R.drawable.ic_album_placeholder, null));
+                    });
                 }
             } else {
                 Log.d(TAG, "Error in song update callback", e);
