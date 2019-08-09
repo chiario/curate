@@ -452,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
         // Apply changes to layout
         ((GradientDrawable) ivSearchBackground.getBackground()).setCornerRadius(isExpanding ? maxRadius - maxDelta : maxRadius);
         ViewGroup.LayoutParams layout = ivSearchBackground.getLayoutParams();
-        layout.height = (int) (isExpanding ? maxHeight : maxHeight - maxDelta);
+        layout.height = (int) (isExpanding ? maxHeight : maxHeight - maxDelta / 1.5f);
         layout.width = (int) (isExpanding ? maxWidth : maxWidth - maxDelta);
         ivSearchBackground.setLayoutParams(layout);
 
