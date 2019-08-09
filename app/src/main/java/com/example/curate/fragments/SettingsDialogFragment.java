@@ -1,6 +1,5 @@
 package com.example.curate.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -265,6 +264,7 @@ public class SettingsDialogFragment extends DialogFragment {
                     ((MainActivity) getActivity()).deregisterLocationUpdater();
                 }
                 dismiss();
+                ToastHelper.makeText(getContext(), "Settings saved.");
             } else {
                 ToastHelper.makeText(getContext(), "Could not save settings");
             }
