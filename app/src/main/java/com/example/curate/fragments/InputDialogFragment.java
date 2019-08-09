@@ -74,17 +74,4 @@ public class InputDialogFragment extends BlurDialogFragment {
 
 		super.onViewCreated(view, savedInstanceState);
 	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-//		Dialog dialog = getDialog();
-//		if(dialog != null) {
-//			DisplayMetrics dm = new DisplayMetrics();
-//			dialog.getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
-//			int width = dm.widthPixels - 2 * (int) getResources().getDimension(R.dimen.dialog_input_margin);
-//			int height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//			dialog.getWindow().setLayout(width, height);
-//		}
-	}
 }
