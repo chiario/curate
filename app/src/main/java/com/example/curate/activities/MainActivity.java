@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
@@ -17,6 +18,7 @@ import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -270,7 +272,8 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ibOverflow)
     public void onClickOverflow() {
-        PopupMenu popupMenu = new PopupMenu(MainActivity.this, ivSearchBackground, Gravity.END, 0, R.style.Curate_MenuPopup);
+
+        PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.vPopupAnchor), Gravity.END, 0, R.style.Curate_MenuPopup);
 
         popupMenu.inflate(R.menu.menu_overflow);
         MenuItem miSettings = popupMenu.getMenu().findItem(R.id.miSettings);

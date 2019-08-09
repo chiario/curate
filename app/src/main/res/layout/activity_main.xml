@@ -76,6 +76,14 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <View
+                    android:id="@+id/vPopupAnchor"
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="@id/ivSearchBackground"
+                    app:layout_constraintEnd_toEndOf="@id/ivSearchBackground"
+                    app:layout_constraintTop_toTopOf="@id/ivSearchBackground" />
+
                 <ImageButton
                     android:id="@+id/ibOverflow"
                     android:layout_width="wrap_content"
