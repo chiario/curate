@@ -46,10 +46,6 @@
         <item name="android:dropDownVerticalOffset">2dp</item>
     </style>
 
-    <style name="Curate.MenuPopup.Animation">
-        <item name="android:popupAnimationStyle">@null</item>
-    </style>
-
     <style name="Curate.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="android:fontFamily">@font/nunito</item>
         <item name="queryBackground">@color/transparent</item>

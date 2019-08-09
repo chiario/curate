@@ -96,9 +96,13 @@ public class Party extends ComparableParseObject {
 
         ParseCloud.callFunctionInBackground("getCurrentParty", params, (Party party, ParseException e) -> {
             if (e == null) {
-                handleCurrentlyPlayingUpdate((Song) party.getParseObject(CURRENTLY_PLAYING_KEY));
-                handleUserCountUpdate(party.getNumber(USER_COUNT_KEY));
-                handlePlaylistUpdate(party.getDate(PLAYLIST_LAST_UPDATED_KEY), party.getString(CACHED_PLAYLIST_KEY));
+                try {
+                    handleCurrentlyPlayingUpdate((Song) party.getParseObject(CURRENTLY_PLAYING_KEY));
+                    handleUserCountUpdate(party.getNumber(USER_COUNT_KEY));
+                    handlePlaylistUpdate(party.getDate(PLAYLIST_LAST_UPDATED_KEY), party.getString(CACHED_PLAYLIST_KEY));
+                } catch (IllegalStateException e1) {
+                    e1.printStackTrace();
+                }
             } else {
                 // Log the error if we get one
                 Log.e("Party.java", "Could not get current party!", e);
