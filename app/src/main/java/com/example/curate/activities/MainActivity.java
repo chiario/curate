@@ -55,6 +55,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.curate.R;
 import com.example.curate.fragments.AdminPlayerFragment;
 import com.example.curate.fragments.InfoDialogFragment;
+import com.example.curate.fragments.InputDialogFragment;
 import com.example.curate.fragments.PlayerFragment;
 import com.example.curate.fragments.QueueFragment;
 import com.example.curate.fragments.SearchFragment;
@@ -72,6 +73,8 @@ import com.parse.ParseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -180,24 +183,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUserName() {
         User user = (User) ParseUser.getCurrentUser();
-        View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
-        EditText etInput = inputView.findViewById(R.id.etInput);
-        etInput.setHint("Name");
-        TextView tvTitle = inputView.findViewById(R.id.tvTitle);
-        tvTitle.setText("Set your name...");
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(inputView);
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
-        etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
+        InputDialogFragment.SubmitListener submit = input -> {
             ToastHelper.makeText(MainActivity.this, "Time to rock out!", true);
-            dialog.dismiss();
-            user.setScreenName(etInput.getText().toString());
-            return true;
-        });
+            user.setScreenName(input);
+        };
+        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Name", "Set your name...");
+        dialog.show(getSupportFragmentManager(), "Input");
     }
 
     @Override

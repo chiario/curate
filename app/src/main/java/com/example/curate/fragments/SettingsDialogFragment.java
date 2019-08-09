@@ -300,34 +300,19 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void buildAlertDialog(String TYPE) {
-        View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
-        EditText etInput = inputView.findViewById(R.id.etInput);
-        TextView tvTitle = inputView.findViewById(R.id.tvTitle);
-
         Integer currLimit = getCurrentLimit(TYPE);
-        if (currLimit != 0) {
-            etInput.setText(String.format("%s", currLimit));
-        }
-
-        tvTitle.setText(String.format("Set a new %s limit...", TYPE));
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(inputView);
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        etInput.setOnEditorActionListener((TextView.OnEditorActionListener) (textView, i, keyEvent) -> {
-            dialog.dismiss();
-            String newLimitAsString = etInput.getText().toString();
+        InputDialogFragment.SubmitListener submit = input -> {
             try {
-                Integer newLimit = Integer.parseInt(newLimitAsString);
+                Integer newLimit = Integer.parseInt(input);
                 setLimit(TYPE, newLimit);
             } catch (NumberFormatException e) {
                 setLimit(TYPE, currLimit);
                 ToastHelper.makeText(getContext(), "Please input a number");
             }
-            return true;
-        });
+        };
+
+        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, currLimit.toString(), String.format("Set a new %s limit...", TYPE));
+        dialog.show(getFragmentManager(), "Input");
     }
 
     private Integer getCurrentLimit(String TYPE) {

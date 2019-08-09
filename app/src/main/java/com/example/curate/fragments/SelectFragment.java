@@ -1,6 +1,7 @@
 package com.example.curate.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.curate.R;
@@ -109,32 +111,17 @@ public class SelectFragment extends Fragment {
 
     @OnClick(R.id.btnCreateParty)
     public void onCreateParty() {
-        View inputView = getLayoutInflater().inflate(R.layout.fragment_input, null);
-
-        EditText etInput = inputView.findViewById(R.id.etInput);
-        etInput.setHint("Party name");
-        TextView tvTitle = inputView.findViewById(R.id.tvTitle);
-        tvTitle.setText("Give your party a name...");
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setView(inputView);
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
-
-        etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
-            Party.createParty(etInput.getText().toString(), (ParseException e) -> {
-                dialog.dismiss();
-                if (e == null) {
-                    if (mListener != null) {
-                        mListener.onPartyObtained();
-                    }
-                } else {
-                    ToastHelper.makeText(SelectFragment.this.getContext(), e.getMessage());
+        InputDialogFragment.SubmitListener submit = input -> Party.createParty(input, (ParseException e) -> {
+            if (e == null) {
+                if (mListener != null) {
+                    mListener.onPartyObtained();
                 }
-            });
-            return true;
+            } else {
+                ToastHelper.makeText(SelectFragment.this.getContext(), e.getMessage());
+            }
         });
+        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Party Name", "Give your party a name");
+        dialog.show(getFragmentManager(), "Input");
     }
 
     @OnClick(R.id.btnJoinParty)
