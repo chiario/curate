@@ -41,7 +41,7 @@
     <color name="black_40">#66000000</color>
     <color name="ic_launcher_background">@color/darkGray</color>
 
-    <color name="dialog_background">#303030</color>
+    <color name="dialog_background">@color/white_10</color>
 
     <color name="colorGradientStart">#D9FF43</color>
     <color name="colorGradientCenter">#F67831</color>
