@@ -13,7 +13,7 @@
     <dimen name="max_searchbar_radius">@dimen/button_radius</dimen>
 
     <dimen name="QR_size">140dp</dimen>
-    <dimen name="button_radius">4dp</dimen>
+    <dimen name="button_radius">50dp</dimen>
     <dimen name="dialog_input_margin">16dp</dimen>
     <dimen name="blur_radius">35dp</dimen>
 

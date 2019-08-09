@@ -12,7 +12,9 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.transition.AutoTransition;
 import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -61,6 +63,8 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
 import com.parse.ParseUser;
 
+import java.util.Set;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -71,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_SEARCH_FRAGMENT = "search";
     private static final String KEY_ACTIVE = "active";
     private static final String TAG = "MainActivity";
+
+    private static long SEARCHBAR_ANIM_DURATION = 300L;
 
     protected static final String KEY_PARTY_DELETED = "partyDeleted";
 
@@ -413,6 +419,8 @@ public class MainActivity extends AppCompatActivity {
         params.height = (int) (maxHeight - maxDelta / 1.5f);
         params.width = (int) (maxWidth - maxDelta);
         ivSearchBackground.setLayoutParams(params);
+
+
     }
 
     private void animateSearchbar(boolean isExpanding) {
@@ -422,7 +430,9 @@ public class MainActivity extends AppCompatActivity {
         mIsSearchbarExpanded = isExpanding;
 
         // Start transition
-        TransitionManager.beginDelayedTransition(clSearchbar);
+        AutoTransition auto = new AutoTransition();
+        auto.setDuration(SEARCHBAR_ANIM_DURATION);
+        TransitionManager.beginDelayedTransition(clSearchbar, auto);
 
         // Get the display metrics for window width
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -434,13 +444,22 @@ public class MainActivity extends AppCompatActivity {
         float maxDelta = getResources().getDimension(R.dimen.max_searchbar_delta);
         float maxRadius = getResources().getDimension(R.dimen.max_searchbar_radius);
 
+        GradientDrawable gd = (GradientDrawable) ivSearchBackground.getBackground();
+
+        final ValueAnimator cornerAnimator = isExpanding ? ValueAnimator.ofFloat(maxRadius, 0f) : ValueAnimator.ofFloat(0f, maxRadius);
+        cornerAnimator.setDuration(SEARCHBAR_ANIM_DURATION)
+                .addUpdateListener(animation -> {
+                    float value = (float) animation.getAnimatedValue();
+                    gd.setCornerRadius(value);
+                });
+        cornerAnimator.start();
+
         // Apply changes to layout
-        ((GradientDrawable) ivSearchBackground.getBackground()).setCornerRadius(isExpanding ? maxRadius - maxDelta : maxRadius);
+        gd.setCornerRadius(isExpanding ? 0 : maxRadius);
         ViewGroup.LayoutParams layout = ivSearchBackground.getLayoutParams();
         layout.height = (int) (isExpanding ? maxHeight : maxHeight - maxDelta / 1.5f);
         layout.width = (int) (isExpanding ? maxWidth : maxWidth - maxDelta);
         ivSearchBackground.setLayoutParams(layout);
-
     }
 
     private void hideKeyboard(View view) {
