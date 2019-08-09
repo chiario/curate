@@ -326,7 +326,7 @@ public class SettingsDialogFragment extends DialogFragment {
             }
         };
 
-        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, currLimit.toString(), String.format("Set a new %s limit...", TYPE));
+        InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "New limit", String.format("Set a new %s limit...", TYPE));
         dialog.show(getFragmentManager(), "Input");
     }
 
