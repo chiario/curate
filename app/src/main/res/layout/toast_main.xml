@@ -6,7 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_button"
-    android:backgroundTint="@color/colorAccent_50"
+    android:backgroundTint="@color/colorAccent_80"
     android:paddingStart="16dp"
     android:paddingTop="8dp"
     android:paddingEnd="16dp"
