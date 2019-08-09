@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -165,7 +166,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
     @OnClick(R.id.ivClose)
     public void cancel() {
-        dismiss();
+        new Handler().postDelayed(this::dismiss, 150);
     }
 
     @OnClick(R.id.ivEdit)
