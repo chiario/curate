@@ -328,7 +328,7 @@ public class SettingsDialogFragment extends DialogFragment {
         };
 
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "New limit", String.format("Set a new %s limit...", TYPE), true);
-        dialog.show(getFragmentManager(), "Input");
+//        dialog.show(getFragmentManager(), "Input");
     }
 
     private Integer getCurrentLimit(String TYPE) {

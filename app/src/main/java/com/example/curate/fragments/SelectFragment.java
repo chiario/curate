@@ -111,7 +111,7 @@ public class SelectFragment extends Fragment {
             }
         });
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Party Name", "Give your party a name", false);
-        dialog.show(getFragmentManager(), "Input");
+        mListener.showDialog(dialog);
     }
 
     @OnClick(R.id.btnJoinParty)
@@ -120,6 +120,8 @@ public class SelectFragment extends Fragment {
     }
 
     public interface OnOptionSelected {
+        void showDialog(BlurDialogFragment dialog);
+
         void onPartyObtained();
 
         void onJoinPartySelected();

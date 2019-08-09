@@ -174,10 +174,12 @@ public class MainActivity extends AppCompatActivity {
     private void setUserName() {
         User user = (User) ParseUser.getCurrentUser();
         InputDialogFragment.SubmitListener submit = input -> {
+            hideDialog();
+            ToastHelper.makeText(MainActivity.this, "Time to rock out!", true);
             user.setScreenName(input);
         };
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Name", "Set your name...", false);
-        dialog.show(getSupportFragmentManager(), "Input");
+        showDialog(dialog);
     }
 
     @Override

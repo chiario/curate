@@ -4,10 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:layout_margin="32dp"
     android:background="@color/dialog_background"
-    android:padding="32dp"
     android:theme="@style/Curate.AlertDialog">
+
+    <com.github.mmin18.widget.RealtimeBlurView
+        android:id="@+id/blurLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:realtimeBlurRadius="@dimen/blur_radius"
+        app:realtimeOverlayColor="@color/transparent" />
 
     <EditText
         android:id="@+id/etInput"
@@ -16,7 +27,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
         android:backgroundTint="#33FFFFFF"
         android:ellipsize="start"
         android:gravity="center|start"
@@ -27,6 +41,7 @@
         android:textAllCaps="true"
         android:textColor="@color/white"
         android:textColorHint="@color/white_70"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
@@ -36,6 +51,7 @@
         style="@style/Curate.TextView.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="@+id/etInput"
         app:layout_constraintTop_toTopOf="parent" />

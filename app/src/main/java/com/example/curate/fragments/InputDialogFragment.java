@@ -1,19 +1,12 @@
 package com.example.curate.fragments;
 
 
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.text.InputType;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +16,7 @@ import android.widget.TextView;
 
 import com.example.curate.R;
 
-public class InputDialogFragment extends DialogFragment {
+public class InputDialogFragment extends BlurDialogFragment {
 
 	private SubmitListener mSubmit;
 	private String mHint;
@@ -48,16 +41,16 @@ public class InputDialogFragment extends DialogFragment {
 		return inputDialogFragment;
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-	                         Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_input, container);
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_input, container, false);
+		super.onShow(view);
+		return view;
 	}
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-		getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
 		EditText etInput = getView().findViewById(R.id.etInput);
 		etInput.setHint(mHint);
 
@@ -67,16 +60,15 @@ public class InputDialogFragment extends DialogFragment {
 		TextView tvTitle = getView().findViewById(R.id.tvTitle);
 		tvTitle.setText(mTitle);
 		ImageButton ibSubmit = getView().findViewById(R.id.ibSubmit);
+
 		ibSubmit.setOnClickListener(view1 -> {
 			mSubmit.submit(etInput.getText().toString());
 			mIsSubmitted = true;
-			dismiss();
 		});
 
 		etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
 			mSubmit.submit(etInput.getText().toString());
 			mIsSubmitted = true;
-			dismiss();
 			return true;
 		});
 
@@ -84,21 +76,15 @@ public class InputDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public void onDismiss(@NonNull DialogInterface dialog) {
-		super.onDismiss(dialog);
-		if(!mIsSubmitted) mSubmit.submit("");
-	}
-
-	@Override
 	public void onStart() {
 		super.onStart();
-		Dialog dialog = getDialog();
-		if(dialog != null) {
-			DisplayMetrics dm = new DisplayMetrics();
-			dialog.getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
-			int width = dm.widthPixels - 2 * (int) getResources().getDimension(R.dimen.dialog_input_margin);
-			int height = ViewGroup.LayoutParams.WRAP_CONTENT;
-			dialog.getWindow().setLayout(width, height);
-		}
+//		Dialog dialog = getDialog();
+//		if(dialog != null) {
+//			DisplayMetrics dm = new DisplayMetrics();
+//			dialog.getWindow().getWindowManager().getDefaultDisplay().getMetrics(dm);
+//			int width = dm.widthPixels - 2 * (int) getResources().getDimension(R.dimen.dialog_input_margin);
+//			int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//			dialog.getWindow().setLayout(width, height);
+//		}
 	}
 }
