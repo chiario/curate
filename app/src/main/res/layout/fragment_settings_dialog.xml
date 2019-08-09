@@ -61,7 +61,8 @@
         app:layout_constraintBottom_toTopOf="@+id/etName"
         app:layout_constraintStart_toStartOf="@+id/etName" />
 
-    <EditText android:id="@+id/etName"
+    <EditText
+        android:id="@+id/etName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -78,7 +79,10 @@
         android:singleLine="true"
         android:textColor="@color/white"
         android:textColorHint="@color/white_60"
+        android:textCursorDrawable="@null"
         android:textSize="28sp"
+        android:theme="@style/Curate.EditText.Theme"
+        android:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="@+id/ivBackground"
         app:layout_constraintEnd_toStartOf="@+id/ivEdit"
         app:layout_constraintStart_toEndOf="@+id/ivPartyImage" />

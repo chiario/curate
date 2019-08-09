@@ -34,6 +34,11 @@
     </style>
 
     <style name="Curate.EditText" parent="Widget.AppCompat.EditText">
+
+        <item name="android:textCursorDrawable">@null</item>
+    </style>
+
+    <style name="Curate.EditText.Style">
         <item name="android:background">@drawable/bg_edittext</item>
         <item name="android:backgroundTint">@color/white_20</item>
         <item name="android:paddingStart">16dp</item>
@@ -43,7 +48,13 @@
         <item name="android:textSize">18dp</item>
     </style>
 
-    <style name="Curate.EditText.Submit" parent="Curate.EditText">
+    <style name="Curate.EditText.Theme">
+        <item name="colorControlActivated">@color/transparent</item>
+        <item name="colorControlNormal">@color/transparent</item>
+        <item name="android:colorControlHighlight">@color/transparent</item>
+    </style>
+
+    <style name="Curate.EditText.Style.Submit">
         <item name="android:background">@drawable/bg_edittext_submit</item>
         <item name="android:textColor">@color/white</item>
     </style>

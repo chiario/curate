@@ -11,7 +11,8 @@
 
     <EditText
         android:id="@+id/etInput"
-        style="@style/Curate.EditText"
+        android:theme="@style/Curate.EditText.Theme"
+        style="@style/Curate.EditText.Style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

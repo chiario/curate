@@ -9,7 +9,8 @@
 
     <EditText
         android:id="@+id/etJoinCode"
-        style="@style/Curate.EditText.Submit"
+        android:theme="@style/Curate.EditText.Theme"
+        style="@style/Curate.EditText.Style.Submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

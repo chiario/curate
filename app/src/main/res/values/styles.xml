@@ -1,4 +1,5 @@
 <resources>
+
     <!-- Base application theme. -->
     <style name="Curate" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/mediumGray</item>
@@ -7,7 +8,7 @@
         <item name="android:windowBackground">@color/darkGray</item>
         <item name="android:textViewStyle">@style/Curate.TextView</item>
         <item name="android:colorControlHighlight">@color/colorAccent</item>
-        <item name="editTextStyle">@style/Curate.EditText</item>
+        <item name="editTextStyle">@style/Curate.EditText.Style</item>
         <item name="searchViewStyle">@style/Curate.SearchView</item>
         <!--<item name="actionOverflowMenuStyle">@style/Curate.MenuPopup</item>-->
         <item name="buttonStyle">@style/Curate.Button</item>
