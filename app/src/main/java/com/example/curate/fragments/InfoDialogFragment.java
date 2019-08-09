@@ -1,22 +1,16 @@
 package com.example.curate.fragments;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -60,13 +54,11 @@ public class InfoDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
     }
 
-    // Use this instead of onCreateDialog because the entire view is defined by our custom xml
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_info_dialog, container, false);
-        getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        super.onShow(view);
         return view;
     }
 
