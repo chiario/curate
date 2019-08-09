@@ -15,6 +15,8 @@ import com.parse.SaveCallback;
 import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -408,6 +410,7 @@ public class Party extends ComparableParseObject {
                 (FunctionCallback<Song>) (song, e) -> {
             if (e != null) {
                 Log.e("Party.java", "Could not set the next song");
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, JSONObject.NULL);
             } else {
                 mCurrentParty.put(CURRENTLY_PLAYING_KEY, song);
             }
