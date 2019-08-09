@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,7 @@ public class JoinFragment extends Fragment {
     @BindView(R.id.rvNearby) RecyclerView rvNearby;
     @BindView(R.id.etJoinCode) EditText etJoinCode;
     @BindView(R.id.tvMessage) TextView tvMessage;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
 
 
     private SelectFragment.OnOptionSelected mListener;
@@ -116,8 +118,10 @@ public class JoinFragment extends Fragment {
     }
 
     private void getNearbyParties() {
+        progressBar.setVisibility(View.VISIBLE);
         mLocationManager.getCurrentLocation(location -> {
             if(location == null) {
+                progressBar.setVisibility(View.GONE);
                 tvMessage.setPadding(0,16, 0, 0); //TODO - style this better!
                 tvMessage.setText("No nearby parties!");
                 tvMessage.setVisibility(View.VISIBLE);
@@ -127,11 +131,12 @@ public class JoinFragment extends Fragment {
             Log.d("LOCATION", String.format("lat: %f, long: %f", location.getLatitude(), location.getLongitude()));
 
             Party.getNearbyParties(LocationManager.createGeoPointFromLocation(location), (parties, e) -> {
-                if(e == null) {
+                if(e == null && parties != null && parties.size() > 0) {
                     displayNearbyParties(parties);
                 } else {
                     tvMessage.setText("No nearby parties!");
                     tvMessage.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
                 }
             });
         });
@@ -141,7 +146,7 @@ public class JoinFragment extends Fragment {
         mAdapter = new PartyAdapter(getContext(), parties, mListener, (JoinActivity) getActivity());
         rvNearby.setAdapter(mAdapter);
         rvNearby.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        progressBar.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.ibScan)

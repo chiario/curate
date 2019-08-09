@@ -22,7 +22,6 @@ public class InputDialogFragment extends BlurDialogFragment {
 	private String mHint;
 	private String mTitle;
 	private boolean mIsNumberInput;
-	private boolean mIsSubmitted = false;
 
 	public InputDialogFragment() {
 		// Required empty public constructor
@@ -63,12 +62,10 @@ public class InputDialogFragment extends BlurDialogFragment {
 
 		ibSubmit.setOnClickListener(view1 -> {
 			mSubmit.submit(etInput.getText().toString());
-			mIsSubmitted = true;
 		});
 
 		etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
 			mSubmit.submit(etInput.getText().toString());
-			mIsSubmitted = true;
 			return true;
 		});
 
