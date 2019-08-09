@@ -61,9 +61,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		// Return a new holder instance
 		ViewHolder viewHolder = new ViewHolder(contactView);
 
-		// Only show delete icon if current user is admin of current party
-		viewHolder.ibRemove.setVisibility(Party.getCurrentParty().isCurrentUserAdmin()
-				? View.VISIBLE : View.GONE);
 		return viewHolder;
 	}
 
@@ -108,7 +105,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 		@BindView(R.id.tvTitle) TextView tvTitle;
 		@BindView(R.id.tvArtist) TextView tvArtist;
 		@BindView(R.id.ibLike) ImageButton ibLike;
-		@BindView(R.id.ibDelete) ImageButton ibRemove;
 		@BindView(R.id.clItem) ConstraintLayout clItem;
 		@BindView(R.id.tvScore) TextView tvScore;
 
@@ -128,11 +124,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 					like();
 				}
 			});
-		}
-
-		@OnClick(R.id.ibDelete)
-		public void onClickRemove() {
-			remove();
 		}
 
 		private void remove() {
