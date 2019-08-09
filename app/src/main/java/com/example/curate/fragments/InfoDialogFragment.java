@@ -100,7 +100,7 @@ public class InfoDialogFragment extends DialogFragment {
         tvJoinCode.setText("Join Code: " + joinCode.toUpperCase());
         int count = Party.getCurrentParty().getPartyUserCount().intValue();
         tvUserCount.setText(count == 1
-                ? count + " person partying :("
+                ? count + " person partying"
                 : count + " people partying");
     }
 }
