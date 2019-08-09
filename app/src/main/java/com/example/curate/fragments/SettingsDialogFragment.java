@@ -1,5 +1,6 @@
 package com.example.curate.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -20,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
@@ -167,6 +167,18 @@ public class SettingsDialogFragment extends DialogFragment {
     @OnClick(R.id.ivClose)
     public void cancel() {
         dismiss();
+    }
+
+    @OnClick(R.id.ivEdit)
+    public void editPartyName() {
+        if (etPartyName.requestFocus()) {
+            etPartyName.setSelection(etPartyName.getText().length());
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            //Find the currently focused view, so we can grab the correct window token from it.
+            if (imm != null) {
+                imm.showSoftInput(etPartyName, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }
     }
 
     @OnEditorAction(R.id.etName)
