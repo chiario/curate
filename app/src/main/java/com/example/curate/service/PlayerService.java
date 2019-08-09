@@ -299,7 +299,7 @@ public class PlayerService extends JobIntentService {
         PlaylistEntry entry = getEntryBySpotifyId(spotifyId);
         SaveCallback saveCallback = e -> {
             if (e != null) {
-                Log.e(TAG, "Error setting currently playing song", e);
+                Log.e(TAG, "Error setting currently playing song.");
             }
         };
         if (entry == null) {
