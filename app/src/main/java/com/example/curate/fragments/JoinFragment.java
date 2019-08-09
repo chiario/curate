@@ -151,7 +151,7 @@ public class JoinFragment extends Fragment {
                .setOrientationLocked(false)
                .setRequestCode(BARCODE_READER_REQUEST_CODE)
                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-               .setPrompt("Scan a party barcode from the Admin's info page")
+               .setPrompt("Scan a party barcode from the party info page")
                .setBeepEnabled(false)
                .initiateScan();
     }

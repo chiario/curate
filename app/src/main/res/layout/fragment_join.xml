@@ -50,8 +50,8 @@
         android:scaleType="center"
         android:src="@drawable/ic_qr_code"
         android:tint="@color/white_90"
-        app:layout_constraintBottom_toBottomOf="@+id/etJoinCode"
-        app:layout_constraintDimensionRatio="w,14:9"
+        app:layout_constraintBottom_toBottomOf="@+id/btnJoin"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnJoin" />
 
@@ -59,6 +59,7 @@
         android:id="@+id/rvNearby"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvMessage" />
 
