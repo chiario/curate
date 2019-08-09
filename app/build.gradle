@@ -5,11 +5,14 @@ android {
     buildToolsVersion "29.0.0"
     defaultConfig {
         applicationId "com.example.curate"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        renderscriptTargetApi 29
+        renderscriptSupportModeEnabled true
     }
     buildTypes {
         release {
@@ -57,7 +60,7 @@ dependencies {
 
     implementation project(':spotify-app-remote')
     implementation "com.google.code.gson:gson:2.8.5"
-    implementation 'com.codepath.libraries:android-oauth-handler:1.4.0'\
+    implementation 'com.codepath.libraries:android-oauth-handler:1.4.0'
 
     // palette
     implementation 'androidx.palette:palette:1.0.0'
@@ -72,4 +75,7 @@ dependencies {
     // Parceler
     implementation 'org.parceler:parceler-api:1.1.12'
     annotationProcessor 'org.parceler:parceler:1.1.12'
+
+    // Blur stuff
+    implementation 'com.github.mmin18:realtimeblurview:1.2.1'
 }
