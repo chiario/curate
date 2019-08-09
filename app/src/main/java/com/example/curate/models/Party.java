@@ -15,8 +15,6 @@ import com.parse.SaveCallback;
 import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -119,25 +117,28 @@ public class Party extends ComparableParseObject {
     }
 
     private void handleCurrentlyPlayingUpdate(Song newCurrentlyPlaying) {
-        if(newCurrentlyPlaying != null) {
-            Song oldCurrentlyPlaying = (Song) get(CURRENTLY_PLAYING_KEY);
+        Song oldCurrentlyPlaying = (Song) get(CURRENTLY_PLAYING_KEY);
 
-            try {
+        try {
+            if (newCurrentlyPlaying != null)
                 newCurrentlyPlaying.fetchIfNeeded();
-                if(oldCurrentlyPlaying != null)
-                    oldCurrentlyPlaying.fetchIfNeeded();
-            } catch (ParseException e) {
-                Log.e("Party.java", "Couldn't fetch current song data");
+            if(oldCurrentlyPlaying != null)
+                oldCurrentlyPlaying.fetchIfNeeded();
+        } catch (ParseException e) {
+            Log.e("Party.java", "Couldn't fetch current song data");
+        }
+
+        // Check if the currently playing song changed
+        if(oldCurrentlyPlaying == null || !oldCurrentlyPlaying.equals(newCurrentlyPlaying)) {
+            if (newCurrentlyPlaying == null) {
+                mCurrentParty.remove(CURRENTLY_PLAYING_KEY);
+            } else {
+                mCurrentParty.put(CURRENTLY_PLAYING_KEY, newCurrentlyPlaying);
             }
 
-            // Check if the currently playing song changed
-            if(oldCurrentlyPlaying == null || !oldCurrentlyPlaying.equals(newCurrentlyPlaying)) {
-                mCurrentParty.put(CURRENTLY_PLAYING_KEY, newCurrentlyPlaying);
-
-                // Run callbacks
-                for(SaveCallback callback : mCurrentlyPlayingUpdateCallbacks) {
-                    callback.done(null);
-                }
+            // Run callbacks
+            for(SaveCallback callback : mCurrentlyPlayingUpdateCallbacks) {
+                callback.done(null);
             }
         }
     }
@@ -414,7 +415,7 @@ public class Party extends ComparableParseObject {
                 (FunctionCallback<Song>) (song, e) -> {
             if (e != null) {
                 Log.e("Party.java", "Could not set the next song");
-                mCurrentParty.put(CURRENTLY_PLAYING_KEY, JSONObject.NULL);
+                mCurrentParty.remove(CURRENTLY_PLAYING_KEY);
             } else {
                 mCurrentParty.put(CURRENTLY_PLAYING_KEY, song);
             }
