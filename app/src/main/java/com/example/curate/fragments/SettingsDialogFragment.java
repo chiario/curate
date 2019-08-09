@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -67,6 +66,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private boolean mIsLocationEnabled;
     private Integer mUserLimit;
     private Integer mSongLimit;
+    private boolean mIsExplicitEnabled;
 
     private ToastHelper.Toaster mToaster = (context, text) -> {
     View layout = getLayoutInflater().inflate(R.layout.toast_main, null);
@@ -111,14 +111,16 @@ public class SettingsDialogFragment extends DialogFragment {
         mCurrentParty = Party.getCurrentParty();
         // Fetch arguments and set views
         mPartyName = mCurrentParty.getSettings().getName();
-        mIsLocationEnabled = mCurrentParty.getSettings().getLocationEnabled();
+        mIsLocationEnabled = mCurrentParty.getSettings().isLocationEnabled();
         mUserLimit = mCurrentParty.getSettings().getUserLimit();
         mSongLimit = mCurrentParty.getSettings().getSongLimit();
+        mIsExplicitEnabled = mCurrentParty.getSettings().isExplicitEnabled();
 
         etPartyName.setText(mPartyName);
         switchLocation.setChecked(mIsLocationEnabled);
         setLimit(TYPE_USER, mUserLimit);
         setLimit(TYPE_SONG, mSongLimit);
+        switchExplicit.setChecked(mIsExplicitEnabled);
 
         Song currentSong = Party.getCurrentParty().getCurrentSong();
         if(currentSong != null) {
@@ -240,8 +242,8 @@ public class SettingsDialogFragment extends DialogFragment {
         Settings saveSettings = getNewSettings();
 
         // TODO - check for location preferences changing somewhere else, maybe a new subscription in the main activity
-        boolean isLocationEnabled = (saveSettings.getLocationEnabled() && !mCurrentParty.getLocationEnabled());
-        boolean isLocationDisabled = (!saveSettings.getLocationEnabled() && mCurrentParty.getLocationEnabled());
+        boolean isLocationEnabled = (saveSettings.isLocationEnabled() && !mCurrentParty.getLocationEnabled());
+        boolean isLocationDisabled = (!saveSettings.isLocationEnabled() && mCurrentParty.getLocationEnabled());
 
         mCurrentParty.saveSettings(saveSettings, e -> {
             if(e == null) {
@@ -265,6 +267,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 Integer.parseInt(tvUserLimitNumber.getText().toString()) : 0);
         newSettings.setSongLimit(switchSongLimit.isChecked() ?
                 Integer.parseInt(tvSongLimitNumber.getText().toString()) : 0);
+        newSettings.setExplicitEnabled(switchExplicit.isChecked());
         return newSettings;
     }
 

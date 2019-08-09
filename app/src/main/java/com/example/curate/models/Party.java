@@ -30,6 +30,7 @@ public class Party extends ComparableParseObject {
     static final String NAME_KEY = "name";
     private static final String LOCATION_KEY = "location";
     static final String LOCATION_PERMISSION_KEY = "locationEnabled";
+    static final String EXPLICIT_PERMISSION_KEY = "explicitEnabled";
     private static final String CACHED_PLAYLIST_KEY = "cachedPlaylist";
     static final String USER_LIMIT_KEY = "userLimit";
     static final String SONG_LIMIT_KEY = "songLimit";
@@ -66,6 +67,7 @@ public class Party extends ComparableParseObject {
         mSettings.setLocationEnabled(getBoolean(LOCATION_PERMISSION_KEY));
         mSettings.setUserLimit(getInt(USER_LIMIT_KEY));
         mSettings.setSongLimit(getInt(SONG_LIMIT_KEY));
+        mSettings.setExplicitEnabled(getBoolean(EXPLICIT_PERMISSION_KEY));
     }
 
     public void initializeLiveQuery() {
@@ -473,10 +475,6 @@ public class Party extends ComparableParseObject {
                 (Boolean result, ParseException e) -> {
             if (e == null) {
                 mSettings = settings;
-                /*mCurrentParty.put(NAME_KEY, partyName);
-                mCurrentParty.put(LOCATION_PERMISSION_KEY, locationEnabled);
-                mCurrentParty.put(USER_LIMIT_KEY, userLimit);
-                mCurrentParty.put(SONG_LIMIT_KEY, songLimit);*/
             } else {
                 Log.e("Party.java", "Could not set location permissions!", e);
             }
@@ -505,14 +503,10 @@ public class Party extends ComparableParseObject {
      * @return the boolean value of location enabling
      */
     public boolean getLocationEnabled() {
-        return mSettings.getLocationEnabled();
+        return mSettings.isLocationEnabled();
     }
 
     public int getUserLimit() {
         return mSettings.getUserLimit();
-    }
-
-    public int getSongLimit() {
-        return mSettings.getSongLimit();
     }
 }
