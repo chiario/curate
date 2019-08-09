@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -23,7 +22,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class InfoDialogFragment extends DialogFragment {
+public class InfoDialogFragment extends BlurDialogFragment {
     private static final String PARTY_NAME_KEY = "partyName";
     private static final String JOIN_CODE_KEY = "joinCode";
 

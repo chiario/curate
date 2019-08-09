@@ -2,7 +2,6 @@ package com.example.curate.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.LayoutTransition;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -15,8 +14,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -29,10 +26,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -42,14 +36,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -57,7 +47,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.curate.R;
 import com.example.curate.fragments.AdminPlayerFragment;
-import com.example.curate.fragments.DialogFragment;
+import com.example.curate.fragments.BlurDialogFragment;
 import com.example.curate.fragments.ExitDialogFragment;
 import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.InputDialogFragment;
@@ -538,8 +528,8 @@ public class MainActivity extends AppCompatActivity {
         flOverlay.setVisibility(View.GONE);
     }
 
-    DialogFragment mCurrentFragment;
-    private void showDialog(DialogFragment dialog) {
+    BlurDialogFragment mCurrentFragment;
+    private void showDialog(BlurDialogFragment dialog) {
         if(mCurrentFragment != null) {
             return;
         }

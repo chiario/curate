@@ -15,7 +15,7 @@ import com.example.curate.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ExitDialogFragment extends DialogFragment {
+public class ExitDialogFragment extends BlurDialogFragment {
 
     @BindView(R.id.tvTitle) TextView tvTitle;
     @BindView(R.id.tvMessage) TextView tvMessage;
