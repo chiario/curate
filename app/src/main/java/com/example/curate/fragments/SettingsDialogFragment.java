@@ -136,13 +136,15 @@ public class SettingsDialogFragment extends DialogFragment {
 
                         @Override
                         public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                            setBackgroundColor(resource);
+                            getVibrantSwatch(resource);
                             return false;
                         }
                     })
                     .transform(new CircleCrop())
                     .into(imageView);
 
+        } else {
+            setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
         }
     }
 
@@ -189,7 +191,7 @@ public class SettingsDialogFragment extends DialogFragment {
         return false;
     }
 
-    private void setBackgroundColor(Bitmap bitmap) {
+    private void getVibrantSwatch(Bitmap bitmap) {
         Palette.from(bitmap).generate(p -> {
             // Load default colors
             int backgroundColor = ContextCompat.getColor(getContext(), R.color.colorAccent);
@@ -198,17 +200,19 @@ public class SettingsDialogFragment extends DialogFragment {
             if(swatch != null) {
                 backgroundColor = swatch.getRgb();
             }
-
-            ColorStateList buttonColorList = createButtonColorList(backgroundColor);
-
-            ivBackground.setBackgroundColor(backgroundColor);
-            button6.setBackgroundTintList(buttonColorList);
-            setSwitchTint(switchLocation, backgroundColor);
-            setSwitchTint(switchExplicit, backgroundColor);
-            setSwitchTint(switchUserLimit, backgroundColor);
-            setSwitchTint(switchSongLimit, backgroundColor);
-
+            setBackgroundColor(backgroundColor);
         });
+    }
+
+    private void setBackgroundColor(int color) {
+        ColorStateList buttonColorList = createButtonColorList(color);
+
+        ivBackground.setBackgroundColor(color);
+        button6.setBackgroundTintList(buttonColorList);
+        setSwitchTint(switchLocation, color);
+        setSwitchTint(switchExplicit, color);
+        setSwitchTint(switchUserLimit, color);
+        setSwitchTint(switchSongLimit, color);
     }
 
     private void setSwitchTint(Switch switchSettings, int backgroundColor) {
