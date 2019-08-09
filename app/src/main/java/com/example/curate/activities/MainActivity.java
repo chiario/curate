@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -63,8 +62,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.material.appbar.AppBarLayout;
 import com.parse.ParseUser;
-
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -175,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
         User user = (User) ParseUser.getCurrentUser();
         InputDialogFragment.SubmitListener submit = input -> {
             hideDialog();
-            ToastHelper.makeText(MainActivity.this, "Time to rock out!", true);
             user.setScreenName(input);
         };
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Name", "Set your name...", false);
@@ -515,11 +511,16 @@ public class MainActivity extends AppCompatActivity {
     private void deleteQueue() {
         showExitDialog("Delete this party?", "You won't be able to undo this action", "Delete", view -> {
             AdminPlayerFragment.disconnectService(MainActivity.this);
+            deregisterLocationUpdater();
             mCurrentParty.deleteParty(e -> {
-                ((User) ParseUser.getCurrentUser()).setScreenName(null);
-                Intent intent = new Intent(MainActivity.this, JoinActivity.class);
-                startActivity(intent);
-                finish();
+                if (e == null) {
+                    ((User) ParseUser.getCurrentUser()).setScreenName(null);
+                    Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    registerLocationUpdater();
+                }
             });
         });
     }
