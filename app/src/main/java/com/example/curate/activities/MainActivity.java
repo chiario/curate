@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ibOverflow)
     public void onClickOverflow() {
-        PopupMenu popupMenu = new PopupMenu(MainActivity.this, ibOverflow, Gravity.END, 0, R.style.Curate_MenuPopup);
+        PopupMenu popupMenu = new PopupMenu(MainActivity.this, ivSearchBackground, Gravity.END, 0, R.style.Curate_MenuPopup);
 
         popupMenu.inflate(R.menu.menu_overflow);
         MenuItem miSettings = popupMenu.getMenu().findItem(R.id.miSettings);
