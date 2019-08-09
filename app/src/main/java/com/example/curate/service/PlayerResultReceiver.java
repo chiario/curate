@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
+import android.util.Log;
 
 import com.spotify.protocol.types.PlayerState;
 
@@ -87,6 +88,9 @@ public class PlayerResultReceiver extends ResultReceiver {
             mIsSpotifyConnected = true;
         } else if (resultCode == RESULT_DISCONNECTED) {
             mIsSpotifyConnected = false;
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(PAUSED_KEY, true);
+            mReceiver.onReceiveResult(RESULT_PLAY_PAUSE, bundle);
         } else if (mReceiver != null) {
             mReceiver.onReceiveResult(resultCode, resultData);
         }
@@ -95,22 +99,21 @@ public class PlayerResultReceiver extends ResultReceiver {
     public static boolean isSpotifyConnected() {
         return mIsSpotifyConnected;
     }
-
-
-
-
+    
     /**
      * Convenience method for enqueuing work into this service.
      */
     public static void enqueueService(Context context, String ACTION) {
         Intent intent = new Intent(context, PlayerService.class);
         intent.putExtra(RECEIVER_KEY, mPlayerResultReceiver);
-        intent.setAction(ACTION);
-        // Only enqueue the action in the service if it is a connection action or the Spotify remote
-        // player is already connected
+        // Only enqueue the action in the service if the Spotify remote player is already connected
         if (PlayerResultReceiver.isSpotifyConnected()) {
-            PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+            intent.setAction(ACTION);
+        } else {
+            Log.e(TAG, "Spotify is not connected");
+            intent.setAction(ACTION_DISCONNECT);
         }
+        PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
     }
 
     /**
@@ -131,11 +134,14 @@ public class PlayerResultReceiver extends ResultReceiver {
         Intent intent = new Intent(context, PlayerService.class);
         intent.putExtra(RECEIVER_KEY, mPlayerResultReceiver);
         intent.putExtra(PLAYBACK_POS_KEY, playbackPos);
-        intent.setAction(ACTION_UPDATE);
         // Only enqueue the action in the service if the Spotify remote player is already connected
         if (PlayerResultReceiver.isSpotifyConnected()) {
-            PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+            intent.setAction(ACTION_UPDATE);
+        } else {
+            Log.e(TAG, "Spotify is not connected");
+            intent.setAction(ACTION_DISCONNECT);
         }
+        PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
     }
 
     /**
@@ -146,11 +152,14 @@ public class PlayerResultReceiver extends ResultReceiver {
         Intent intent = new Intent(context, PlayerService.class);
         intent.putExtra(RECEIVER_KEY, mPlayerResultReceiver);
         intent.putExtra(SONG_ID_KEY, songId);
-        intent.setAction(ACTION_PLAY);
         // Only enqueue the action in the service if the Spotify remote player is already connected
         if (PlayerResultReceiver.isSpotifyConnected()) {
-            PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
+            intent.setAction(ACTION_PLAY);
+        } else {
+            Log.e(TAG, "Spotify is not connected");
+            intent.setAction(ACTION_DISCONNECT);
         }
+        PlayerService.enqueueWork(context, PlayerService.class, PLAYER_JOB_ID, intent);
     }
 
     public static Bundle bundleTrack(PlayerState playerState) {
