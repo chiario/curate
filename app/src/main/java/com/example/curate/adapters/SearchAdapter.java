@@ -35,8 +35,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	public static final int TYPE_SONG_IN_QUEUE = 2;
 	private static final int TYPE_SONG_IN_ADD = 3;
 
-	private static final String IN_QUEUE_TEXT = "Songs in queue:";
-	private static final String ADD_TEXT = "Add to queue:";
+	private static final String IN_QUEUE_TEXT = "Songs in playlist:";
+	private static final String ADD_TEXT = "Add to playlist:";
 
 
 	private Context mContext;
