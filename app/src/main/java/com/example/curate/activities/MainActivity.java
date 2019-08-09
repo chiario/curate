@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
