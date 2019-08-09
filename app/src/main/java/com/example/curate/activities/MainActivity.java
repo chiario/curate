@@ -320,11 +320,13 @@ public class MainActivity extends AppCompatActivity {
     private void initializeSearch() {
         // Set up back button onClick
         ibBack.setOnClickListener(view -> {
-            onBackPressed();
-            if (miSearchView.hasFocus()) {
-                miSearchView.clearFocus();
-                hideKeyboard(miSearchView);
-            }
+            new Handler().postDelayed(() -> {
+                onBackPressed();
+                if (miSearchView.hasFocus()) {
+                    miSearchView.clearFocus();
+                    hideKeyboard(miSearchView);
+                }
+            }, 150);
         });
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
