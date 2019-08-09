@@ -293,7 +293,7 @@ public class Party extends ComparableParseObject {
      * @return the party's join code
      */
     public String getJoinCode() {
-        return getString(JOIN_CODE_KEY);
+        return getString(JOIN_CODE_KEY).toUpperCase();
     }
 
 
