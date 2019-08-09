@@ -1,13 +1,11 @@
 package com.example.curate.adapters;
 
 import android.content.Context;
-import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +17,7 @@ import com.example.curate.models.Party;
 import com.example.curate.utils.ToastHelper;
 
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,7 +65,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 		holder.tvJoinCode.setText(String.format("Join Code: %s", party.getJoinCode()));
 		if(party.getSettings() == null) party.initSettings();
 		holder.tvUserLimit.setText(party.getUserLimit() != 0
-				? String.format("%d/%d", party.getPartyUserCount().intValue(), party.getUserLimit())
+				? String.format(Locale.ENGLISH, "%d/%d", party.getPartyUserCount().intValue(), party.getUserLimit())
 				: "");
 	}
 
