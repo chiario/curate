@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="There are no songs in your playlist!\nHow undank &#128528;" />
+            android:text="There are no songs in your playlist\nHow undank &#128528;" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

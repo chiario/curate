@@ -169,7 +169,7 @@ public class PlayerFragment extends Fragment {
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/" + Party.getCurrentParty().getCurrentSong().getSpotifyId());
-        startActivity(Intent.createChooser(intent, "Share this song!"));
+        startActivity(Intent.createChooser(intent, "Share this song"));
     }
 
     // Song update callback methods are only called in client fragment

@@ -168,7 +168,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 			isLiking = true;
 
 			final boolean isLiked = mEntry.isLikedByUser();
-			final String errorMessage = isLiked ? "Couldn't unlike song!" : "Couldn't like song!";
+			final String errorMessage = isLiked ? "Couldn't unlike song" : "Couldn't like song";
 			final SaveCallback callback = e -> {
 				isLiking = false;
 				if(e == null) {

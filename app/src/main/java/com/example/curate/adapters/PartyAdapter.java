@@ -96,7 +96,7 @@ public class PartyAdapter extends RecyclerView.Adapter<PartyAdapter.ViewHolder> 
 				if(e == null) {
 					mListener.onPartyObtained();
 				} else {
-					ToastHelper.makeText(mContext, "Could not join that party!");
+					ToastHelper.makeText(mContext, "Could not join that party");
 				}
 			});
 		}

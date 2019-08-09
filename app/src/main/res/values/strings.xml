@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">Curate</string>
     <string name="no_search_result">No search results found</string>
-    <string name="new_search">Search for a song!</string>
-    <string name="search_error">Something went wrong, try again!</string>
+    <string name="new_search">Search for a song</string>
+    <string name="search_error">Something went wrong, try again</string>
     <string name="default_song_id">6bkMDfyzddlA31dRq3sGPl</string>
     <string name="test_song_id">37ZJ0p5Jm13JPevGcx4SkF</string>
     <string name="test_song_id_2">43eBgYRTmu5BJnCJDBU5Hb</string>
     <string name="test_song_id_3">7GhIk7Il098yCjg4BQjzvb</string>
-    <string name="low_storage_error">Not enough storage!</string>
+    <string name="low_storage_error">Not enough storage</string>
     <string name="no_camera_permission">Camera permission not given</string>
     <string name="ok">OK</string>
     <string name="placeholder_artist">Some Artist</string>
@@ -21,8 +21,8 @@
     <string name="btn_create_text">Create</string>
     <string name="nearby_join_code">Join Code:</string>
     <string name="nearby_party_name">Test Party</string>
-    <string name="user_count_normal">people partying!</string>
-    <string name="user_count_singular">person partying!</string>
+    <string name="user_count_normal">people partying</string>
+    <string name="user_count_singular">person partying</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

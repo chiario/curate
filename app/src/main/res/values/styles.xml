@@ -49,7 +49,7 @@
         <item name="android:fontFamily">@font/nunito</item>
         <item name="queryBackground">@color/transparent</item>
         <item name="background">@color/transparent</item>
-        <item name="queryHint">Search for a song!</item>
+        <item name="queryHint">Search for a song</item>
         <item name="layout">@layout/searchview</item>
     </style>
 

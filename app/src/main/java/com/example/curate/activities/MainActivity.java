@@ -506,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteQueue() {
-        showExitDialog("Delete this party?", "You won't be able to undo this action!", "Delete", view -> {
+        showExitDialog("Delete this party?", "You won't be able to undo this action", "Delete", view -> {
             AdminPlayerFragment.disconnectService(MainActivity.this);
             mCurrentParty.deleteParty(e -> {
                 ((User) ParseUser.getCurrentUser()).setScreenName(null);
