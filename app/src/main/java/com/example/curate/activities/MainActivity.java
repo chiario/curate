@@ -1,5 +1,7 @@
 package com.example.curate.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.LayoutTransition;
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -49,13 +51,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.curate.R;
 import com.example.curate.fragments.AdminPlayerFragment;
+import com.example.curate.fragments.DialogFragment;
+import com.example.curate.fragments.ExitDialogFragment;
 import com.example.curate.fragments.InfoDialogFragment;
 import com.example.curate.fragments.InputDialogFragment;
 import com.example.curate.fragments.PlayerFragment;
@@ -87,24 +90,16 @@ public class MainActivity extends AppCompatActivity {
 
     protected static final String KEY_PARTY_DELETED = "partyDeleted";
 
-    @BindView(R.id.flPlaceholder)
-    FrameLayout flPlaceholder;
-    @BindView(R.id.ablMain)
-    AppBarLayout ablMain;
-    @BindView(R.id.tbMain)
-    Toolbar tbMain;
-    @BindView(R.id.flBottomPlayer)
-    FrameLayout flBottomPlayer;
-    @BindView(R.id.miSearch)
-    SearchView miSearchView;
-    @BindView(R.id.ivSearchBackground)
-    ImageView ivSearchBackground;
-    @BindView(R.id.ibBack)
-    ImageButton ibBack;
-    @BindView(R.id.ibOverflow)
-    ImageButton ibOverflow;
-    @BindView(R.id.clSearchbar)
-    ConstraintLayout clSearchbar;
+    @BindView(R.id.flPlaceholder) FrameLayout flPlaceholder;
+    @BindView(R.id.ablMain) AppBarLayout ablMain;
+    @BindView(R.id.tbMain) Toolbar tbMain;
+    @BindView(R.id.flBottomPlayer) FrameLayout flBottomPlayer;
+    @BindView(R.id.miSearch) SearchView miSearchView;
+    @BindView(R.id.ivSearchBackground) ImageView ivSearchBackground;
+    @BindView(R.id.ibBack) ImageButton ibBack;
+    @BindView(R.id.ibOverflow) ImageButton ibOverflow;
+    @BindView(R.id.clSearchbar) ConstraintLayout clSearchbar;
+    @BindView(R.id.flOverlay) FrameLayout flOverlay;
 
     private Party mCurrentParty;
     private FragmentManager mFragmentManager;
@@ -133,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        initDialogOverlay();
 
         mCurrentParty = Party.getCurrentParty();
         mIsAdmin = mCurrentParty.isCurrentUserAdmin();
@@ -304,11 +301,11 @@ public class MainActivity extends AppCompatActivity {
                     String name = Party.getCurrentParty().getName();
                     String joinCode = Party.getCurrentParty().getJoinCode();
                     InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance(name, joinCode, mIsAdmin);
-                    infoDialogFragment.show(mFragmentManager, "fragment_party_info");
+                    showDialog(infoDialogFragment);
                     return true;
                 case R.id.miSettings:
                     SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
-                    settings.setStyle(DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
+                    settings.setStyle(androidx.fragment.app.DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
                     settings.show(mFragmentManager, "fragment_admin_settings");
                     return true;
             }
@@ -523,21 +520,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showExitDialog(String title, String message, String exitText, View.OnClickListener onClickListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View layoutView = getLayoutInflater().inflate(R.layout.fragment_confirm_exit, null);
-        builder.setView(layoutView);
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        ((TextView) layoutView.findViewById(R.id.tvTitle)).setText(title);
-        ((TextView) layoutView.findViewById(R.id.tvMessage)).setText(message);
-        Button btnExit = layoutView.findViewById(R.id.btnExit);
-        btnExit.setText(exitText);
-        btnExit.setOnClickListener(view -> {
-            onClickListener.onClick(view);
-            dialog.dismiss();
+        ExitDialogFragment exitDialogFragment = ExitDialogFragment.newInstance(title, message, exitText,
+                v -> {
+                    hideDialog();
+                    onClickListener.onClick(v);
+                },
+                v -> hideDialog());
+
+        showDialog(exitDialogFragment);
+    }
+
+    private void initDialogOverlay() {
+        flOverlay.setOnClickListener((view) -> {
+            hideDialog();
         });
-        layoutView.findViewById(R.id.btnCancel).setOnClickListener(view -> dialog.dismiss());
-        dialog.show();
+        flOverlay.setAlpha(0f);
+        flOverlay.setVisibility(View.GONE);
+    }
+
+    DialogFragment mCurrentFragment;
+    private void showDialog(DialogFragment dialog) {
+        if(mCurrentFragment != null) {
+            return;
+        }
+        mCurrentFragment = dialog;
+        flOverlay.setVisibility(View.VISIBLE);
+        flOverlay.setAlpha(0f);
+        flOverlay.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        });
+
+        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, "InfoDialog").commit();
+    }
+
+    public void hideDialog() {
+        if(mCurrentFragment == null) {
+            return;
+        }
+
+        flOverlay.setAlpha(1f);
+        flOverlay.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                flOverlay.setVisibility(View.GONE);
+            }
+        });
+        mCurrentFragment.onHide(() -> mCurrentFragment = null);
     }
 
     public void registerLocationUpdater() {
