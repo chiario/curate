@@ -22,6 +22,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:tint="@color/white_90"
+        android:clickable="true"
+        android:focusable="auto"
         app:layout_constraintBottom_toBottomOf="@+id/btnSave"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnSave"
