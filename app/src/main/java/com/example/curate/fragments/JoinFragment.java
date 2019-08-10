@@ -42,6 +42,7 @@ public class JoinFragment extends Fragment {
     @BindView(R.id.etJoinCode) EditText etJoinCode;
     @BindView(R.id.tvMessage) TextView tvMessage;
     @BindView(R.id.progressBar) ProgressBar progressBar;
+    @BindView(R.id.tvDescription) TextView tvDescription;
 
 
     private SelectFragment.OnOptionSelected mListener;
@@ -118,13 +119,10 @@ public class JoinFragment extends Fragment {
     }
 
     private void getNearbyParties() {
-        progressBar.setVisibility(View.VISIBLE);
+        initializeText();
         mLocationManager.getCurrentLocation(location -> {
             if(location == null) {
-                progressBar.setVisibility(View.GONE);
-                tvMessage.setPadding(0,16, 0, 0); //TODO - style this better!
-                tvMessage.setText("No nearby parties!");
-                tvMessage.setVisibility(View.VISIBLE);
+                noNearbyPartiesFound();
                 return;
             }
 
@@ -134,18 +132,29 @@ public class JoinFragment extends Fragment {
                 if(e == null && parties != null && parties.size() > 0) {
                     displayNearbyParties(parties);
                 } else {
-                    tvMessage.setText("No nearby parties!");
-                    tvMessage.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
+                    noNearbyPartiesFound();
                 }
             });
         });
+    }
+
+    private void noNearbyPartiesFound() {
+        tvDescription.setVisibility(View.GONE);
+        tvMessage.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
+    }
+
+    private void initializeText() {
+        tvMessage.setVisibility(View.GONE);
+        tvDescription.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     private void displayNearbyParties(List<Party> parties) {
         mAdapter = new PartyAdapter(getContext(), parties, mListener, (JoinActivity) getActivity());
         rvNearby.setAdapter(mAdapter);
         rvNearby.setLayoutManager(new LinearLayoutManager(getContext()));
+        tvMessage.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
     }
 
