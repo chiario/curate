@@ -46,7 +46,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
             button.setOnClickListener(view -> {
                 dialog.dismiss();
             });
-            button.setText("Return to menu");
+            button.setText("Got it!");
             dialog.findViewById(R.id.btnCancel).setVisibility(View.GONE);
             ((TextView) dialog.findViewById(R.id.tvTitle)).setText("Party Deleted");
             ((TextView) dialog.findViewById(R.id.tvMessage)).setText("This party has been deleted by the admin.");
