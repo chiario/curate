@@ -5,9 +5,16 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +30,8 @@ import butterknife.ButterKnife;
 
 public class JoinActivity extends AppCompatActivity implements SelectFragment.OnOptionSelected {
     @BindView(R.id.flOverlay) FrameLayout flOverlay;
+    @BindView(R.id.fl_container) FrameLayout flContainer;
+    @BindView(R.id.scroll) ScrollView svContainer;
 
     SelectFragment mSelectFragment;
     JoinFragment mJoinFragment;
@@ -35,6 +44,16 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
         setContentView(R.layout.activity_join);
 
         ButterKnife.bind(this);
+
+        svContainer.setEnabled(false);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) flContainer.getLayoutParams();
+        params.height = height;
+        flContainer.setLayoutParams(params);
+        svContainer.invalidate();
+
 
         initDialogOverlay();
 
@@ -104,8 +123,13 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
         mCurrentFragment = dialog;
         flOverlay.setVisibility(View.VISIBLE);
         flOverlay.setAlpha(0f);
-        flOverlay.animate().alpha(1f).setDuration(500);
-        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, "InfoDialog").commit();
+        flOverlay.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        });
+        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, null).addToBackStack(null).commit();
     }
 
     public void hideDialog() {
