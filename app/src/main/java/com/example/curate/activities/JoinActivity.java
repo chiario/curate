@@ -129,7 +129,16 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
             }
         });
-        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, null).addToBackStack(null).commit();
+        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, null).commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mCurrentFragment != null) {
+            hideDialog();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public void hideDialog() {
