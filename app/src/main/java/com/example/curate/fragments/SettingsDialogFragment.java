@@ -62,7 +62,7 @@ public class SettingsDialogFragment extends BlurDialogFragment {
     @BindView(R.id.btnSave) Button button6;
     @BindView(R.id.switchUserLimit) Switch switchUserLimit;
     @BindView(R.id.switchSongLimit) Switch switchSongLimit;
-    @BindView(R.id.flOverlay1) FrameLayout flOverlay;
+    @BindView(R.id.flOverlay) FrameLayout flOverlay;
 
     private static final String TYPE_USER = "user";
     private static final String TYPE_SONG = "song";
@@ -369,7 +369,7 @@ public class SettingsDialogFragment extends BlurDialogFragment {
             }
         });
 
-        getChildFragmentManager().beginTransaction().replace(R.id.flOverlay1, mDialogFragment, "InfoDialog").commit();
+        getChildFragmentManager().beginTransaction().replace(R.id.flOverlay, mDialogFragment, "InfoDialog").commit();
     }
 
     public void hideDialog() {
