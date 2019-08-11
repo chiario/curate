@@ -172,7 +172,7 @@ public class SettingsDialogFragment extends BlurDialogFragment {
 
     @OnClick(R.id.ivClose)
     public void cancel() {
-//        new Handler().postDelayed(this::dismiss, 150);
+        getActivity().onBackPressed();
     }
 
     @OnClick(R.id.ivEdit)
@@ -272,8 +272,8 @@ public class SettingsDialogFragment extends BlurDialogFragment {
                 } else if (isLocationDisabled){
                     ((MainActivity) getActivity()).deregisterLocationUpdater();
                 }
-//                dismiss();
-                ToastHelper.makeText(getContext(), "Settings saved.");
+                getActivity().onBackPressed();
+                ToastHelper.makeText(getContext(), "Settings saved.", true);
             } else {
                 ToastHelper.makeText(getContext(), "Could not save settings");
             }
