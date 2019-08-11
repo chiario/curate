@@ -5,15 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -36,7 +32,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     SelectFragment mSelectFragment;
     JoinFragment mJoinFragment;
     FragmentManager mFragmentManager;
-    BlurDialogFragment mCurrentFragment;
+    BlurDialogFragment mDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,10 +113,10 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
     @Override
     public void showDialog(BlurDialogFragment dialog) {
-        if(mCurrentFragment != null) {
+        if(mDialogFragment != null) {
             return;
         }
-        mCurrentFragment = dialog;
+        mDialogFragment = dialog;
         flOverlay.setVisibility(View.VISIBLE);
         flOverlay.setAlpha(0f);
         flOverlay.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
@@ -129,12 +125,12 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
             }
         });
-        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, null).commit();
+        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mDialogFragment, null).commit();
     }
 
     @Override
     public void onBackPressed() {
-        if(mCurrentFragment != null) {
+        if(mDialogFragment != null) {
             hideDialog();
         } else {
             super.onBackPressed();
@@ -142,7 +138,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     }
 
     public void hideDialog() {
-        if(mCurrentFragment == null) {
+        if(mDialogFragment == null) {
             return;
         }
 
@@ -153,6 +149,6 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
                 flOverlay.setVisibility(View.GONE);
             }
         });
-        mCurrentFragment.onHide(() -> mCurrentFragment = null);
+        mDialogFragment.onHide(() -> mDialogFragment = null);
     }
 }

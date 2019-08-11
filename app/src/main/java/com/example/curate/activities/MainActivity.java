@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private QueueFragment mQueueFragment;
     private SearchFragment mSearchFragment;
     private PlayerFragment mBottomPlayerFragment;
+    private BlurDialogFragment mDialogFragment;
 
     private boolean mIsSearchbarExpanded = false;
 
@@ -542,12 +543,11 @@ public class MainActivity extends AppCompatActivity {
         flOverlay.setVisibility(View.GONE);
     }
 
-    BlurDialogFragment mCurrentFragment;
     private void showDialog(BlurDialogFragment dialog) {
-        if(mCurrentFragment != null) {
+        if(mDialogFragment != null) {
             return;
         }
-        mCurrentFragment = dialog;
+        mDialogFragment = dialog;
         flOverlay.setVisibility(View.VISIBLE);
         flOverlay.setAlpha(0f);
         flOverlay.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
@@ -557,11 +557,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mCurrentFragment, "InfoDialog").commit();
+        mFragmentManager.beginTransaction().replace(R.id.flOverlay, mDialogFragment, "InfoDialog").commit();
     }
 
     public void hideDialog() {
-        if(mCurrentFragment == null) {
+        if(mDialogFragment == null) {
             return;
         }
 
@@ -572,7 +572,7 @@ public class MainActivity extends AppCompatActivity {
                 flOverlay.setVisibility(View.GONE);
             }
         });
-        mCurrentFragment.onHide(() -> mCurrentFragment = null);
+        mDialogFragment.onHide(() -> mDialogFragment = null);
     }
 
     public void registerLocationUpdater() {
