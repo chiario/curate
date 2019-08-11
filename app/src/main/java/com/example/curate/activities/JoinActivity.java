@@ -35,6 +35,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     JoinFragment mJoinFragment;
     FragmentManager mFragmentManager;
     BlurDialogFragment mDialogFragment;
+    private boolean mIsHiding = false;
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -137,9 +138,10 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
 
     @Override
     public void hideDialog() {
-        if(mDialogFragment == null) {
+        if(mDialogFragment == null || mIsHiding) {
             return;
         }
+        mIsHiding = true;
 
         flOverlay.setAlpha(1f);
         flOverlay.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
@@ -148,6 +150,9 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
                 flOverlay.setVisibility(View.GONE);
             }
         });
-        mDialogFragment.onHide(() -> mDialogFragment = null);
+        mDialogFragment.onHide(() -> {
+            mDialogFragment = null;
+            mIsHiding = false;
+        });
     }
 }

@@ -376,8 +376,8 @@ public class SettingsDialogFragment extends BlurDialogFragment {
         if(mDialogFragment == null || mIsHiding) {
             return;
         }
-
         mIsHiding = true;
+        mDialogFragment.submitIfNotSubmitted("");
         flOverlay.setAlpha(1f);
         flOverlay.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
             @Override

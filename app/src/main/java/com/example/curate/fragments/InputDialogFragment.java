@@ -43,7 +43,13 @@ public class InputDialogFragment extends BlurDialogFragment {
 	@Override
 	public void onHide(Runnable onComplete) {
 		super.onHide(onComplete);
-		if(!mSubmitted) mSubmit.submit(etInput.getText().toString());
+	}
+
+	public void submitIfNotSubmitted(String text) {
+		if(!mSubmitted)  {
+			mSubmit.submit(text);
+			mSubmitted = true;
+		}
 	}
 
 	public static InputDialogFragment newInstance(SubmitListener submitCallback, String hint, String title, boolean isNumberInput) {

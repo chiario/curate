@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mIsLeavingQueue = false;
 
     private User.PartyDeletedListener mPartyDeleteListener;
+    private boolean mIsHiding = false;
 
     public AdminPlayerFragment getBottomPlayerFragment() {
         if (!mIsAdmin) return null;
@@ -571,10 +572,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void hideDialog() {
-        if(mDialogFragment == null) {
+        if(mDialogFragment == null || mIsHiding) {
             return;
         }
-
+        mIsHiding = true;
         flOverlay.setAlpha(1f);
         flOverlay.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -582,7 +583,10 @@ public class MainActivity extends AppCompatActivity {
                 flOverlay.setVisibility(View.GONE);
             }
         });
-        mDialogFragment.onHide(() -> mDialogFragment = null);
+        mDialogFragment.onHide(() -> {
+            mDialogFragment = null;
+            mIsHiding = false;
+        });
     }
 
     public void registerLocationUpdater() {
