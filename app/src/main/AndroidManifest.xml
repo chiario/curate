@@ -24,7 +24,8 @@
         <activity
             android:name=".activities.JoinActivity"
             android:theme="@style/Curate"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
