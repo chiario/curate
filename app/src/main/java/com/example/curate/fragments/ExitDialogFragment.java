@@ -50,7 +50,7 @@ public class ExitDialogFragment extends BlurDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_confirm_exit, container, false);
+        View view = inflater.inflate(R.layout.fragment_confirm_exit_dialog, container, false);
         super.onShow(view);
         return view;
     }

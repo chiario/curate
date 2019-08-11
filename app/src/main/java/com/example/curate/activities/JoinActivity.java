@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -60,7 +59,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
         boolean partyDeleted = getIntent().getBooleanExtra(MainActivity.KEY_PARTY_DELETED, false);
         if(partyDeleted) {
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-            AlertDialog dialog = builder.setView(R.layout.fragment_confirm_exit).setCancelable(false).show();
+            AlertDialog dialog = builder.setView(R.layout.fragment_confirm_exit_dialog).setCancelable(false).show();
             Button button = dialog.findViewById(R.id.btnExit);
             button.setOnClickListener(view -> {
                 dialog.dismiss();
