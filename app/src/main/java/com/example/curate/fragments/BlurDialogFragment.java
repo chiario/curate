@@ -48,11 +48,15 @@ public class BlurDialogFragment extends Fragment {
     public void onHide(final Runnable onComplete) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-        mRoot.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                onComplete.run();
-            }
-        });
+        if(mRoot != null) {
+            mRoot.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    onComplete.run();
+                }
+            });
+        } else {
+            onComplete.run();
+        }
     }
 }

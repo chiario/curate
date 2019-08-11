@@ -1,5 +1,7 @@
 package com.example.curate.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -14,6 +16,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
@@ -46,7 +50,7 @@ import butterknife.OnEditorAction;
 import butterknife.OnTouch;
 
 
-public class SettingsDialogFragment extends DialogFragment {
+public class SettingsDialogFragment extends BlurDialogFragment {
     private static final String TAG = "SettingsDialogFragment";
     @BindView(R.id.switchLocation) Switch switchLocation;
     @BindView(R.id.switchExplicit) Switch switchExplicit;
@@ -58,6 +62,7 @@ public class SettingsDialogFragment extends DialogFragment {
     @BindView(R.id.btnSave) Button button6;
     @BindView(R.id.switchUserLimit) Switch switchUserLimit;
     @BindView(R.id.switchSongLimit) Switch switchSongLimit;
+    @BindView(R.id.flOverlay1) FrameLayout flOverlay;
 
     private static final String TYPE_USER = "user";
     private static final String TYPE_SONG = "song";
@@ -67,6 +72,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private Integer mUserLimit;
     private Integer mSongLimit;
     private boolean mIsExplicitEnabled;
+    private BlurDialogFragment mDialogFragment;
 
     private ToastHelper.Toaster mToaster = (context, text) -> {
     View layout = getLayoutInflater().inflate(R.layout.toast_main, null);
@@ -122,6 +128,8 @@ public class SettingsDialogFragment extends DialogFragment {
         setLimit(TYPE_SONG, mSongLimit);
         switchExplicit.setChecked(mIsExplicitEnabled);
 
+        initDialogOverlay();
+
         Song currentSong = Party.getCurrentParty().getCurrentSong();
         if(currentSong != null) {
             String url = currentSong.getImageUrl();
@@ -168,7 +176,7 @@ public class SettingsDialogFragment extends DialogFragment {
 
     @OnClick(R.id.ivClose)
     public void cancel() {
-        new Handler().postDelayed(this::dismiss, 150);
+//        new Handler().postDelayed(this::dismiss, 150);
     }
 
     @OnClick(R.id.ivEdit)
@@ -268,7 +276,7 @@ public class SettingsDialogFragment extends DialogFragment {
                 } else if (isLocationDisabled){
                     ((MainActivity) getActivity()).deregisterLocationUpdater();
                 }
-                dismiss();
+//                dismiss();
                 ToastHelper.makeText(getContext(), "Settings saved.");
             } else {
                 ToastHelper.makeText(getContext(), "Could not save settings");
@@ -322,6 +330,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private void buildAlertDialog(String TYPE) {
         Integer currLimit = getCurrentLimit(TYPE);
         InputDialogFragment.SubmitListener submit = input -> {
+            hideDialog();
             try {
                 Integer newLimit = Integer.parseInt(input);
                 setLimit(TYPE, newLimit);
@@ -332,7 +341,7 @@ public class SettingsDialogFragment extends DialogFragment {
         };
 
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "New limit", String.format("Set a new %s limit...", TYPE), true);
-//        dialog.show(getFragmentManager(), "Input");
+        showDialog(dialog);
     }
 
     private Integer getCurrentLimit(String TYPE) {
@@ -342,5 +351,45 @@ public class SettingsDialogFragment extends DialogFragment {
         }
         String currLimitAsString = tvLimit.getText().toString();
         return currLimitAsString.equals("None") ? 0 : Integer.parseInt(currLimitAsString);
+    }
+
+    private void initDialogOverlay() {
+        flOverlay.setOnClickListener((view) -> {
+            hideDialog();
+        });
+        flOverlay.setAlpha(0f);
+        flOverlay.setVisibility(View.GONE);
+    }
+
+    private void showDialog(BlurDialogFragment dialog) {
+        if(mDialogFragment != null) {
+            return;
+        }
+        mDialogFragment = dialog;
+        flOverlay.setVisibility(View.VISIBLE);
+        flOverlay.setAlpha(0f);
+        flOverlay.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+        });
+
+        getChildFragmentManager().beginTransaction().replace(R.id.flOverlay1, mDialogFragment, "InfoDialog").commit();
+    }
+
+    public void hideDialog() {
+        if(mDialogFragment == null) {
+            return;
+        }
+
+        flOverlay.setAlpha(1f);
+        flOverlay.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                flOverlay.setVisibility(View.GONE);
+            }
+        });
+        mDialogFragment.onHide(() -> mDialogFragment = null);
     }
 }

@@ -101,15 +101,18 @@ public class SelectFragment extends Fragment {
 
     @OnClick(R.id.btnCreateParty)
     public void onCreateParty() {
-        InputDialogFragment.SubmitListener submit = input -> Party.createParty(input, (ParseException e) -> {
-            if (e == null) {
-                if (mListener != null) {
-                    mListener.onPartyObtained();
+        InputDialogFragment.SubmitListener submit = input -> {
+            mListener.hideDialog();
+            Party.createParty(input, (ParseException e) -> {
+                if (e == null) {
+                    if (mListener != null) {
+                        mListener.onPartyObtained();
+                    }
+                } else {
+                    ToastHelper.makeText(SelectFragment.this.getContext(),"Could not create party.");
                 }
-            } else {
-                ToastHelper.makeText(SelectFragment.this.getContext(),"Could not create party.");
-            }
-        });
+            });
+        };
         InputDialogFragment dialog = InputDialogFragment.newInstance(submit, "Party Name", "Give your party a name", false);
         mListener.showDialog(dialog);
     }
@@ -121,6 +124,8 @@ public class SelectFragment extends Fragment {
 
     public interface OnOptionSelected {
         void showDialog(BlurDialogFragment dialog);
+
+        void hideDialog();
 
         void onPartyObtained();
 

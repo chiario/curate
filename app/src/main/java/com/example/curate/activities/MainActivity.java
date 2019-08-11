@@ -294,8 +294,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.miSettings:
                     SettingsDialogFragment settings = SettingsDialogFragment.newInstance();
-                    settings.setStyle(androidx.fragment.app.DialogFragment.STYLE_NORMAL, R.style.Curate_AlertDialog_Fullscreen);
-                    settings.show(mFragmentManager, "fragment_admin_settings");
+                    showDialog(settings);
                     return true;
             }
             return false;
