@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -35,21 +36,24 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
     BlurDialogFragment mDialogFragment;
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        svContainer.setEnabled(false);
+        View content = getWindow().findViewById(Window.ID_ANDROID_CONTENT);
+        int height = content.getHeight();
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) flContainer.getLayoutParams();
+        params.height = height;
+        flContainer.setLayoutParams(params);
+        svContainer.invalidate();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
         ButterKnife.bind(this);
-
-        svContainer.setEnabled(false);
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) flContainer.getLayoutParams();
-        params.height = height;
-        flContainer.setLayoutParams(params);
-        svContainer.invalidate();
-
 
         initDialogOverlay();
 
@@ -137,6 +141,7 @@ public class JoinActivity extends AppCompatActivity implements SelectFragment.On
         }
     }
 
+    @Override
     public void hideDialog() {
         if(mDialogFragment == null) {
             return;
