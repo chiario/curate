@@ -87,6 +87,10 @@ public class SettingsDialogFragment extends BlurDialogFragment {
         // Required empty public constructor
     }
 
+    public boolean isDisplayingInputDialog() {
+        return mDialogFragment != null;
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -198,6 +202,8 @@ public class SettingsDialogFragment extends BlurDialogFragment {
         }
         return false;
     }
+
+
 
     private void getVibrantSwatch(Bitmap bitmap) {
         Palette.from(bitmap).generate(p -> {

@@ -358,6 +358,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if(mDialogFragment != null) {
+            if(mDialogFragment instanceof  SettingsDialogFragment) {
+                SettingsDialogFragment dialogFragment = (SettingsDialogFragment) mDialogFragment;
+                if(dialogFragment.isDisplayingInputDialog()) {
+                    dialogFragment.hideDialog();
+                    return;
+                }
+            }
             hideDialog();
             return;
         }
