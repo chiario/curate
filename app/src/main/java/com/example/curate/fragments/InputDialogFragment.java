@@ -66,7 +66,7 @@ public class InputDialogFragment extends BlurDialogFragment {
 
 		etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
 			mSubmit.submit(etInput.getText().toString());
-			return true;
+			return false;
 		});
 
 		super.onViewCreated(view, savedInstanceState);
