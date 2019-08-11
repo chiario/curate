@@ -16,7 +16,7 @@
     <dimen name="button_radius">50dp</dimen>
     <dimen name="searchbar_radius">4dp</dimen>
     <dimen name="dialog_input_margin">16dp</dimen>
-    <dimen name="blur_radius">35dp</dimen>
+    <dimen name="blur_radius">50dp</dimen>
 
     <integer name="anim_gradient_transition_time">15000</integer>
 </resources>
