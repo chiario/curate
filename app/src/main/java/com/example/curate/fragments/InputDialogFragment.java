@@ -16,12 +16,21 @@ import android.widget.TextView;
 
 import com.example.curate.R;
 
+import org.w3c.dom.Text;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class InputDialogFragment extends BlurDialogFragment {
 
+	@BindView(R.id.etInput) EditText etInput;
+	@BindView(R.id.tvTitle) TextView tvTitle;
+	@BindView(R.id.ibSubmit) ImageButton ibSubmit;
 	private SubmitListener mSubmit;
 	private String mHint;
 	private String mTitle;
 	private boolean mIsNumberInput;
+	private boolean mSubmitted = false;
 
 	public InputDialogFragment() {
 		// Required empty public constructor
@@ -29,6 +38,12 @@ public class InputDialogFragment extends BlurDialogFragment {
 
 	public interface SubmitListener {
 		void submit(String input);
+	}
+
+	@Override
+	public void onHide(Runnable onComplete) {
+		super.onHide(onComplete);
+		if(!mSubmitted) mSubmit.submit(etInput.getText().toString());
 	}
 
 	public static InputDialogFragment newInstance(SubmitListener submitCallback, String hint, String title, boolean isNumberInput) {
@@ -50,22 +65,21 @@ public class InputDialogFragment extends BlurDialogFragment {
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-		EditText etInput = getView().findViewById(R.id.etInput);
+		ButterKnife.bind(this, view);
 		etInput.setHint(mHint);
-
 		if(mIsNumberInput) etInput.setInputType(InputType.TYPE_CLASS_NUMBER);
 		else etInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
 
-		TextView tvTitle = getView().findViewById(R.id.tvTitle);
 		tvTitle.setText(mTitle);
-		ImageButton ibSubmit = getView().findViewById(R.id.ibSubmit);
 
 		ibSubmit.setOnClickListener(view1 -> {
 			mSubmit.submit(etInput.getText().toString());
+			mSubmitted = true;
 		});
 
 		etInput.setOnEditorActionListener((textView, i, keyEvent) -> {
 			mSubmit.submit(etInput.getText().toString());
+			mSubmitted = true;
 			return false;
 		});
 

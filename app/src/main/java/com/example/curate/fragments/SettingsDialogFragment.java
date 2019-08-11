@@ -72,16 +72,8 @@ public class SettingsDialogFragment extends BlurDialogFragment {
     private Integer mUserLimit;
     private Integer mSongLimit;
     private boolean mIsExplicitEnabled;
-    private BlurDialogFragment mDialogFragment;
-
-    private ToastHelper.Toaster mToaster = (context, text) -> {
-    View layout = getLayoutInflater().inflate(R.layout.toast_main, null);
-        ((TextView) layout.findViewById(R.id.tvMessage)).setText(text);
-        Toast toast = new Toast(context);
-        toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(layout);
-        toast.show();
-    };
+    private InputDialogFragment mDialogFragment;
+    private boolean mIsHiding = false;
 
     public SettingsDialogFragment() {
         // Required empty public constructor
@@ -202,8 +194,6 @@ public class SettingsDialogFragment extends BlurDialogFragment {
         }
         return false;
     }
-
-
 
     private void getVibrantSwatch(Bitmap bitmap) {
         Palette.from(bitmap).generate(p -> {
@@ -360,14 +350,12 @@ public class SettingsDialogFragment extends BlurDialogFragment {
     }
 
     private void initDialogOverlay() {
-        flOverlay.setOnClickListener((view) -> {
-            hideDialog();
-        });
+        flOverlay.setOnClickListener((view) -> hideDialog());
         flOverlay.setAlpha(0f);
         flOverlay.setVisibility(View.GONE);
     }
 
-    private void showDialog(BlurDialogFragment dialog) {
+    private void showDialog(InputDialogFragment dialog) {
         if(mDialogFragment != null) {
             return;
         }
@@ -385,10 +373,11 @@ public class SettingsDialogFragment extends BlurDialogFragment {
     }
 
     public void hideDialog() {
-        if(mDialogFragment == null) {
+        if(mDialogFragment == null || mIsHiding) {
             return;
         }
 
+        mIsHiding = true;
         flOverlay.setAlpha(1f);
         flOverlay.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -396,6 +385,9 @@ public class SettingsDialogFragment extends BlurDialogFragment {
                 flOverlay.setVisibility(View.GONE);
             }
         });
-        mDialogFragment.onHide(() -> mDialogFragment = null);
+        mDialogFragment.onHide(() -> {
+            mDialogFragment = null;
+            mIsHiding = false;
+        });
     }
 }
