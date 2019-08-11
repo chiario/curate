@@ -39,6 +39,8 @@ public class BlurDialogFragment extends Fragment {
             }
         });
 
+        mRoot.setOnClickListener(view -> {});
+
 
         return mRoot;
     }
