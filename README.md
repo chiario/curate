@@ -1,16 +1,6 @@
 # Curate
 
-## Table of Contents
-
-1. Overview
-2. Product Spec
-3. Wireframes
-4. Schema
-
-
-## Overview
-
-Description
+## Description
 
 Curate is a music player app powered by the Spotify API that allows users to collaboratively generate a playlist that is ordered by popularity.
 
