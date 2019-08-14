@@ -39,9 +39,10 @@ Curate is a music player app powered by the Spotify API that allows users to col
     * Join queue with geofencing and QR code
     * Use the app and add music without logging in with Spotify
     * Share music through other applications
-   * Auto-play when app is in background
+   * Next song in playlist starts automatically even with app in background
    * Push notifications encourage users to use the app, add/like music
-   * Playlist update pub/sub
+   * Users' playlists update live with a pub/sub model
+   * Search is sped up by implementing LRU cache for both search queries and songs
 
 
 2. Screen Archetypes
