@@ -15,27 +15,16 @@ Description
 Curate is a music player app powered by the Spotify API that allows users to collaboratively generate a playlist that is ordered by popularity.
 
 
-## App Evaluation
-
-* *Category:* Music
-* *Mobile:*
-* *Story:*
-* *Market:*  
-* *Habit:*
-* *Scope:*
-
-
 ## Product Spec
 
-1. User Stories (Required and Optional)
+1. User Stories
 
 * *Required for the MVP*
 
-   * App plays songs via Spotify API calls
+   * App plays songs via the device's Spotify app
    * Admin can...
     * Create/delete queue
     * Add/delete music
-    * Reorder music
     * Play/pause music
     * View queue
     * Search music
@@ -54,55 +43,27 @@ Curate is a music player app powered by the Spotify API that allows users to col
    * App orders queue based on number of likes
 
 
-* *Optional Stretch Stories*
+* *Stretch Stories*
 
    * Clients can...
-    * Join queue with geofencing and/or QR code
-    * Save music to Spotify library
+    * Join queue with geofencing and QR code
     * Use the app and add music without logging in with Spotify
     * Share music through other applications
-    * Listen/contribute to a queue remotely
-   * App recommends music added in previous queues
-   * App orders queue based on additional criteria (e.g. time in queue)
-   * Admin can...
-    * Set a default playlist
-    * Set a music blacklist (e.g. all explicit music)
+   * Auto-play when app is in background
    * Push notifications encourage users to use the app, add/like music
+   * Playlist update pub/sub
 
 
 2. Screen Archetypes
 
-* Login
-* Create page
+* Join page
+  * Select fragment (Join/Create buttons)
+  * Join party fragment
 * Main
-      * Queue fragment
-      * Search fragment
-
-3. Navigation
-
-* Login --> Create OR Main screen with Queue fragment
-* Create --> Main screen with Queue fragment
-* Main --> Search fragment (when Search bar selected)
-* Main --> Queue fragment (when back arrow pressed)
-
-## Wireframes
-
-![Image of Wireframe](./wireframe.png)
-
-
-## Schema
-
-[This section will be completed in Unit 9]
-
-## Models
-
-[Add table of models]
-
-## Networking
-
-* [Add list of network requests by screen ]
-* [Create basic snippets for each Parse network request]
-* [OPTIONAL: List endpoints if using existing API such as Yelp]
+  * Queue fragment
+  * Search fragment
+  * Party info dialog fragment
+  * Settings dialog fragment
 
 ## Video Walkthrough
 
