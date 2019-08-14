@@ -74,7 +74,7 @@ List an 3rd party libraries, icons, graphics, or other assets you used in your a
 
 ## License
 
-    Copyright 2019 chiario
+    Copyright 2019 Caio Costa, Chiara Darnton, and Mario Ruiz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
